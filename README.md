@@ -30,6 +30,13 @@ npm run dev
 
 ## Early Access Form
 
-Submissions are saved to `data/early-access.json` via the `/api/early-access` endpoint.
+Submissions are sent to Mailchimp (audience `6c052ad3be`, tag `tally-early-access`) via the `/api/early-access` endpoint, with a backup written to `/tmp/early-access.json`.
 
-> **Note:** On Vercel's serverless environment, filesystem writes are ephemeral. For production, swap the API route to use a database or external service.
+### Setup
+
+Set the `MAILCHIMP_API_KEY` environment variable in the Vercel dashboard before deploying:
+
+1. Go to Vercel Dashboard → Project Settings → Environment Variables
+2. Add `MAILCHIMP_API_KEY` with your Mailchimp API key (datacenter: us10)
+
+If the key is missing, the form still works — submissions are saved to the backup file only.

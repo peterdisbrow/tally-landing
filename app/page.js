@@ -16,17 +16,21 @@ export default function Home() {
   const [form, setForm] = useState({ name: '', church: '', email: '' });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    setError(false);
     try {
-      await fetch('/api/early-access', {
+      const res = await fetch('/api/early-access', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
-      setSubmitted(true);
-    } catch { setSubmitted(true); }
+      const data = await res.json();
+      if (data.success) { setSubmitted(true); }
+      else { setError(true); }
+    } catch { setError(true); }
     setSubmitting(false);
   };
 
@@ -175,21 +179,27 @@ export default function Home() {
           {submitted ? (
             <div style={{ background: '#f0fdf4', border: `1px solid ${GREEN}`, borderRadius: 12, padding: 32 }}>
               <div style={{ fontSize: '2rem', marginBottom: 8 }}>🎉</div>
-              <p style={{ fontWeight: 600, margin: 0 }}>You're on the list. We'll be in touch within 24 hours.</p>
+              <p style={{ fontWeight: 600, margin: '0 0 8px' }}>You're on the list!</p>
+              <p style={{ color: '#64748b', margin: 0, fontSize: '0.95rem' }}>We'll be in touch within 24 hours. Check your email for confirmation.</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
-                { key: 'name', placeholder: 'Your name', type: 'text', required: true },
-                { key: 'church', placeholder: 'Church name', type: 'text' },
+                { key: 'name', placeholder: 'First name', type: 'text', required: true },
+                { key: 'church', placeholder: 'Church name', type: 'text', required: false },
                 { key: 'email', placeholder: 'Email address', type: 'email', required: true },
               ].map((f) => (
                 <input key={f.key} type={f.type} placeholder={f.placeholder} required={f.required}
                   value={form[f.key]} onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
                   style={{ padding: '14px 16px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: '1rem', outline: 'none' }} />
               ))}
-              <button type="submit" disabled={submitting} style={{ ...btn(RED, '#fff'), border: 'none', fontSize: '1rem', opacity: submitting ? 0.7 : 1 }}>
-                {submitting ? 'Submitting...' : 'Request Early Access →'}
+              {error && (
+                <p style={{ color: RED, fontSize: '0.9rem', margin: 0 }}>
+                  Something went wrong — email <a href="mailto:andrew@atemschool.com" style={{ color: RED }}>andrew@atemschool.com</a> directly.
+                </p>
+              )}
+              <button type="submit" disabled={submitting} style={{ ...btn(RED, '#fff'), border: 'none', fontSize: '1rem', opacity: submitting ? 0.7 : 1, cursor: submitting ? 'wait' : 'pointer' }}>
+                {submitting ? 'Sending...' : 'Request Early Access →'}
               </button>
             </form>
           )}
