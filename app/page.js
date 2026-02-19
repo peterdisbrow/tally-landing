@@ -1,82 +1,58 @@
 'use client';
 import { useState } from 'react';
 
-const RED = '#E84C3D';
-const DARK = '#0f172a';
-const DARK2 = '#1e293b';
-const GREEN = '#22c55e';
+/* ─── Color tokens ─── */
+const BG       = '#09090B';
+const CARD_BG  = '#0F1613';
+const BORDER   = '#1a2e1f';
+const GREEN    = '#22c55e';
+const GREEN_LT = '#4ade80';
+const WHITE    = '#F8FAFC';
+const MUTED    = '#94A3B8';
+const DIM      = '#475569';
 
-/* ─── tiny style helpers ─── */
-const btn = (bg, color, border) => ({
-  display: 'inline-block', padding: '14px 32px', fontSize: '1rem', fontWeight: 600,
-  borderRadius: 8, border: border || 'none', background: bg, color, cursor: 'pointer',
-  textDecoration: 'none', transition: 'opacity .2s',
-});
-
-const card = (extra = {}) => ({
-  background: 'rgba(255,255,255,0.04)',
-  border: '1px solid rgba(255,255,255,0.08)',
-  borderRadius: 16,
-  padding: 28,
-  ...extra,
-});
-
-/* ─── data ─── */
-const DEVICES = [
-  { icon: '🎛️', name: 'Blackmagic ATEM', sub: 'Any model' },
-  { icon: '🔴', name: 'OBS Studio', sub: 'All platforms' },
-  { icon: '🎬', name: 'vMix', sub: 'Windows' },
-  { icon: '🕹️', name: 'Bitfocus Companion', sub: '600+ devices' },
-  { icon: '💾', name: 'HyperDeck', sub: 'Record control' },
-  { icon: '📹', name: 'PTZ Cameras', sub: 'IP control' },
-  { icon: '🖥️', name: 'ProPresenter 7', sub: 'Slide control' },
-  { icon: '🌈', name: 'Resolume Arena', sub: 'LED / projection' },
-  { icon: '🎚️', name: 'Allen & Heath', sub: 'SQ / dLive' },
-  { icon: '🎛️', name: 'Behringer', sub: 'X32 / X-Air' },
-  { icon: '🎛️', name: 'Midas', sub: 'M32 / M32R' },
-  { icon: '🎵', name: 'Yamaha', sub: 'CL / QL / TF' },
-  { icon: '🔀', name: 'Video Hub', sub: 'BM router' },
-  { icon: '🔊', name: 'Dante Audio', sub: 'Via Companion' },
-];
-
+/* ─── Data ─── */
 const FEATURES = [
-  {
-    icon: '✅',
-    title: 'Pre-Service Auto-Check',
-    desc: '30 minutes before service, Tally runs a full system check and sends your TD a green/red summary. No more "I thought someone else checked the stream."',
-  },
-  {
-    icon: '🔇',
-    title: 'Audio Silence Detection',
-    desc: 'Tally listens for audio silence and dropouts — and alerts you before the congregation notices dead air. Works across ATEM, audio consoles, and recording devices.',
-  },
-  {
-    icon: '🛡️',
-    title: 'Weekend Protection',
-    desc: 'On-call TD rotation means TD1 is responsible this week, TD2 next week. Escalation ladder: alert goes to the on-call TD first, then to Andrew after 90 seconds.',
-  },
-  {
-    icon: '📊',
-    title: 'Monthly Health Report',
-    desc: 'Every church gets a monthly PDF: uptime, incidents, response times, devices checked. Leadership can see the value. Budget conversations get easier.',
-  },
+  { icon: '🔴', name: 'Real-Time Monitoring',  desc: 'Stream, audio, and recording status at a glance' },
+  { icon: '📱', name: 'Instant Alerts',         desc: 'TD gets paged before the congregation notices' },
+  { icon: '🤖', name: 'Auto-Recovery',          desc: 'Stream stopped? Tally fixes it automatically' },
+  { icon: '🎛️', name: 'Remote Control',         desc: 'Cut cameras, advance slides, mute channels from your phone' },
+  { icon: '📋', name: 'Pre-Service Check',      desc: 'Automated system check 30 minutes before every service' },
+  { icon: '📊', name: 'Monthly Reports',        desc: 'Uptime and incident reports for leadership' },
 ];
 
-const PERSONAS = [
+const INTEGRATIONS = [
+  { name: 'ATEM Switcher',       tag: 'SWITCHER'  },
+  { name: 'OBS Studio',          tag: 'STREAMING' },
+  { name: 'vMix',                tag: 'STREAMING' },
+  { name: 'Bitfocus Companion',  tag: 'CONTROL'   },
+  { name: 'ProPresenter',        tag: 'SLIDES'    },
+  { name: 'Resolume Arena',      tag: 'VIDEO'     },
+  { name: 'Allen & Heath',       tag: 'AUDIO'     },
+  { name: 'Behringer X32',       tag: 'AUDIO'     },
+  { name: 'Midas M32',           tag: 'AUDIO'     },
+  { name: 'Yamaha CL/QL',        tag: 'AUDIO'     },
+  { name: 'HyperDeck',           tag: 'RECORD'    },
+  { name: 'PTZ Cameras',         tag: 'CAMERA'    },
+  { name: 'Video Hub',           tag: 'ROUTER'    },
+  { name: 'Dante Audio',         tag: 'AUDIO'     },
+];
+
+const STEPS = [
   {
-    icon: '⛪',
-    title: 'Churches with volunteer TDs',
-    desc: 'Your TD changes every few weeks. Tally keeps the system consistent — pre-service checks, escalation ladders, and guest TD tokens so substitutes can jump in without a tutorial.',
+    num: '01',
+    title: 'Install',
+    desc: '10-minute setup on your booth computer. Auto-detects your equipment.',
   },
   {
-    icon: '🏢',
-    title: 'Production companies',
-    desc: 'Managing 5 venues means 5 Sunday mornings at once. Tally gives you one dashboard across all of them — with per-venue alerts and monthly reports for every client.',
+    num: '02',
+    title: 'Connect',
+    desc: 'Your system appears on the Tally dashboard. Live status, instant.',
   },
   {
-    icon: '🔧',
-    title: 'Broadcast integrators',
-    desc: 'You sold them the system. Now they call you at 10:47 AM. Tally lets you see, diagnose, and fix the problem from your phone — before you even get in the car.',
+    num: '03',
+    title: 'Relax',
+    desc: 'Tally watches your production. You get an alert if anything needs attention.',
   },
 ];
 
@@ -84,9 +60,10 @@ const PRICING = [
   {
     name: 'Connect',
     price: '$49',
+    period: '/mo',
+    desc: 'Monitoring, alerts, basic integrations, 1 church',
     featured: false,
     cta: 'Get Early Access →',
-    desc: '1 church. Monitoring + alerts, basic device support.',
     features: [
       'ATEM, OBS, Companion monitoring',
       'Pre-service auto-check',
@@ -99,14 +76,15 @@ const PRICING = [
   {
     name: 'Pro',
     price: '$149',
+    period: '/mo',
+    desc: 'All integrations, Planning Center sync, on-call rotation, monthly reports',
     featured: true,
     cta: 'Get Early Access →',
-    desc: 'Unlimited churches. Every integration.',
     features: [
       'Everything in Connect',
       'All 14 device integrations',
+      'Planning Center sync',
       'On-call TD rotation',
-      'Guest TD 24-hour tokens',
       'Monthly health report PDF',
       'Auto-recovery playbook',
       'Priority support',
@@ -115,33 +93,39 @@ const PRICING = [
   {
     name: 'Managed',
     price: '$299',
+    period: '/mo',
+    desc: 'Everything in Pro + Andrew handles setup, remote config, 15-min SLA',
     featured: false,
     cta: 'Contact Andrew →',
-    desc: 'Everything in Pro + Andrew handles it.',
     features: [
       'Everything in Pro',
       'Andrew handles setup + config',
       'Remote configuration changes',
       'Weekly system health review',
-      'Annual system audit',
+      '15-minute SLA',
       'Direct line to Andrew',
     ],
   },
 ];
 
-/* ─── component ─── */
+const SCROLL_DEVICES = [
+  'ATEM', 'OBS', 'vMix', 'Companion', 'ProPresenter',
+  'Resolume', 'X32', 'Allen & Heath', 'Yamaha', 'HyperDeck', 'PTZ',
+];
+
+/* ─── Component ─── */
 export default function Home() {
-  const [form, setForm] = useState({ name: '', church: '', email: '' });
+  const [form, setForm]           = useState({ name: '', church: '', email: '' });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError]         = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setError(false);
     try {
-      const res = await fetch('/api/early-access', {
+      const res  = await fetch('/api/early-access', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -156,392 +140,560 @@ export default function Home() {
   };
 
   return (
-    <div style={{ background: DARK, color: '#e2e8f0', fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ background: BG, color: WHITE, fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif", overflowX: 'hidden' }}>
 
-      {/* ── NAV ── */}
+      {/* ─── Global styles (glow animation, marquee, hover) ─── */}
+      <style>{`
+        @keyframes marquee {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .marquee-track {
+          display: flex;
+          width: max-content;
+          animation: marquee 22s linear infinite;
+        }
+        .integration-card:hover {
+          border-color: ${GREEN} !important;
+          box-shadow: 0 0 20px rgba(34,197,94,0.1);
+        }
+        .feature-card:hover {
+          border-color: ${GREEN} !important;
+          box-shadow: 0 0 20px rgba(34,197,94,0.1);
+        }
+        .price-card-default:hover {
+          border-color: ${GREEN} !important;
+        }
+        .cta-ghost:hover {
+          border-color: ${GREEN} !important;
+          color: ${GREEN_LT} !important;
+        }
+        .nav-link:hover { color: ${WHITE} !important; }
+        .footer-link:hover { color: ${MUTED} !important; }
+      `}</style>
+
+      {/* ════════════════════════════════════════
+          NAV
+      ════════════════════════════════════════ */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: 'rgba(15,23,42,0.95)', backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        background: 'rgba(9,9,11,0.92)', backdropFilter: 'blur(12px)',
+        borderBottom: `1px solid ${BORDER}`,
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '16px 5%',
+        padding: '18px 5%',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ width: 10, height: 10, borderRadius: '50%', background: GREEN, display: 'inline-block', boxShadow: `0 0 8px ${GREEN}` }} />
-          <span style={{ color: '#fff', fontWeight: 800, fontSize: '1.2rem', letterSpacing: '-0.01em' }}>Tally</span>
-          <span style={{ color: '#475569', fontSize: '0.85rem', marginLeft: 4 }}>by ATEM School</span>
+          <span style={{ width: 9, height: 9, borderRadius: '50%', background: GREEN, display: 'inline-block', boxShadow: `0 0 8px ${GREEN}` }} />
+          <span style={{ color: WHITE, fontWeight: 900, fontSize: '1.15rem', letterSpacing: '-0.01em', fontFamily: 'system-ui, sans-serif' }}>Tally</span>
+          <span style={{ color: DIM, fontSize: '0.82rem', marginLeft: 2 }}>by ATEM School</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-          <a href="#how-it-works" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.9rem' }}>How it works</a>
-          <a href="#pricing" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.9rem' }}>Pricing</a>
-          <a href="#early-access" style={{ ...btn(RED, '#fff'), padding: '8px 20px', fontSize: '0.9rem' }}>Get Early Access</a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <a href="#features"    className="nav-link" style={{ color: MUTED, textDecoration: 'none', fontSize: '0.88rem', transition: 'color .2s' }}>Features</a>
+          <a href="#pricing"     className="nav-link" style={{ color: MUTED, textDecoration: 'none', fontSize: '0.88rem', transition: 'color .2s' }}>Pricing</a>
+          <a href="#early-access" style={{
+            display: 'inline-block', padding: '9px 22px', fontSize: '0.88rem', fontWeight: 700,
+            borderRadius: 8, border: 'none', background: GREEN, color: '#000', cursor: 'pointer',
+            textDecoration: 'none', transition: 'opacity .2s',
+          }}>Get Early Access</a>
         </div>
       </nav>
 
-      {/* ── HERO ── */}
-      <section style={{ padding: '160px 5% 100px', textAlign: 'center', maxWidth: 900, margin: '0 auto' }}>
+      {/* ════════════════════════════════════════
+          HERO
+      ════════════════════════════════════════ */}
+      <section style={{
+        minHeight: '100vh', display: 'flex', flexDirection: 'column',
+        justifyContent: 'center', alignItems: 'center', textAlign: 'center',
+        padding: '140px 5% 0', position: 'relative', overflow: 'hidden',
+      }}>
+        {/* radial glow */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: 'radial-gradient(ellipse at 50% 30%, rgba(34,197,94,0.08) 0%, transparent 70%)',
+        }} />
+
+        {/* badge */}
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
-          background: 'rgba(232,76,61,0.1)', border: `1px solid rgba(232,76,61,0.3)`,
-          borderRadius: 20, padding: '6px 16px', fontSize: '0.8rem',
-          color: '#fca5a5', marginBottom: 32, fontWeight: 600,
+          background: 'rgba(34,197,94,0.08)', border: `1px solid rgba(34,197,94,0.25)`,
+          borderRadius: 20, padding: '6px 16px', marginBottom: 36,
+          fontFamily: 'ui-monospace, monospace', fontSize: '0.72rem',
+          fontWeight: 700, letterSpacing: '0.12em', color: GREEN,
         }}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: RED, display: 'inline-block', animation: 'pulse 2s infinite' }} />
-          NOW IN EARLY ACCESS — FIRST 20 CHURCHES GET 3 MONTHS FREE
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: GREEN, display: 'inline-block', boxShadow: `0 0 6px ${GREEN}` }} />
+          TALLY BY ATEM SCHOOL
         </div>
 
+        {/* headline */}
         <h1 style={{
-          fontSize: 'clamp(2.2rem, 6vw, 4rem)', fontWeight: 900,
-          lineHeight: 1.08, margin: '0 auto 24px', letterSpacing: '-0.02em',
-          color: '#f8fafc',
+          fontSize: 'clamp(2.4rem, 7vw, 5rem)', fontWeight: 900,
+          lineHeight: 1.05, margin: '0 auto 28px', letterSpacing: '-0.03em',
+          color: WHITE, maxWidth: 900,
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
         }}>
-          Your church production system,<br />
-          <span style={{ color: RED }}>monitored and controlled</span><br />
-          from anywhere.
+          YOUR CHURCH PRODUCTION,<br />
+          <span style={{ color: GREEN }}>MONITORED FROM ANYWHERE.</span>
         </h1>
 
-        <p style={{ fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', color: '#94a3b8', maxWidth: 640, margin: '0 auto 48px', lineHeight: 1.6 }}>
+        {/* subtext */}
+        <p style={{
+          fontSize: 'clamp(1rem, 2.2vw, 1.2rem)', color: MUTED,
+          maxWidth: 620, margin: '0 auto 52px', lineHeight: 1.7,
+        }}>
+          Real-time alerts, remote control, and auto-recovery for every device in your booth.
           So Sunday mornings don&apos;t require you to be everywhere.
         </p>
 
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 64 }}>
-          <a href="#early-access" style={btn(RED, '#fff')}>Get Early Access →</a>
-          <a href="#how-it-works" style={btn('transparent', '#cbd5e1', '2px solid rgba(255,255,255,0.15)')}>See How It Works</a>
+        {/* CTAs */}
+        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 80 }}>
+          <a href="#early-access" style={{
+            display: 'inline-block', padding: '15px 36px', fontSize: '1rem', fontWeight: 700,
+            borderRadius: 8, border: 'none', background: GREEN, color: '#000',
+            cursor: 'pointer', textDecoration: 'none',
+          }}>
+            Get Early Access →
+          </a>
+          <a href="#how-it-works" className="cta-ghost" style={{
+            display: 'inline-block', padding: '15px 36px', fontSize: '1rem', fontWeight: 600,
+            borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent',
+            color: MUTED, cursor: 'pointer', textDecoration: 'none', transition: 'border-color .2s, color .2s',
+          }}>
+            See How It Works
+          </a>
         </div>
 
-        {/* device compatibility strip */}
-        <p style={{ color: '#475569', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>
-          Works with
-        </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
-          {['ATEM', 'OBS', 'vMix', 'Companion', 'ProPresenter', 'Resolume', 'X32', 'HyperDeck', 'PTZ'].map(name => (
-            <span key={name} style={{
-              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 6, padding: '4px 12px', fontSize: '0.8rem', color: '#94a3b8',
-            }}>{name}</span>
-          ))}
-          <span style={{
-            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: 6, padding: '4px 12px', fontSize: '0.8rem', color: '#94a3b8',
-          }}>+5 more</span>
-        </div>
-      </section>
-
-      {/* ── THE PROBLEM ── */}
-      <section style={{ padding: '80px 5%', maxWidth: 800, margin: '0 auto' }}>
-        <p style={{ color: RED, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.8rem', marginBottom: 16 }}>
-          The problem
-        </p>
-        <h2 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, lineHeight: 1.2, marginBottom: 32, color: '#f8fafc' }}>
-          It&apos;s 10:47 AM on Sunday.<br />Your stream just dropped.
-        </h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, color: '#94a3b8', fontSize: '1.05rem', lineHeight: 1.75 }}>
-          <p style={{ margin: 0 }}>
-            The volunteer TD on camera doesn&apos;t know what happened. The worship leader is on stage. The senior pastor&apos;s phone is in his pocket. And somewhere, the person who built this system — maybe you — is getting a panicked call they can&apos;t ignore.
-          </p>
-          <p style={{ margin: 0 }}>
-            Most church production systems are reactive by design. Something breaks, someone notices, someone calls someone else. If that chain of people happens to be in the right place, you recover in 3 minutes. If not, you lose the stream for the whole service — and half your online congregation.
-          </p>
-          <p style={{ margin: 0 }}>
-            Tally changes the model. Real-time monitoring catches problems before the congregation does. Auto-recovery handles the common failures automatically. And when something genuinely needs a human, it reaches the right person — not just whoever picks up first.
-          </p>
-        </div>
-      </section>
-
-      {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works" style={{ padding: '80px 5%', background: DARK2 }}>
-        <div style={{ maxWidth: 800, margin: '0 auto' }}>
-          <p style={{ color: RED, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.8rem', marginBottom: 16 }}>
-            How it works
-          </p>
-          <h2 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, lineHeight: 1.2, marginBottom: 48, color: '#f8fafc' }}>
-            Three steps. Five minutes.
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            {[
-              {
-                step: '01',
-                title: 'Install',
-                desc: 'Drop the Tally agent on the booth computer — Electron app or CLI, your choice. It discovers your devices automatically: ATEM, OBS, audio console, whatever\'s on the network.',
-                detail: 'One-time 5-minute setup. No port forwarding required.',
-              },
-              {
-                step: '02',
-                title: 'Connect',
-                desc: 'The agent phones home over an encrypted relay. Andrew\'s dashboard sees the system. Your TD gets a Telegram bot. Everything\'s live.',
-                detail: 'JWT-authenticated relay. Credentials encrypted at rest (OS keychain / AES-256-GCM).',
-              },
-              {
-                step: '03',
-                title: 'Monitor',
-                desc: 'Real-time alerts land in Telegram before anyone in the building notices. The pre-service auto-check gives your TD a green/red summary 30 minutes before service. Auto-recovery handles stream drops, low FPS, and recording failures automatically.',
-                detail: 'You watch. Tally watches harder.',
-              },
-            ].map((s, i) => (
-              <div key={i} style={{
-                display: 'grid', gridTemplateColumns: '80px 1fr', gap: 24,
-                paddingBottom: 48, marginBottom: i < 2 ? 0 : 0,
-                borderLeft: i < 2 ? '2px solid rgba(255,255,255,0.08)' : 'none',
-                marginLeft: 28, paddingLeft: 32,
-                position: 'relative',
+        {/* scrolling device strip */}
+        <div style={{
+          width: '100%', overflow: 'hidden',
+          borderTop: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}`,
+          padding: '18px 0', marginBottom: 0,
+        }}>
+          <div className="marquee-track">
+            {[...SCROLL_DEVICES, ...SCROLL_DEVICES].map((name, i) => (
+              <span key={i} style={{
+                fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem',
+                color: DIM, letterSpacing: '0.08em', padding: '0 28px',
+                whiteSpace: 'nowrap',
               }}>
-                <div style={{
-                  position: 'absolute', left: -17, top: 4,
-                  width: 32, height: 32, borderRadius: '50%',
-                  background: DARK, border: `2px solid ${RED}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.7rem', fontWeight: 800, color: RED,
-                }}>{s.step}</div>
-                <div style={{ paddingLeft: 8 }}>
-                  <h3 style={{ fontSize: '1.3rem', fontWeight: 800, margin: '0 0 10px', color: '#f8fafc' }}>{s.title}</h3>
-                  <p style={{ color: '#94a3b8', margin: '0 0 10px', lineHeight: 1.65 }}>{s.desc}</p>
-                  <p style={{ color: '#475569', fontSize: '0.85rem', margin: 0 }}>{s.detail}</p>
-                </div>
-              </div>
+                {name} <span style={{ color: BORDER, marginLeft: 28 }}>·</span>
+              </span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── DEVICE GRID ── */}
-      <section style={{ padding: '80px 5%' }}>
+      {/* ════════════════════════════════════════
+          WHAT CAN TALLY DO? — Feature grid
+      ════════════════════════════════════════ */}
+      <section id="features" style={{ padding: '128px 5%' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <p style={{ color: RED, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.8rem', marginBottom: 16, textAlign: 'center' }}>
-            Integrations
-          </p>
-          <h2 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, lineHeight: 1.2, marginBottom: 16, color: '#f8fafc', textAlign: 'center' }}>
-            Integrates with everything in your rack.
+          {/* label */}
+          <p style={{
+            fontFamily: 'ui-monospace, monospace', fontSize: '0.72rem',
+            fontWeight: 700, letterSpacing: '0.15em', color: GREEN,
+            textAlign: 'center', marginBottom: 20,
+          }}>WHAT CAN TALLY DO?</p>
+
+          <h2 style={{
+            fontSize: 'clamp(1.8rem, 4.5vw, 3rem)', fontWeight: 900,
+            letterSpacing: '-0.02em', textAlign: 'center', margin: '0 auto 64px',
+            color: WHITE, maxWidth: 700,
+          }}>
+            Everything your booth needs.<br />Nothing it doesn&apos;t.
           </h2>
-          <p style={{ color: '#94a3b8', textAlign: 'center', marginBottom: 48, maxWidth: 560, margin: '0 auto 48px' }}>
-            14 native integrations — video switchers, recorders, cameras, presentation software, mixers, and routers. If it&apos;s in a church production rack, Tally speaks its language.
-          </p>
+
+          {/* 3×2 grid */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: 16,
+          }}>
+            {FEATURES.map((f, i) => (
+              <div key={i} className="feature-card" style={{
+                background: CARD_BG, border: `1px solid ${BORDER}`,
+                borderRadius: 16, padding: '32px 28px',
+                transition: 'border-color .2s, box-shadow .2s',
+              }}>
+                <div style={{ fontSize: '2rem', marginBottom: 16 }}>{f.icon}</div>
+                <h3 style={{
+                  fontSize: '1.05rem', fontWeight: 800,
+                  margin: '0 0 10px', color: WHITE,
+                }}>{f.name}</h3>
+                <p style={{ color: MUTED, margin: 0, fontSize: '0.9rem', lineHeight: 1.65 }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════
+          BOLD STATEMENT SECTION
+      ════════════════════════════════════════ */}
+      <section style={{
+        padding: '128px 5%',
+        background: CARD_BG,
+        borderTop: `1px solid ${BORDER}`,
+        borderBottom: `1px solid ${BORDER}`,
+        textAlign: 'center',
+        position: 'relative', overflow: 'hidden',
+      }}>
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: 'radial-gradient(ellipse at 50% 50%, rgba(34,197,94,0.05) 0%, transparent 65%)',
+        }} />
+        <div style={{ position: 'relative', maxWidth: 900, margin: '0 auto' }}>
+          <p style={{
+            fontSize: 'clamp(3rem, 10vw, 7rem)', fontWeight: 900,
+            lineHeight: 0.95, letterSpacing: '-0.04em',
+            color: WHITE, margin: '0 0 4px',
+            fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+          }}>ONE DASHBOARD.</p>
+          <p style={{
+            fontSize: 'clamp(3rem, 10vw, 7rem)', fontWeight: 900,
+            lineHeight: 0.95, letterSpacing: '-0.04em',
+            color: GREEN, margin: '0 0 4px',
+          }}>EVERY CHURCH.</p>
+          <p style={{
+            fontSize: 'clamp(3rem, 10vw, 7rem)', fontWeight: 900,
+            lineHeight: 0.95, letterSpacing: '-0.04em',
+            color: WHITE, margin: '0 0 48px',
+          }}>ANYWHERE.</p>
+          <p style={{ color: MUTED, fontSize: 'clamp(1rem, 2vw, 1.2rem)', maxWidth: 580, margin: '0 auto', lineHeight: 1.7 }}>
+            Whether you&apos;re managing one venue or twenty, Tally keeps every production under control — without you being in the room.
+          </p>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════
+          INTEGRATIONS
+      ════════════════════════════════════════ */}
+      <section style={{ padding: '128px 5%' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <p style={{
+            fontFamily: 'ui-monospace, monospace', fontSize: '0.72rem',
+            fontWeight: 700, letterSpacing: '0.15em', color: GREEN,
+            textAlign: 'center', marginBottom: 20,
+          }}>INTEGRATIONS</p>
+
+          <h2 style={{
+            fontSize: 'clamp(1.8rem, 4.5vw, 3rem)', fontWeight: 900,
+            letterSpacing: '-0.02em', textAlign: 'center', margin: '0 auto 64px',
+            color: WHITE,
+          }}>
+            INTEGRATES WITH EVERYTHING<br />IN YOUR RACK
+          </h2>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
             gap: 12,
           }}>
-            {DEVICES.map((d, i) => (
-              <div key={i} style={{
-                ...card(),
-                display: 'flex', flexDirection: 'column', gap: 6,
-                padding: '20px 18px',
+            {INTEGRATIONS.map((d, i) => (
+              <div key={i} className="integration-card" style={{
+                background: CARD_BG, border: `1px solid ${BORDER}`,
+                borderRadius: 12, padding: '20px 16px',
+                transition: 'border-color .2s, box-shadow .2s',
+                display: 'flex', flexDirection: 'column', gap: 8,
               }}>
-                <span style={{ fontSize: '1.6rem' }}>{d.icon}</span>
-                <span style={{ fontWeight: 700, color: '#e2e8f0', fontSize: '0.9rem' }}>{d.name}</span>
-                <span style={{ color: '#64748b', fontSize: '0.78rem' }}>{d.sub}</span>
-              </div>
-            ))}
-          </div>
-          <p style={{ textAlign: 'center', color: '#475569', fontSize: '0.85rem', marginTop: 24 }}>
-            Plus anything reachable via Bitfocus Companion — 600+ devices with one integration.
-          </p>
-        </div>
-      </section>
-
-      {/* ── FEATURE HIGHLIGHTS ── */}
-      <section style={{ padding: '80px 5%', background: DARK2 }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <p style={{ color: RED, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.8rem', marginBottom: 16, textAlign: 'center' }}>
-            Features
-          </p>
-          <h2 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, lineHeight: 1.2, marginBottom: 48, color: '#f8fafc', textAlign: 'center' }}>
-            Built for the moments that matter most.
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20 }}>
-            {FEATURES.map((f, i) => (
-              <div key={i} style={{ ...card({ padding: 32 }) }}>
-                <div style={{ fontSize: '2rem', marginBottom: 16 }}>{f.icon}</div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 12px', color: '#f8fafc' }}>{f.title}</h3>
-                <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.9rem', lineHeight: 1.7 }}>{f.desc}</p>
+                <span style={{ fontWeight: 700, color: WHITE, fontSize: '0.88rem', lineHeight: 1.3 }}>{d.name}</span>
+                <span style={{
+                  fontFamily: 'ui-monospace, monospace', fontSize: '0.65rem',
+                  fontWeight: 700, letterSpacing: '0.1em', color: GREEN,
+                }}>{d.tag}</span>
               </div>
             ))}
           </div>
 
-          {/* remote control call-out */}
-          <div style={{ marginTop: 20, ...card({ padding: 32 }), display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
-            <div>
-              <div style={{ fontSize: '1.5rem', marginBottom: 12 }}>📱</div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 10px', color: '#f8fafc' }}>Full remote control via Telegram</h3>
-              <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.9rem', lineHeight: 1.65 }}>
-                You don&apos;t need to be in the booth. Cut sources, fire transitions, run macros on the ATEM. Start/stop stream in OBS or vMix. Advance ProPresenter slides. Trigger Resolume columns. Mute audio channels, recall scenes, check fader levels. Press any Companion button.
-              </p>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, justifyContent: 'center' }}>
-              {[
-                '🎛️ ATEM cuts, transitions, macros',
-                '🔴 OBS / vMix stream & scene control',
-                '🖥️ ProPresenter slide advance/rewind',
-                '🌈 Resolume columns, clips, blackout',
-                '🎚️ Audio mute, scene recall, fader check',
-                '🕹️ Companion button press — anything',
-              ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#94a3b8', fontSize: '0.88rem' }}>
-                  <span style={{ color: GREEN, fontSize: '0.7rem' }}>●</span>
-                  {item}
-                </div>
-              ))}
-            </div>
-          </div>
+          <p style={{
+            textAlign: 'center', color: DIM, fontSize: '0.9rem',
+            marginTop: 36, fontStyle: 'italic',
+          }}>
+            If it&apos;s in the booth, Tally monitors it.
+          </p>
         </div>
       </section>
 
-      {/* ── WHO IT'S FOR ── */}
-      <section style={{ padding: '80px 5%' }}>
+      {/* ════════════════════════════════════════
+          HOW IT WORKS — 3 steps
+      ════════════════════════════════════════ */}
+      <section id="how-it-works" style={{
+        padding: '128px 5%',
+        background: CARD_BG,
+        borderTop: `1px solid ${BORDER}`,
+        borderBottom: `1px solid ${BORDER}`,
+      }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <p style={{ color: RED, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.8rem', marginBottom: 16, textAlign: 'center' }}>
-            Who it&apos;s for
-          </p>
-          <h2 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, lineHeight: 1.2, marginBottom: 48, color: '#f8fafc', textAlign: 'center' }}>
-            If Sunday mornings stress you out, Tally is for you.
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
-            {PERSONAS.map((p, i) => (
-              <div key={i} style={{ ...card({ padding: 32 }) }}>
-                <div style={{ fontSize: '2rem', marginBottom: 16 }}>{p.icon}</div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 12px', color: '#f8fafc' }}>{p.title}</h3>
-                <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.9rem', lineHeight: 1.7 }}>{p.desc}</p>
+          <p style={{
+            fontFamily: 'ui-monospace, monospace', fontSize: '0.72rem',
+            fontWeight: 700, letterSpacing: '0.15em', color: GREEN,
+            textAlign: 'center', marginBottom: 20,
+          }}>HOW IT WORKS</p>
+
+          <h2 style={{
+            fontSize: 'clamp(1.8rem, 4.5vw, 3rem)', fontWeight: 900,
+            letterSpacing: '-0.02em', textAlign: 'center', margin: '0 auto 80px',
+            color: WHITE,
+          }}>Three steps. Ten minutes.</h2>
+
+          {/* horizontal timeline */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: 0,
+            position: 'relative',
+          }}>
+            {/* connector line (desktop) */}
+            <div style={{
+              position: 'absolute', top: 28, left: '16.66%', right: '16.66%',
+              height: 1, background: BORDER, zIndex: 0,
+            }} />
+
+            {STEPS.map((s, i) => (
+              <div key={i} style={{ textAlign: 'center', padding: '0 32px 0', position: 'relative', zIndex: 1 }}>
+                {/* step circle */}
+                <div style={{
+                  width: 56, height: 56, borderRadius: '50%',
+                  background: BG, border: `2px solid ${GREEN}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 28px',
+                  fontFamily: 'ui-monospace, monospace', fontSize: '0.85rem',
+                  fontWeight: 800, color: GREEN,
+                  boxShadow: `0 0 20px rgba(34,197,94,0.15)`,
+                }}>{s.num}</div>
+
+                <h3 style={{
+                  fontSize: '1.4rem', fontWeight: 900,
+                  margin: '0 0 14px', color: WHITE, letterSpacing: '-0.01em',
+                }}>{s.title}</h3>
+                <p style={{ color: MUTED, margin: 0, fontSize: '0.95rem', lineHeight: 1.7 }}>{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── PRICING ── */}
-      <section id="pricing" style={{ padding: '80px 5%', background: DARK2 }}>
+      {/* ════════════════════════════════════════
+          PRICING
+      ════════════════════════════════════════ */}
+      <section id="pricing" style={{ padding: '128px 5%' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <p style={{ color: RED, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.8rem', marginBottom: 16, textAlign: 'center' }}>
-            Pricing
+          <p style={{
+            fontFamily: 'ui-monospace, monospace', fontSize: '0.72rem',
+            fontWeight: 700, letterSpacing: '0.15em', color: GREEN,
+            textAlign: 'center', marginBottom: 20,
+          }}>PRICING</p>
+
+          <h2 style={{
+            fontSize: 'clamp(1.8rem, 4.5vw, 3rem)', fontWeight: 900,
+            letterSpacing: '-0.02em', textAlign: 'center', margin: '0 auto 12px',
+            color: WHITE,
+          }}>Simple pricing. Cancel anytime.</h2>
+          <p style={{ color: DIM, textAlign: 'center', marginBottom: 64, fontSize: '0.95rem' }}>
+            60-day free trial for early access members.
           </p>
-          <h2 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, lineHeight: 1.2, marginBottom: 8, color: '#f8fafc', textAlign: 'center' }}>
-            Simple pricing. Cancel anytime.
-          </h2>
-          <p style={{ color: '#64748b', textAlign: 'center', marginBottom: 48 }}>
-            All plans include a 14-day free trial. No credit card required.
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+
+          {/* 3 plan cards */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: 16, marginBottom: 32,
+          }}>
             {PRICING.map((plan, i) => (
-              <div key={i} style={{
-                background: plan.featured ? 'rgba(232,76,61,0.08)' : 'rgba(255,255,255,0.03)',
-                border: plan.featured ? `2px solid ${RED}` : '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 16, padding: 32, position: 'relative',
+              <div key={i} className={plan.featured ? '' : 'price-card-default'} style={{
+                background: plan.featured ? 'rgba(34,197,94,0.06)' : CARD_BG,
+                border: plan.featured ? `2px solid ${GREEN}` : `1px solid ${BORDER}`,
+                borderRadius: 16, padding: '36px 28px',
+                position: 'relative',
+                transition: plan.featured ? undefined : 'border-color .2s',
+                boxShadow: plan.featured ? '0 0 40px rgba(34,197,94,0.08)' : undefined,
               }}>
                 {plan.featured && (
                   <div style={{
                     position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
-                    background: RED, color: '#fff', padding: '4px 18px',
-                    borderRadius: 20, fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em',
-                    whiteSpace: 'nowrap',
+                    background: GREEN, color: '#000', padding: '4px 18px',
+                    borderRadius: 20, fontSize: '0.7rem', fontWeight: 800,
+                    letterSpacing: '0.08em', whiteSpace: 'nowrap',
+                    fontFamily: 'ui-monospace, monospace',
                   }}>MOST POPULAR</div>
                 )}
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: '0 0 4px', color: '#f8fafc' }}>{plan.name}</h3>
-                <p style={{ color: '#64748b', fontSize: '0.85rem', margin: '0 0 20px' }}>{plan.desc}</p>
-                <div style={{ fontSize: '2.8rem', fontWeight: 900, lineHeight: 1, marginBottom: 24, color: '#f8fafc' }}>
-                  {plan.price}<span style={{ fontSize: '1rem', fontWeight: 400, color: '#64748b' }}>/mo</span>
+
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 6px', color: WHITE }}>{plan.name}</h3>
+                <p style={{ color: DIM, fontSize: '0.82rem', margin: '0 0 24px', lineHeight: 1.5 }}>{plan.desc}</p>
+
+                <div style={{ marginBottom: 28 }}>
+                  <span style={{ fontSize: '3rem', fontWeight: 900, color: WHITE, letterSpacing: '-0.03em' }}>{plan.price}</span>
+                  <span style={{ fontSize: '0.95rem', color: DIM }}>{plan.period}</span>
                 </div>
-                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px' }}>
+
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px' }}>
                   {plan.features.map((f, j) => (
-                    <li key={j} style={{ padding: '7px 0', color: '#94a3b8', fontSize: '0.88rem', display: 'flex', alignItems: 'flex-start', gap: 8, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <span style={{ color: GREEN, flexShrink: 0, marginTop: 2 }}>✓</span>
+                    <li key={j} style={{
+                      padding: '8px 0', color: MUTED, fontSize: '0.88rem',
+                      display: 'flex', alignItems: 'flex-start', gap: 10,
+                      borderBottom: `1px solid ${BORDER}`,
+                    }}>
+                      <span style={{ color: GREEN, flexShrink: 0, marginTop: 1, fontSize: '0.8rem' }}>✓</span>
                       {f}
                     </li>
                   ))}
                 </ul>
+
                 <a href="#early-access" style={{
-                  ...btn(plan.featured ? RED : 'transparent', '#fff', plan.featured ? undefined : '2px solid rgba(255,255,255,0.15)'),
                   display: 'block', textAlign: 'center',
+                  padding: '13px 24px', fontSize: '0.95rem', fontWeight: 700,
+                  borderRadius: 8, textDecoration: 'none', transition: 'opacity .2s',
+                  background: plan.featured ? GREEN : 'transparent',
+                  color: plan.featured ? '#000' : WHITE,
+                  border: plan.featured ? 'none' : `1px solid ${BORDER}`,
                 }}>
                   {plan.cta}
                 </a>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* ── EARLY ACCESS FORM ── */}
-      <section id="early-access" style={{ padding: '100px 5%' }}>
-        <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ color: RED, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.8rem', marginBottom: 16 }}>
-            Early access
-          </p>
-          <h2 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, lineHeight: 1.2, marginBottom: 12, color: '#f8fafc' }}>
-            Get on the list.
-          </h2>
-          <p style={{ color: '#64748b', marginBottom: 40, lineHeight: 1.65 }}>
-            We&apos;re onboarding the first 20 churches now. Early access members get 3 months free and direct input on the roadmap.
-          </p>
-
-          {submitted ? (
-            <div style={{ background: 'rgba(34,197,94,0.08)', border: `1px solid rgba(34,197,94,0.3)`, borderRadius: 16, padding: 40 }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>🎉</div>
-              <p style={{ fontWeight: 700, fontSize: '1.1rem', margin: '0 0 8px', color: '#f8fafc' }}>You&apos;re on the list!</p>
-              <p style={{ color: '#64748b', margin: 0, fontSize: '0.95rem' }}>
-                We&apos;ll be in touch within 24 hours. Check your email for confirmation.
-              </p>
+          {/* Event add-on */}
+          <div style={{
+            background: CARD_BG, border: `1px solid ${BORDER}`,
+            borderRadius: 12, padding: '24px 28px',
+            display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap',
+          }}>
+            <div style={{
+              fontFamily: 'ui-monospace, monospace', fontSize: '0.7rem',
+              fontWeight: 700, letterSpacing: '0.1em', color: GREEN,
+              background: 'rgba(34,197,94,0.08)', border: `1px solid rgba(34,197,94,0.2)`,
+              borderRadius: 6, padding: '4px 12px', whiteSpace: 'nowrap',
+            }}>ONE-TIME</div>
+            <div style={{ flex: 1, minWidth: 220 }}>
+              <span style={{ fontWeight: 800, color: WHITE, fontSize: '1rem' }}>Event — $99</span>
+              <span style={{ color: DIM, fontSize: '0.88rem', marginLeft: 12 }}>72-hour monitoring for conferences, weddings, Easter. No subscription.</span>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <input
-                type="text" placeholder="First name" required
-                value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                style={{ padding: '14px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', fontSize: '1rem', outline: 'none' }}
-              />
-              <input
-                type="text" placeholder="Church name"
-                value={form.church} onChange={(e) => setForm({ ...form, church: e.target.value })}
-                style={{ padding: '14px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', fontSize: '1rem', outline: 'none' }}
-              />
-              <input
-                type="email" placeholder="Email address" required
-                value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                style={{ padding: '14px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', fontSize: '1rem', outline: 'none' }}
-              />
-              {error && (
-                <p style={{ color: '#fca5a5', fontSize: '0.88rem', margin: 0 }}>
-                  Something went wrong — email{' '}
-                  <a href="mailto:andrew@atemschool.com" style={{ color: '#fca5a5' }}>andrew@atemschool.com</a>{' '}
-                  directly.
-                </p>
-              )}
-              <button
-                type="submit" disabled={submitting}
-                style={{
-                  ...btn(RED, '#fff'), border: 'none', fontSize: '1rem',
-                  opacity: submitting ? 0.7 : 1,
-                  cursor: submitting ? 'wait' : 'pointer',
-                  marginTop: 4,
-                }}
-              >
-                {submitting ? 'Sending...' : 'Request Early Access →'}
-              </button>
-              <p style={{ color: '#475569', fontSize: '0.8rem', margin: 0 }}>
-                No credit card required. We&apos;ll reach out personally.
-              </p>
-            </form>
-          )}
+            <a href="#early-access" style={{
+              padding: '10px 22px', fontSize: '0.88rem', fontWeight: 700,
+              borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent',
+              color: WHITE, textDecoration: 'none', whiteSpace: 'nowrap',
+            }}>Book an Event →</a>
+          </div>
         </div>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer style={{
-        background: '#080f1a',
-        borderTop: '1px solid rgba(255,255,255,0.06)',
-        padding: '40px 5%',
-        textAlign: 'center',
+      {/* ════════════════════════════════════════
+          EARLY ACCESS FORM
+      ════════════════════════════════════════ */}
+      <section id="early-access" style={{
+        padding: '128px 5%',
+        background: CARD_BG,
+        borderTop: `1px solid ${BORDER}`,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 20 }}>
+        <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
+          {/* glow behind form */}
+          <div style={{ position: 'relative' }}>
+            <div style={{
+              position: 'absolute', top: '-60px', left: '50%', transform: 'translateX(-50%)',
+              width: 400, height: 400, borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(34,197,94,0.06) 0%, transparent 70%)',
+              pointerEvents: 'none',
+            }} />
+
+            <p style={{
+              fontFamily: 'ui-monospace, monospace', fontSize: '0.72rem',
+              fontWeight: 700, letterSpacing: '0.15em', color: GREEN, marginBottom: 20,
+            }}>EARLY ACCESS</p>
+
+            <h2 style={{
+              fontSize: 'clamp(2rem, 5vw, 3.2rem)', fontWeight: 900,
+              letterSpacing: '-0.03em', margin: '0 0 16px', color: WHITE,
+            }}>BE FIRST IN LINE.</h2>
+
+            <p style={{ color: MUTED, marginBottom: 48, lineHeight: 1.7, fontSize: '1rem' }}>
+              Limited early access spots available for founding churches.
+            </p>
+
+            {submitted ? (
+              <div style={{
+                background: 'rgba(34,197,94,0.06)', border: `1px solid rgba(34,197,94,0.25)`,
+                borderRadius: 16, padding: 48,
+              }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: 16 }}>🎉</div>
+                <p style={{ fontWeight: 800, fontSize: '1.2rem', margin: '0 0 10px', color: WHITE }}>You&apos;re on the list!</p>
+                <p style={{ color: MUTED, margin: 0, fontSize: '0.95rem', lineHeight: 1.65 }}>
+                  We&apos;ll be in touch within 24 hours. Check your email for confirmation.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {[
+                  { key: 'name',   type: 'text',  placeholder: 'Your name',    required: true },
+                  { key: 'church', type: 'text',  placeholder: 'Church name',   required: false },
+                  { key: 'email',  type: 'email', placeholder: 'Email address', required: true },
+                ].map(({ key, type, placeholder, required }) => (
+                  <input
+                    key={key}
+                    type={type}
+                    placeholder={placeholder}
+                    required={required}
+                    value={form[key]}
+                    onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                    style={{
+                      padding: '15px 18px', borderRadius: 10,
+                      border: `1px solid ${BORDER}`,
+                      background: 'rgba(255,255,255,0.04)', color: WHITE,
+                      fontSize: '1rem', outline: 'none',
+                      fontFamily: 'inherit',
+                    }}
+                  />
+                ))}
+
+                {error && (
+                  <p style={{ color: '#fca5a5', fontSize: '0.88rem', margin: 0 }}>
+                    Something went wrong — email{' '}
+                    <a href="mailto:andrew@atemschool.com" style={{ color: '#fca5a5' }}>andrew@atemschool.com</a>{' '}
+                    directly.
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  style={{
+                    padding: '15px 24px', fontSize: '1rem', fontWeight: 700,
+                    borderRadius: 10, border: 'none', background: GREEN,
+                    color: '#000', cursor: submitting ? 'wait' : 'pointer',
+                    opacity: submitting ? 0.7 : 1, marginTop: 4,
+                    transition: 'opacity .2s',
+                  }}
+                >
+                  {submitting ? 'Sending...' : 'Request Early Access →'}
+                </button>
+
+                <p style={{ color: DIM, fontSize: '0.82rem', margin: 0, marginTop: 4 }}>
+                  60-day free trial for early access members.
+                </p>
+              </form>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════
+          FOOTER
+      ════════════════════════════════════════ */}
+      <footer style={{
+        background: '#060608',
+        borderTop: `1px solid ${BORDER}`,
+        padding: '40px 5%',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        flexWrap: 'wrap', gap: 20,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: GREEN, display: 'inline-block', boxShadow: `0 0 6px ${GREEN}` }} />
-          <span style={{ color: '#e2e8f0', fontWeight: 700 }}>Tally</span>
-          <span style={{ color: '#475569' }}>by ATEM School</span>
+          <span style={{ color: WHITE, fontWeight: 800, fontSize: '0.95rem' }}>TALLY</span>
+          <span style={{ color: DIM, fontSize: '0.82rem' }}>· by ATEM School</span>
         </div>
-        <div style={{ display: 'flex', gap: 24, justifyContent: 'center', fontSize: '0.88rem', marginBottom: 20, flexWrap: 'wrap' }}>
-          <a href="https://tally.atemschool.com" style={{ color: '#64748b', textDecoration: 'none' }}>tally.atemschool.com</a>
-          <a href="https://atemschool.com" target="_blank" rel="noopener" style={{ color: '#64748b', textDecoration: 'none' }}>atemschool.com ↗</a>
-          <a href="mailto:andrew@atemschool.com" style={{ color: '#64748b', textDecoration: 'none' }}>andrew@atemschool.com</a>
+        <div style={{ display: 'flex', gap: 20, fontSize: '0.82rem', flexWrap: 'wrap' }}>
+          <a href="https://tally.atemschool.com" className="footer-link" style={{ color: DIM, textDecoration: 'none', transition: 'color .2s' }}>tally.atemschool.com</a>
+          <a href="https://atemschool.com" target="_blank" rel="noopener" className="footer-link" style={{ color: DIM, textDecoration: 'none', transition: 'color .2s' }}>atemschool.com ↗</a>
         </div>
-        <p style={{ color: '#334155', fontSize: '0.78rem', margin: 0 }}>
-          © 2026 ATEM School. Built for church production teams who care about Sunday.
-        </p>
       </footer>
 
     </div>
