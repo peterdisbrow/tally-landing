@@ -38,6 +38,13 @@ const INTEGRATIONS = [
   { name: 'Dante Audio',         tag: 'AUDIO'     },
 ];
 
+const PARTNER_BENEFITS = [
+  { tag: 'REVENUE',       title: 'Keep the margin',         desc: 'You set the price. Buy Tally at wholesale, charge your clients whatever makes sense for your market.' },
+  { tag: 'WHITE-LABEL',   title: 'Your brand, not ours',    desc: 'Custom logo, colors, and brand name. Your clients see your product — "Powered by Tally" is footer-only.' },
+  { tag: 'FLEET CONTROL', title: 'Manage your whole fleet', desc: 'One portal for every church you manage. Add churches, generate registration codes, view live status.' },
+  { tag: 'NO SUPPORT TAX',title: 'We handle the hard stuff', desc: 'Auto-recovery, alerts, and monitoring run themselves. Andrew is behind the curtain — not in your client calls.' },
+];
+
 const STEPS = [
   {
     num: '01',
@@ -239,6 +246,7 @@ export default function Home() {
           <a href="#features"    className="nav-link" style={{ color: MUTED, textDecoration: 'none', fontSize: '0.88rem', transition: 'color .2s' }}>Features</a>
           <a href="#the-app"     className="nav-link" style={{ color: MUTED, textDecoration: 'none', fontSize: '0.88rem', transition: 'color .2s' }}>The App</a>
           <a href="#pricing"     className="nav-link" style={{ color: MUTED, textDecoration: 'none', fontSize: '0.88rem', transition: 'color .2s' }}>Pricing</a>
+          <a href="#partners"    className="nav-link" style={{ color: MUTED, textDecoration: 'none', fontSize: '0.88rem', transition: 'color .2s' }}>Partners</a>
           <a href="#early-access" style={{
             display: 'inline-block', padding: '9px 22px', fontSize: '0.88rem', fontWeight: 700,
             borderRadius: 8, border: 'none', background: GREEN, color: '#000', cursor: 'pointer',
@@ -808,6 +816,156 @@ export default function Home() {
               color: WHITE, textDecoration: 'none', whiteSpace: 'nowrap',
             }}>Book an Event →</a>
           </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════
+          PARTNERS / RESELLERS
+      ════════════════════════════════════════ */}
+      <section id="partners" style={{
+        padding: '128px 5%',
+        background: CARD_BG,
+        borderTop: `1px solid ${BORDER}`,
+        borderBottom: `1px solid ${BORDER}`,
+      }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
+            gap: 80, alignItems: 'center',
+          }}>
+            {/* Left — copy */}
+            <div>
+              <p style={{
+                fontFamily: 'ui-monospace, monospace', fontSize: '0.72rem',
+                fontWeight: 700, letterSpacing: '0.15em', color: GREEN, marginBottom: 20,
+              }}>FOR INTEGRATORS</p>
+
+              <h2 style={{
+                fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 900,
+                letterSpacing: '-0.02em', margin: '0 0 20px', color: WHITE, lineHeight: 1.1,
+              }}>
+                Add managed AV monitoring<br />to every install you do.
+              </h2>
+
+              <p style={{ color: MUTED, fontSize: '1rem', lineHeight: 1.75, margin: '0 0 32px' }}>
+                You already install the gear. Tally lets you charge for watching it too.
+                White-label the dashboard, set your own price, and offer your clients
+                something no other integrator in your market has.
+              </p>
+
+              <div style={{
+                background: BG, border: `1px solid ${BORDER}`,
+                borderRadius: 12, padding: '20px 24px', marginBottom: 36,
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
+                  {[
+                    { label: 'Your cost', value: '$30', sub: '/church/mo' },
+                    { label: 'Typical charge', value: '$75', sub: '/church/mo' },
+                    { label: 'Margin on 20 churches', value: '$900', sub: '/mo' },
+                  ].map((item, i) => (
+                    <div key={i} style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '2rem', fontWeight: 900, color: GREEN, letterSpacing: '-0.02em' }}>{item.value}</div>
+                      <div style={{ fontSize: '0.75rem', color: DIM, fontFamily: 'ui-monospace, monospace' }}>{item.sub}</div>
+                      <div style={{ fontSize: '0.8rem', color: MUTED, marginTop: 4 }}>{item.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <a href="#partner-apply" style={{
+                display: 'inline-block', padding: '14px 32px', fontSize: '0.95rem', fontWeight: 700,
+                borderRadius: 8, border: 'none', background: GREEN, color: '#000',
+                cursor: 'pointer', textDecoration: 'none', marginRight: 12,
+              }}>Apply for Partner Access →</a>
+            </div>
+
+            {/* Right — benefits */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {PARTNER_BENEFITS.map((b, i) => (
+                <div key={i} style={{
+                  background: BG, border: `1px solid ${BORDER}`,
+                  borderRadius: 12, padding: '20px 24px',
+                  display: 'flex', gap: 16, alignItems: 'flex-start',
+                }}>
+                  <div style={{
+                    flexShrink: 0, marginTop: 2,
+                    fontFamily: 'ui-monospace, monospace', fontSize: '0.62rem',
+                    fontWeight: 700, letterSpacing: '0.1em', color: GREEN,
+                    background: 'rgba(34,197,94,0.08)', border: `1px solid rgba(34,197,94,0.2)`,
+                    borderRadius: 4, padding: '3px 8px', whiteSpace: 'nowrap',
+                  }}>{b.tag}</div>
+                  <div>
+                    <div style={{ fontWeight: 800, color: WHITE, fontSize: '0.95rem', marginBottom: 4 }}>{b.title}</div>
+                    <div style={{ color: MUTED, fontSize: '0.85rem', lineHeight: 1.6 }}>{b.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Partner application form ─── */}
+      <section id="partner-apply" style={{
+        padding: '96px 5%',
+        borderBottom: `1px solid ${BORDER}`,
+      }}>
+        <div style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
+          <p style={{
+            fontFamily: 'ui-monospace, monospace', fontSize: '0.72rem',
+            fontWeight: 700, letterSpacing: '0.15em', color: GREEN, marginBottom: 16,
+          }}>PARTNER PROGRAM</p>
+          <h2 style={{ fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.02em', margin: '0 0 12px', color: WHITE }}>
+            Apply for a partner account.
+          </h2>
+          <p style={{ color: MUTED, marginBottom: 40, fontSize: '0.95rem', lineHeight: 1.7 }}>
+            Andrew reviews every application. If it&apos;s a fit, you&apos;ll get your white-label portal, wholesale pricing, and a 30-minute onboarding call.
+          </p>
+
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const fd = new FormData(e.target);
+              await fetch('/api/early-access', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  name: fd.get('name'),
+                  church: `PARTNER: ${fd.get('company')} — ${fd.get('churches')} churches`,
+                  email: fd.get('email'),
+                }),
+              });
+              e.target.innerHTML = '<p style="color:#22c55e;font-weight:700;font-size:1rem">✓ Application received — Andrew will be in touch within 48h.</p>';
+            }}
+            style={{ display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' }}
+          >
+            {[
+              { name: 'name',     type: 'text',  placeholder: 'Your name',              required: true },
+              { name: 'company',  type: 'text',  placeholder: 'Company / integrator name', required: true },
+              { name: 'email',    type: 'email', placeholder: 'Email address',           required: true },
+              { name: 'churches', type: 'text',  placeholder: 'Approx. how many churches do you serve?', required: false },
+            ].map(f => (
+              <input
+                key={f.name} name={f.name} type={f.type}
+                placeholder={f.placeholder} required={f.required}
+                style={{
+                  padding: '14px 16px', borderRadius: 8,
+                  border: `1px solid ${BORDER}`,
+                  background: 'rgba(255,255,255,0.04)', color: WHITE,
+                  fontSize: '0.95rem', outline: 'none', fontFamily: 'inherit',
+                }}
+              />
+            ))}
+            <button type="submit" style={{
+              padding: '14px 24px', fontSize: '0.95rem', fontWeight: 700,
+              borderRadius: 8, border: 'none', background: GREEN,
+              color: '#000', cursor: 'pointer', marginTop: 4,
+            }}>Apply for Partner Access →</button>
+            <p style={{ color: DIM, fontSize: '0.8rem', textAlign: 'center', margin: 0 }}>
+              48-hour response. No commitment required.
+            </p>
+          </form>
         </div>
       </section>
 
