@@ -13,12 +13,12 @@ const DIM      = '#475569';
 
 /* ─── Data ─── */
 const FEATURES = [
-  { icon: '🔴', name: 'Stream Goes Down — Tally Fixes It',  desc: 'Auto-recovery restarts your stream before the congregation even notices' },
-  { icon: '📱', name: 'TD Gets Paged Instantly',            desc: 'Alert hits their phone in seconds — not after someone in the lobby complains' },
-  { icon: '✅', name: 'Pre-Service System Check',           desc: 'Automated green-light 30 min before every service. No more manual checks.' },
-  { icon: '🎛️', name: 'Control From Anywhere',              desc: 'Cut cameras, advance slides, mute channels — all from Telegram on your phone' },
-  { icon: '📊', name: 'Monthly Reports For Leadership',     desc: 'Uptime stats, incidents, and auto-recoveries. Justify the tech budget easily.' },
-  { icon: '🤝', name: 'Built For Multi-Site',               desc: 'One dashboard for every campus. Andrew supports 20+ churches from his desk.' },
+  { tag: 'AUTO-RECOVERY',   name: 'Stream Goes Down — Tally Fixes It',  desc: 'Auto-recovery restarts your stream before the congregation even notices' },
+  { tag: 'ALERTS',          name: 'TD Gets Paged Instantly',            desc: 'Alert hits their phone in seconds — not after someone in the lobby complains' },
+  { tag: 'PRE-SERVICE',     name: 'Automated System Check',             desc: 'Green-light confirmation 30 min before every service. No more manual checks.' },
+  { tag: 'REMOTE CONTROL',  name: 'Control From Anywhere',              desc: 'Cut cameras, advance slides, mute channels — all from Telegram on your phone' },
+  { tag: 'REPORTING',       name: 'Monthly Reports For Leadership',     desc: 'Uptime stats, incidents, and auto-recoveries. Justify the tech budget easily.' },
+  { tag: 'MULTI-SITE',      name: 'Built For Multi-Campus',             desc: 'One dashboard for every campus. Andrew supports 20+ churches from his desk.' },
 ];
 
 const INTEGRATIONS = [
@@ -383,7 +383,13 @@ export default function Home() {
                 borderRadius: 16, padding: '32px 28px',
                 transition: 'border-color .2s, box-shadow .2s',
               }}>
-                <div style={{ fontSize: '2rem', marginBottom: 16 }}>{f.icon}</div>
+                <div style={{
+                  display: 'inline-block', marginBottom: 20,
+                  fontFamily: 'ui-monospace, monospace', fontSize: '0.65rem',
+                  fontWeight: 700, letterSpacing: '0.12em', color: GREEN,
+                  background: 'rgba(34,197,94,0.08)', border: `1px solid rgba(34,197,94,0.2)`,
+                  borderRadius: 4, padding: '4px 10px',
+                }}>{f.tag}</div>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 10px', color: WHITE }}>{f.name}</h3>
                 <p style={{ color: MUTED, margin: 0, fontSize: '0.9rem', lineHeight: 1.65 }}>{f.desc}</p>
               </div>
