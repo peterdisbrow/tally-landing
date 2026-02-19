@@ -496,7 +496,7 @@ export default function Home() {
             gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
             gap: 16, marginTop: 32,
           }}>
-            {activeTab === 'status' ? [
+            {(activeTab === 'status' ? [
               { icon: '🔴', label: 'LIVE badge', desc: 'Instantly see if the stream is active' },
               { icon: '🟢', label: 'All green', desc: 'Relay, ATEM, OBS, Companion — all connected' },
               { icon: '📹', label: 'Program & Preview', desc: 'Which camera is live, which is up next' },
@@ -504,7 +504,7 @@ export default function Home() {
               { icon: '🎛️', label: 'Auto-discovers devices', desc: 'Hit Scan Network — it finds your ATEM, OBS, Companion automatically' },
               { icon: '⚙️', label: 'One-time setup', desc: 'Enter IPs once, test connections, save — done in 10 minutes' },
               { icon: '🔒', label: 'Encrypted credentials', desc: 'Stream keys stored in your OS keychain. Never plaintext.' },
-            ].map((item, i) => (
+            ]).map((item, i) => (
               <div key={i} style={{
                 background: BG, border: `1px solid ${BORDER}`,
                 borderRadius: 12, padding: '18px 20px',
