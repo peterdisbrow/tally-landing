@@ -385,8 +385,8 @@ export default function AdminPage() {
   const [tab, setTab]       = useState('churches');
   const [relayOk, setRelayOk] = useState(null);
   const [relayErr, setRelayErr] = useState('');
-  const [relayDetails, setRelayDetails] = useState('');
-  const [probeTime, setProbeTime] = useState('');
+  const [relayMeta, setRelayMeta] = useState('');
+  const [showDiag, setShowDiag] = useState(false);
   const relay = useRelay(token);
 
   useEffect(() => {
@@ -399,8 +399,8 @@ export default function AdminPage() {
     setToken(null);
     setRelayOk(null);
     setRelayErr('');
-    setRelayDetails('');
-    setProbeTime('');
+    setRelayMeta('');
+    setShowDiag(false);
   }
 
   useEffect(() => {
@@ -408,14 +408,13 @@ export default function AdminPage() {
 
     async function check() {
       try {
-        const url = '/api/admin/relay?path=%2Fapi%2Fhealth';
-        const res = await fetch(url, {
+        const res = await fetch('/api/admin/relay?path=%2Fapi%2Fhealth', {
           method: 'GET',
           headers: { 'x-admin-token': token, 'Content-Type': 'application/json' },
         });
 
-        const bodyText = await res.text();
-        setProbeTime(new Date().toLocaleTimeString());
+        let bodyText = '';
+        try { bodyText = await res.text(); } catch {}
 
         let body;
         try { body = bodyText ? JSON.parse(bodyText) : null; } catch { body = bodyText; }
@@ -424,18 +423,18 @@ export default function AdminPage() {
           const msg = (body && body.error) || bodyText || `HTTP ${res.status}`;
           setRelayOk(false);
           setRelayErr(String(msg));
-          setRelayDetails(JSON.stringify(body, null, 2));
+          setRelayMeta(`HTTP ${res.status}`);
           if (res.status === 401) signOut();
           return;
         }
 
         setRelayOk(true);
         setRelayErr('');
-        setRelayDetails(JSON.stringify(body, null, 2));
+        setRelayMeta(`${body?.service || 'tally-relay'} • ${body?.registeredChurches != null ? `${body.registeredChurches} churches` : ''}`);
       } catch (err) {
         setRelayOk(false);
         setRelayErr(String(err.message || err));
-        setRelayDetails('');
+        setRelayMeta('');
       }
     }
 
@@ -451,13 +450,16 @@ export default function AdminPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: C.muted }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: relayOk === null ? C.muted : relayOk ? C.green : C.red }} />
-            {relayOk === null ? 'Connecting…' : relayOk ? 'Relay Live' : 'Relay Offline'}
+            {relayOk === null ? 'Connecting…' : relayOk ? `Relay Live${relayMeta ? ` • ${relayMeta}` : ''}` : `Relay Offline${relayErr ? ' — ' + relayErr : ''}`}
           </div>
-          {!relayOk && relayErr ? <div style={{ fontSize: 11, color: C.red, maxWidth: 340, textAlign: 'right' }}>{relayErr}</div> : null}
-          <button
-            style={{ ...s.btn('primary'), fontSize: 12, padding: '6px 12px' }}
-            onClick={() => window.location.reload()}
-          >Refresh Relay Probe</button>
+          {(!relayOk && relayErr) || showDiag ? (
+            <button
+              style={{ ...s.btn('secondary'), fontSize: 11, padding: '6px 10px' }}
+              onClick={() => setShowDiag((v) => !v)}
+            >
+              {showDiag ? 'Hide' : 'Show'} details
+            </button>
+          ) : null}
           <button
             style={{ ...s.btn('secondary'), fontSize: 12, padding: '6px 12px' }}
             onClick={signOut}
@@ -472,13 +474,12 @@ export default function AdminPage() {
           ))}
         </nav>
 
-        <div style={{ ...s.card, marginBottom: 16 }}>
-          <div style={{ fontWeight: 700, marginBottom: 8, fontSize: 13 }}>Relay Probe</div>
-          <div style={{ fontSize: 12, color: C.muted, marginBottom: 6 }}>
-            Last checked: {probeTime || 'not checked yet'}
+        {showDiag && (
+          <div style={{ ...s.card, marginBottom: 16, background: '#0d1017' }}>
+            <div style={{ fontSize: 12, color: C.muted }}>Diagnostics</div>
+            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: 12, margin: 0, color: C.yellow }}>{relayErr || 'No issues detected.'}</pre>
           </div>
-          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: 12, margin: 0, color: C.white }}>{relayDetails || 'No relay payload yet.'}</pre>
-        </div>
+        )}
 
         {tab === 'churches'  && <ChurchesTab  relay={relay} />}
         {tab === 'resellers' && <ResellersTab relay={relay} />}
