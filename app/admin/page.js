@@ -385,6 +385,8 @@ export default function AdminPage() {
   const [tab, setTab]       = useState('churches');
   const [relayOk, setRelayOk] = useState(null);
   const [relayErr, setRelayErr] = useState('');
+  const [relayDetails, setRelayDetails] = useState('');
+  const [probeTime, setProbeTime] = useState('');
   const relay = useRelay(token);
 
   useEffect(() => {
@@ -397,21 +399,48 @@ export default function AdminPage() {
     setToken(null);
     setRelayOk(null);
     setRelayErr('');
+    setRelayDetails('');
+    setProbeTime('');
   }
 
   useEffect(() => {
     if (!token) return;
-    relay('/api/health')
-      .then(() => {
+
+    async function check() {
+      try {
+        const url = '/api/admin/relay?path=%2Fapi%2Fhealth';
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: { 'x-admin-token': token, 'Content-Type': 'application/json' },
+        });
+
+        const bodyText = await res.text();
+        setProbeTime(new Date().toLocaleTimeString());
+
+        let body;
+        try { body = bodyText ? JSON.parse(bodyText) : null; } catch { body = bodyText; }
+
+        if (!res.ok) {
+          const msg = (body && body.error) || bodyText || `HTTP ${res.status}`;
+          setRelayOk(false);
+          setRelayErr(String(msg));
+          setRelayDetails(JSON.stringify(body, null, 2));
+          if (res.status === 401) signOut();
+          return;
+        }
+
         setRelayOk(true);
         setRelayErr('');
-      })
-      .catch((err) => {
+        setRelayDetails(JSON.stringify(body, null, 2));
+      } catch (err) {
         setRelayOk(false);
         setRelayErr(String(err.message || err));
-        if (err.message === 'Unauthorized') signOut();
-      });
-  }, [token, relay]);
+        setRelayDetails('');
+      }
+    }
+
+    check();
+  }, [token]);
 
   if (!token) return <LoginScreen onLogin={setToken} />;
 
@@ -426,6 +455,10 @@ export default function AdminPage() {
           </div>
           {!relayOk && relayErr ? <div style={{ fontSize: 11, color: C.red, maxWidth: 340, textAlign: 'right' }}>{relayErr}</div> : null}
           <button
+            style={{ ...s.btn('primary'), fontSize: 12, padding: '6px 12px' }}
+            onClick={() => window.location.reload()}
+          >Refresh Relay Probe</button>
+          <button
             style={{ ...s.btn('secondary'), fontSize: 12, padding: '6px 12px' }}
             onClick={signOut}
           >Sign Out</button>
@@ -438,6 +471,14 @@ export default function AdminPage() {
             <button key={id} style={s.tab(tab === id)} onClick={() => setTab(id)}>{label}</button>
           ))}
         </nav>
+
+        <div style={{ ...s.card, marginBottom: 16 }}>
+          <div style={{ fontWeight: 700, marginBottom: 8, fontSize: 13 }}>Relay Probe</div>
+          <div style={{ fontSize: 12, color: C.muted, marginBottom: 6 }}>
+            Last checked: {probeTime || 'not checked yet'}
+          </div>
+          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: 12, margin: 0, color: C.white }}>{relayDetails || 'No relay payload yet.'}</pre>
+        </div>
 
         {tab === 'churches'  && <ChurchesTab  relay={relay} />}
         {tab === 'resellers' && <ResellersTab relay={relay} />}
