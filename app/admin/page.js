@@ -154,7 +154,7 @@ function ChurchesTab({ relay }) {
     e.preventDefault();
     setFormErr(''); setFormOk(''); setSaving(true);
     try {
-      const data = await relay('/api/churches/register', { method: 'POST', body: { churchName: form.name, contactEmail: form.contactEmail } });
+      const data = await relay('/api/churches/register', { method: 'POST', body: { name: form.name, email: form.contactEmail } });
       setFormOk(`✅ Registered! Code: ${data.registrationCode || data.token || '—'}`);
       setForm({ name: '', contactEmail: '' });
       load();
@@ -384,6 +384,7 @@ export default function AdminPage() {
   const [token, setToken]   = useState(null);
   const [tab, setTab]       = useState('churches');
   const [relayOk, setRelayOk] = useState(null);
+  const [relayErr, setRelayErr] = useState('');
   const relay = useRelay(token);
 
   useEffect(() => {
@@ -391,9 +392,25 @@ export default function AdminPage() {
     if (saved) setToken(saved);
   }, []);
 
+  function signOut() {
+    localStorage.removeItem('tally_admin_token');
+    setToken(null);
+    setRelayOk(null);
+    setRelayErr('');
+  }
+
   useEffect(() => {
     if (!token) return;
-    relay('/api/health').then(() => setRelayOk(true)).catch(() => setRelayOk(false));
+    relay('/api/health')
+      .then(() => {
+        setRelayOk(true);
+        setRelayErr('');
+      })
+      .catch((err) => {
+        setRelayOk(false);
+        setRelayErr(String(err.message || err));
+        if (err.message === 'Unauthorized') signOut();
+      });
   }, [token, relay]);
 
   if (!token) return <LoginScreen onLogin={setToken} />;
@@ -407,9 +424,10 @@ export default function AdminPage() {
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: relayOk === null ? C.muted : relayOk ? C.green : C.red }} />
             {relayOk === null ? 'Connecting…' : relayOk ? 'Relay Live' : 'Relay Offline'}
           </div>
+          {!relayOk && relayErr ? <div style={{ fontSize: 11, color: C.red, maxWidth: 340, textAlign: 'right' }}>{relayErr}</div> : null}
           <button
             style={{ ...s.btn('secondary'), fontSize: 12, padding: '6px 12px' }}
-            onClick={() => { localStorage.removeItem('tally_admin_token'); setToken(null); }}
+            onClick={signOut}
           >Sign Out</button>
         </div>
       </header>
