@@ -138,6 +138,7 @@ function ChurchesTab({ relay }) {
   const [formErr, setFormErr]   = useState('');
   const [formOk, setFormOk]     = useState('');
   const [saving, setSaving]     = useState(false);
+  const [showTokens, setShowTokens] = useState({});
 
   const load = useCallback(async () => {
     try {
@@ -197,7 +198,7 @@ function ChurchesTab({ relay }) {
               <table style={s.table}>
                 <thead>
                   <tr>
-                    {['Church', 'Reg Code', 'Status', 'ATEM', 'OBS', 'Stream', 'Last Seen', ''].map(h => <th key={h} style={s.th}>{h}</th>)}
+                    {['Church', 'Reg Code', 'Conn Token', 'Status', 'ATEM', 'OBS', 'Stream', 'Last Seen', ''].map(h => <th key={h} style={s.th}>{h}</th>)}
                   </tr>
                 </thead>
                 <tbody>
@@ -225,6 +226,29 @@ function ChurchesTab({ relay }) {
                               cursor: c.registrationCode ? 'pointer' : 'default',
                             }}>
                             {c.registrationCode || '—'}
+                          </div>
+                        </td>
+                        <td style={s.td}>
+                          <div style={{ fontFamily: 'monospace', fontSize: 11, letterSpacing: 0.5, color: c.token ? C.white : C.muted }}>
+                            {showTokens[c.churchId] ? (c.token || '—') : (c.token ? '••••••••••••••••' : '—')}
+                          </div>
+                          <div style={{ marginTop: 6, display: 'flex', gap: 6 }}>
+                            {c.token && (
+                              <>
+                                <button
+                                  style={{ ...s.btn('secondary'), padding: '4px 8px', fontSize: 11 }}
+                                  onClick={() => setShowTokens((prev) => ({ ...prev, [c.churchId]: !prev[c.churchId] }))}
+                                >
+                                  {showTokens[c.churchId] ? 'Hide' : 'Reveal'}
+                                </button>
+                                <button
+                                  style={{ ...s.btn('primary'), padding: '4px 8px', fontSize: 11 }}
+                                  onClick={() => navigator.clipboard.writeText(c.token)}
+                                >
+                                  Copy
+                                </button>
+                              </>
+                            )}
                           </div>
                         </td>
                         <td style={s.td}><span style={s.badge(statusColor(c))}>{statusLabel(c)}</span></td>
