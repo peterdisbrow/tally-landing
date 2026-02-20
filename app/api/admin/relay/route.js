@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
-import crypto from 'node:crypto';
 
 const RELAY_URL = process.env.RELAY_URL || 'https://tally-production-cde2.up.railway.app';
 const RELAY_KEY = process.env.RELAY_ADMIN_KEY || process.env.ADMIN_API_KEY;
-const SESSION_SECRET = process.env.SESSION_SECRET;
 
 const ALLOWED_PATH_PREFIXES = [
   '/api/health',
@@ -25,6 +23,8 @@ const ALLOWED_PATH_PREFIXES = [
   '/api/slack',
   '/api/dashboard',
   '/api/bot',
+  '/api/admin/me',
+  '/api/admin/users',
 ];
 
 function safePath(pathname) {
@@ -40,44 +40,19 @@ function safePath(pathname) {
   return allowed ? normalized : null;
 }
 
-function verifyToken(req) {
-  if (!SESSION_SECRET) return false;
-
-  const auth = req.headers.get('x-admin-token') || '';
-  if (!auth) return false;
-
-  try {
-    const decoded = Buffer.from(auth, 'base64').toString('utf-8');
-
-    // Backward-compatible with older session format: base64("ts:SESSION_SECRET").
-    const parts = decoded.split(':');
-    if (parts.length === 2 && parts[1] === SESSION_SECRET) return true;
-
-    const [ts, nonce, sig, ttlMs = '28800000'] = parts;
-    const tsNum = Number(ts);
-    const ttl = Number(ttlMs);
-
-    if (!Number.isFinite(tsNum) || !Number.isFinite(ttl) || !nonce || !sig) return false;
-
-    const now = Date.now();
-    if (now - tsNum > ttl) return false;
-
-    const expected = crypto
-      .createHmac('sha256', SESSION_SECRET)
-      .update(`${ts}:${nonce}`)
-      .digest('hex');
-
-    const a = Buffer.from(sig, 'hex');
-    const b = Buffer.from(expected, 'hex');
-    if (a.length !== b.length) return false;
-    return crypto.timingSafeEqual(a, b);
-  } catch {
-    return false;
-  }
-}
-
+/**
+ * Proxy admin requests to the relay server.
+ *
+ * Auth: The client sends the JWT in the x-admin-token header.
+ * We forward it to the relay as Authorization: Bearer <jwt>.
+ * The relay validates the JWT and checks role permissions.
+ *
+ * Legacy fallback: If RELAY_KEY is set and the token doesn't look like a JWT,
+ * fall back to x-api-key auth for backward compat.
+ */
 async function proxyRequest(req, method) {
-  if (!verifyToken(req)) {
+  const token = req.headers.get('x-admin-token') || '';
+  if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -87,8 +62,8 @@ async function proxyRequest(req, method) {
     return NextResponse.json({ error: 'Invalid relay path' }, { status: 400 });
   }
 
-  if (!RELAY_URL || !RELAY_KEY) {
-    return NextResponse.json({ error: 'Relay credentials not configured' }, { status: 500 });
+  if (!RELAY_URL) {
+    return NextResponse.json({ error: 'Relay URL not configured' }, { status: 500 });
   }
 
   let body;
@@ -98,12 +73,21 @@ async function proxyRequest(req, method) {
     } catch {}
   }
 
+  // Determine auth strategy: JWT (3 dot-separated parts) or legacy API key
+  const isJwt = token.split('.').length === 3;
+
+  const headers = { 'Content-Type': 'application/json' };
+  if (isJwt) {
+    headers['Authorization'] = `Bearer ${token}`;
+  } else if (RELAY_KEY) {
+    headers['x-api-key'] = RELAY_KEY;
+  } else {
+    return NextResponse.json({ error: 'Relay credentials not configured' }, { status: 500 });
+  }
+
   const upstream = await fetch(`${RELAY_URL}${upstreamPath}`, {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': RELAY_KEY,
-    },
+    headers,
     ...(body ? { body } : {}),
   });
 

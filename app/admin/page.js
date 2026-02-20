@@ -50,9 +50,27 @@ const s = {
   statLbl: { fontSize: 11, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.05em' },
 };
 
+// ── Role helpers ──────────────────────────────────────────────────────────────
+
+const ROLE_COLORS = { super_admin: C.red, admin: C.blue, engineer: C.yellow, sales: C.green };
+const ROLE_LABELS = { super_admin: 'Super Admin', admin: 'Admin', engineer: 'Engineer', sales: 'Sales' };
+const canWrite = (role) => ['super_admin', 'admin'].includes(role);
+const canManageUsers = (role) => role === 'super_admin';
+
+function tabsForRole(role) {
+  switch (role) {
+    case 'super_admin': return [['churches', '⛪ Churches'], ['resellers', '🏢 Resellers'], ['users', '👤 Users']];
+    case 'admin':       return [['churches', '⛪ Churches'], ['resellers', '🏢 Resellers']];
+    case 'engineer':    return [['churches', '⛪ Churches']];
+    case 'sales':       return [['churches', '⛪ Churches'], ['resellers', '🏢 Resellers']];
+    default:            return [['churches', '⛪ Churches']];
+  }
+}
+
 // ── Login ──────────────────────────────────────────────────────────────────────
 
 function LoginScreen({ onLogin }) {
+  const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(false);
@@ -61,11 +79,12 @@ function LoginScreen({ onLogin }) {
     e.preventDefault();
     setErr(''); setLoading(true);
     try {
-      const res = await fetch('/api/admin/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pw }) });
+      const res = await fetch('/api/admin/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password: pw }) });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Invalid password');
+      if (!res.ok) throw new Error(data.error || 'Invalid credentials');
       localStorage.setItem('tally_admin_token', data.token);
-      onLogin(data.token);
+      localStorage.setItem('tally_admin_user', JSON.stringify(data.user));
+      onLogin(data.token, data.user);
     } catch(e) { setErr(e.message); }
     finally { setLoading(false); }
   }
@@ -79,9 +98,13 @@ function LoginScreen({ onLogin }) {
         </div>
         <div style={{ color: C.muted, fontSize: 13, marginBottom: 24 }}>ATEM School — Restricted Access</div>
         <form onSubmit={submit}>
+          <div style={{ marginBottom: 14, textAlign: 'left' }}>
+            <label style={s.label}>Email</label>
+            <input style={s.input} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@atemschool.com" autoFocus />
+          </div>
           <div style={{ marginBottom: 16, textAlign: 'left' }}>
             <label style={s.label}>Password</label>
-            <input style={s.input} type="password" value={pw} onChange={e => setPw(e.target.value)} placeholder="Enter admin password" autoFocus />
+            <input style={s.input} type="password" value={pw} onChange={e => setPw(e.target.value)} placeholder="Enter password" />
           </div>
           {err && <div style={s.err}>{err}</div>}
           <button style={{ ...s.btn('primary'), width: '100%', padding: '10px', fontSize: 14, marginTop: 16 }} type="submit" disabled={loading}>
@@ -132,7 +155,7 @@ function StatsBar({ churches }) {
 
 // ── Churches tab ─────────────────────────────────────────────────────────────
 
-function ChurchesTab({ relay }) {
+function ChurchesTab({ relay, role }) {
   const [churches, setChurches] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [err, setErr]           = useState('');
@@ -246,7 +269,7 @@ function ChurchesTab({ relay }) {
         <div style={{ fontSize: 15, fontWeight: 700 }}>Churches ({churches.length})</div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button style={s.btn('secondary')} onClick={load}>↻ Refresh</button>
-          <button style={s.btn('primary')} onClick={() => { setModal('add'); setFormErr(''); setFormOk(''); }}>+ Add Church</button>
+          {canWrite(role) && <button style={s.btn('primary')} onClick={() => { setModal('add'); setFormErr(''); setFormOk(''); }}>+ Add Church</button>}
         </div>
       </div>
 
@@ -260,7 +283,7 @@ function ChurchesTab({ relay }) {
               <table style={s.table}>
                 <thead>
                   <tr>
-                    {['Church', 'Account', 'Reg Code', 'Conn Token', 'Plan', 'Status', 'ATEM', 'OBS', 'Stream', 'Last Seen', ''].map(h => <th key={h} style={s.th}>{h}</th>)}
+                    {['Church', 'Account', 'Reg Code', 'Conn Token', 'Plan', 'Status', 'ATEM', 'OBS', 'Stream', 'Last Seen', ...(canWrite(role) ? [''] : [])].map(h => <th key={h} style={s.th}>{h}</th>)}
                   </tr>
                 </thead>
                 <tbody>
@@ -325,6 +348,7 @@ function ChurchesTab({ relay }) {
                             <select
                               style={{ ...s.input, minWidth: 96, padding: '5px 8px', fontSize: 12 }}
                               value={draft.tier}
+                              disabled={!canWrite(role)}
                               onChange={(e) => setBillingDrafts((prev) => ({
                                 ...prev,
                                 [c.churchId]: { ...draft, tier: e.target.value },
@@ -337,6 +361,7 @@ function ChurchesTab({ relay }) {
                             <select
                               style={{ ...s.input, minWidth: 104, padding: '5px 8px', fontSize: 12 }}
                               value={draft.status}
+                              disabled={!canWrite(role)}
                               onChange={(e) => setBillingDrafts((prev) => ({
                                 ...prev,
                                 [c.churchId]: { ...draft, status: e.target.value },
@@ -346,12 +371,12 @@ function ChurchesTab({ relay }) {
                                 <option key={status} value={status}>{status}</option>
                               ))}
                             </select>
-                            <button
+                            {canWrite(role) && <button
                               style={{ ...s.btn('secondary'), padding: '4px 8px', fontSize: 11 }}
                               onClick={() => saveBilling(c.churchId)}
                             >
                               Save
-                            </button>
+                            </button>}
                           </div>
                         </td>
                         <td style={s.td}><span style={s.badge(statusColor(c))}>{statusLabel(c)}</span></td>
@@ -359,9 +384,9 @@ function ChurchesTab({ relay }) {
                         <td style={s.td}><span style={s.badge(obs.connected ? C.green : C.muted)}>{obs.connected ? 'Online' : '—'}</span></td>
                         <td style={s.td}><span style={s.badge(obs.streaming ? C.red : C.muted)}>{obs.streaming ? '🔴 Live' : 'Off'}</span></td>
                         <td style={{ ...s.td, color: C.muted, fontSize: 12 }}>{c.lastSeen ? new Date(c.lastSeen).toLocaleString() : '—'}</td>
-                        <td style={s.td}>
+                        {canWrite(role) && <td style={s.td}>
                           <button style={{ ...s.btn('danger'), padding: '4px 10px', fontSize: 11 }} onClick={() => deleteChurch(c.churchId, c.name)}>Delete</button>
-                        </td>
+                        </td>}
                       </tr>
                     );
                   })}
@@ -425,7 +450,7 @@ function ChurchesTab({ relay }) {
 
 // ── Resellers tab ─────────────────────────────────────────────────────────────
 
-function ResellersTab({ relay }) {
+function ResellersTab({ relay, role }) {
   const [resellers, setResellers] = useState([]);
   const [loading, setLoading]     = useState(true);
   const [err, setErr]             = useState('');
@@ -463,7 +488,7 @@ function ResellersTab({ relay }) {
         <div style={{ fontSize: 15, fontWeight: 700 }}>Resellers ({resellers.length})</div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button style={s.btn('secondary')} onClick={load}>↻ Refresh</button>
-          <button style={s.btn('primary')} onClick={() => { setModal(true); setFormErr(''); setApiKey(''); }}>+ Create Reseller</button>
+          {canWrite(role) && <button style={s.btn('primary')} onClick={() => { setModal(true); setFormErr(''); setApiKey(''); }}>+ Create Reseller</button>}
         </div>
       </div>
 
@@ -548,10 +573,209 @@ function ResellersTab({ relay }) {
   );
 }
 
+// ── Users tab (super_admin only) ─────────────────────────────────────────────
+
+function UsersTab({ relay }) {
+  const [users, setUsers]     = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr]         = useState('');
+  const [modal, setModal]     = useState(null); // null | 'add' | { user }
+  const [pwModal, setPwModal] = useState(null); // null | { userId, name }
+  const [form, setForm]       = useState({ email: '', password: '', name: '', role: 'admin' });
+  const [formErr, setFormErr] = useState('');
+  const [formOk, setFormOk]   = useState('');
+  const [saving, setSaving]   = useState(false);
+  const [newPw, setNewPw]     = useState('');
+  const [pwErr, setPwErr]     = useState('');
+  const [pwOk, setPwOk]       = useState('');
+  const [pwSaving, setPwSaving] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      setErr('');
+      const data = await relay('/api/admin/users');
+      setUsers(Array.isArray(data) ? data : data.users || []);
+    } catch(e) { setErr(e.message); }
+    finally { setLoading(false); }
+  }, [relay]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function createUser(e) {
+    e.preventDefault();
+    setFormErr(''); setFormOk(''); setSaving(true);
+    try {
+      await relay('/api/admin/users', { method: 'POST', body: form });
+      setFormOk('User created successfully');
+      setForm({ email: '', password: '', name: '', role: 'admin' });
+      load();
+      setTimeout(() => setModal(null), 1200);
+    } catch(e) { setFormErr(e.message); }
+    finally { setSaving(false); }
+  }
+
+  async function updateUser(e) {
+    e.preventDefault();
+    if (!modal?.user) return;
+    setFormErr(''); setFormOk(''); setSaving(true);
+    try {
+      await relay(`/api/admin/users/${modal.user.id}`, { method: 'PUT', body: { name: form.name, role: form.role, active: form.active } });
+      setFormOk('Updated');
+      load();
+      setTimeout(() => setModal(null), 800);
+    } catch(e) { setFormErr(e.message); }
+    finally { setSaving(false); }
+  }
+
+  async function resetPassword(e) {
+    e.preventDefault();
+    if (!pwModal) return;
+    setPwErr(''); setPwOk(''); setPwSaving(true);
+    try {
+      await relay(`/api/admin/users/${pwModal.userId}/password`, { method: 'PUT', body: { password: newPw } });
+      setPwOk('Password reset');
+      setNewPw('');
+      setTimeout(() => setPwModal(null), 1000);
+    } catch(e) { setPwErr(e.message); }
+    finally { setPwSaving(false); }
+  }
+
+  async function toggleActive(user) {
+    try {
+      await relay(`/api/admin/users/${user.id}`, { method: 'PUT', body: { active: !user.active } });
+      load();
+    } catch(e) { alert(e.message); }
+  }
+
+  function openEdit(user) {
+    setForm({ name: user.name, role: user.role, active: user.active });
+    setFormErr(''); setFormOk('');
+    setModal({ user });
+  }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ fontSize: 15, fontWeight: 700 }}>Admin Users ({users.length})</div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button style={s.btn('secondary')} onClick={load}>↻ Refresh</button>
+          <button style={s.btn('primary')} onClick={() => { setModal('add'); setForm({ email: '', password: '', name: '', role: 'admin' }); setFormErr(''); setFormOk(''); }}>+ Add User</button>
+        </div>
+      </div>
+
+      {loading && <div style={s.empty}>Loading…</div>}
+      {err     && <div style={{ color: C.red, padding: '12px 0', fontSize: 13 }}>{err}</div>}
+
+      {!loading && !err && (
+        users.length === 0
+          ? <div style={s.empty}>No admin users found.</div>
+          : <div style={s.card}>
+              <table style={s.table}>
+                <thead>
+                  <tr>
+                    {['Name', 'Email', 'Role', 'Status', 'Last Login', 'Actions'].map(h => <th key={h} style={s.th}>{h}</th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map(u => (
+                    <tr key={u.id}>
+                      <td style={{ ...s.td, fontWeight: 600 }}>{u.name || '—'}</td>
+                      <td style={{ ...s.td, fontSize: 12, color: C.muted }}>{u.email}</td>
+                      <td style={s.td}><span style={s.badge(ROLE_COLORS[u.role] || C.muted)}>{ROLE_LABELS[u.role] || u.role}</span></td>
+                      <td style={s.td}><span style={s.badge(u.active ? C.green : C.muted)}>{u.active ? 'Active' : 'Inactive'}</span></td>
+                      <td style={{ ...s.td, fontSize: 12, color: C.muted }}>{u.last_login_at ? new Date(u.last_login_at).toLocaleString() : 'Never'}</td>
+                      <td style={s.td}>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <button style={{ ...s.btn('secondary'), padding: '4px 8px', fontSize: 11 }} onClick={() => openEdit(u)}>Edit</button>
+                          <button style={{ ...s.btn('secondary'), padding: '4px 8px', fontSize: 11 }} onClick={() => { setPwModal({ userId: u.id, name: u.name || u.email }); setNewPw(''); setPwErr(''); setPwOk(''); }}>Reset PW</button>
+                          <button style={{ ...s.btn(u.active ? 'danger' : 'primary'), padding: '4px 8px', fontSize: 11 }} onClick={() => toggleActive(u)}>{u.active ? 'Deactivate' : 'Activate'}</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+      )}
+
+      {/* Add / Edit user modal */}
+      {modal && (
+        <div style={s.modal} onClick={e => { if (e.target === e.currentTarget) setModal(null); }}>
+          <div style={s.modalBox}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>{modal === 'add' ? '+ Add Admin User' : `Edit: ${modal.user?.name || modal.user?.email}`}</div>
+            <form onSubmit={modal === 'add' ? createUser : updateUser}>
+              {modal === 'add' && (
+                <>
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={s.label}>Email *</label>
+                    <input style={s.input} type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="user@atemschool.com" autoFocus required />
+                  </div>
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={s.label}>Password *</label>
+                    <input style={s.input} type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Min 8 characters" minLength={8} required />
+                  </div>
+                </>
+              )}
+              <div style={{ marginBottom: 14 }}>
+                <label style={s.label}>Name</label>
+                <input style={s.input} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Full name" {...(modal === 'add' ? {} : { autoFocus: true })} />
+              </div>
+              <div style={{ marginBottom: 14 }}>
+                <label style={s.label}>Role</label>
+                <select style={s.input} value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}>
+                  {Object.entries(ROLE_LABELS).map(([val, lbl]) => (
+                    <option key={val} value={val}>{lbl}</option>
+                  ))}
+                </select>
+              </div>
+              {modal !== 'add' && (
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ ...s.label, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input type="checkbox" checked={!!form.active} onChange={e => setForm(f => ({ ...f, active: e.target.checked }))} />
+                    Active
+                  </label>
+                </div>
+              )}
+              {formErr && <div style={s.err}>{formErr}</div>}
+              {formOk  && <div style={s.ok}>{formOk}</div>}
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 20 }}>
+                <button type="button" style={s.btn('secondary')} onClick={() => setModal(null)}>Cancel</button>
+                <button type="submit" style={s.btn('primary')} disabled={saving}>{saving ? 'Saving…' : modal === 'add' ? 'Create User' : 'Save Changes'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Password reset modal */}
+      {pwModal && (
+        <div style={s.modal} onClick={e => { if (e.target === e.currentTarget) setPwModal(null); }}>
+          <div style={s.modalBox}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>Reset Password: {pwModal.name}</div>
+            <form onSubmit={resetPassword}>
+              <div style={{ marginBottom: 14 }}>
+                <label style={s.label}>New Password *</label>
+                <input style={s.input} type="password" value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="Min 8 characters" minLength={8} required autoFocus />
+              </div>
+              {pwErr && <div style={s.err}>{pwErr}</div>}
+              {pwOk  && <div style={s.ok}>{pwOk}</div>}
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 20 }}>
+                <button type="button" style={s.btn('secondary')} onClick={() => setPwModal(null)}>Cancel</button>
+                <button type="submit" style={s.btn('danger')} disabled={pwSaving}>{pwSaving ? 'Resetting…' : 'Reset Password'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main admin app ────────────────────────────────────────────────────────────
 
 export default function AdminPage() {
   const [token, setToken]   = useState(null);
+  const [user, setUser]     = useState(null);
   const [tab, setTab]       = useState('churches');
   const [relayOk, setRelayOk] = useState(null);
   const [relayErr, setRelayErr] = useState('');
@@ -559,25 +783,57 @@ export default function AdminPage() {
   const [showDiag, setShowDiag] = useState(false);
   const relay = useRelay(token);
 
+  const role = user?.role || 'admin';
+
   useEffect(() => {
-    const saved = typeof window !== 'undefined' ? localStorage.getItem('tally_admin_token') : null;
-    if (saved) setToken(saved);
+    if (typeof window === 'undefined') return;
+    const savedToken = localStorage.getItem('tally_admin_token');
+    const savedUser  = localStorage.getItem('tally_admin_user');
+    if (savedToken) {
+      setToken(savedToken);
+      try { setUser(JSON.parse(savedUser)); } catch {}
+    }
   }, []);
+
+  function handleLogin(newToken, newUser) {
+    setToken(newToken);
+    setUser(newUser);
+  }
 
   function signOut() {
     localStorage.removeItem('tally_admin_token');
+    localStorage.removeItem('tally_admin_user');
     setToken(null);
+    setUser(null);
     setRelayOk(null);
     setRelayErr('');
     setRelayMeta('');
     setShowDiag(false);
   }
 
+  // Validate session and fetch latest user profile on mount
   useEffect(() => {
     if (!token) return;
 
     async function check() {
       try {
+        // Fetch user profile to validate JWT + get latest role
+        const profileRes = await fetch('/api/admin/relay?path=%2Fapi%2Fadmin%2Fme', {
+          method: 'GET',
+          headers: { 'x-admin-token': token, 'Content-Type': 'application/json' },
+        });
+        if (profileRes.ok) {
+          const profile = await profileRes.json();
+          if (profile?.user) {
+            setUser(profile.user);
+            localStorage.setItem('tally_admin_user', JSON.stringify(profile.user));
+          }
+        } else if (profileRes.status === 401) {
+          signOut();
+          return;
+        }
+
+        // Also check relay health
         const res = await fetch('/api/admin/relay?path=%2Fapi%2Fhealth', {
           method: 'GET',
           headers: { 'x-admin-token': token, 'Content-Type': 'application/json' },
@@ -594,7 +850,6 @@ export default function AdminPage() {
           setRelayOk(false);
           setRelayErr(String(msg));
           setRelayMeta(`HTTP ${res.status}`);
-          if (res.status === 401) signOut();
           return;
         }
 
@@ -611,7 +866,15 @@ export default function AdminPage() {
     check();
   }, [token]);
 
-  if (!token) return <LoginScreen onLogin={setToken} />;
+  // If current tab becomes unavailable for the user's role, reset to churches
+  const availTabs = tabsForRole(role);
+  useEffect(() => {
+    if (!availTabs.find(([id]) => id === tab)) {
+      setTab('churches');
+    }
+  }, [role, tab, availTabs]);
+
+  if (!token) return <LoginScreen onLogin={handleLogin} />;
 
   return (
     <div style={s.page}>
@@ -630,6 +893,12 @@ export default function AdminPage() {
               {showDiag ? 'Hide' : 'Show'} details
             </button>
           ) : null}
+          {user && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 12, color: C.white }}>{user.name || user.email}</span>
+              <span style={s.badge(ROLE_COLORS[role] || C.muted)}>{ROLE_LABELS[role] || role}</span>
+            </div>
+          )}
           <button
             style={{ ...s.btn('secondary'), fontSize: 12, padding: '6px 12px' }}
             onClick={signOut}
@@ -640,10 +909,16 @@ export default function AdminPage() {
       <main style={s.main}>
         <div style={{ ...s.card, marginBottom: 16, background: '#0d1017', borderColor: '#1d2e24' }}>
           <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Tally operations dashboard</div>
-          <div style={{ color: C.muted, fontSize: 12 }}>Use this page to manage churches, control relay registration, and onboard TDs (this is the full operator dashboard).</div>
+          <div style={{ color: C.muted, fontSize: 12 }}>
+            {canWrite(role)
+              ? 'Manage churches, control relay registration, and onboard TDs.'
+              : role === 'engineer'
+                ? 'Monitor church connections, status, and system health.'
+                : 'View churches and reseller accounts.'}
+          </div>
         </div>
         <nav style={s.tabBar}>
-          {[['churches', '⛪ Churches'], ['resellers', '🏢 Resellers']].map(([id, label]) => (
+          {availTabs.map(([id, label]) => (
             <button key={id} style={s.tab(tab === id)} onClick={() => setTab(id)}>{label}</button>
           ))}
         </nav>
@@ -655,8 +930,9 @@ export default function AdminPage() {
           </div>
         )}
 
-        {tab === 'churches'  && <ChurchesTab  relay={relay} />}
-        {tab === 'resellers' && <ResellersTab relay={relay} />}
+        {tab === 'churches'  && <ChurchesTab  relay={relay} role={role} />}
+        {tab === 'resellers' && <ResellersTab relay={relay} role={role} />}
+        {tab === 'users'     && <UsersTab relay={relay} />}
       </main>
     </div>
   );
