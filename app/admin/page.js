@@ -485,6 +485,10 @@ export default function AdminPage() {
       </header>
 
       <main style={s.main}>
+        <div style={{ ...s.card, marginBottom: 16, background: '#0d1017', borderColor: '#1d2e24' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Tally operations dashboard</div>
+          <div style={{ color: C.muted, fontSize: 12 }}>Use this page to manage churches, control relay registration, and onboard TDs (this is the full operator dashboard).</div>
+        </div>
         <nav style={s.tabBar}>
           {[['churches', '⛪ Churches'], ['resellers', '🏢 Resellers']].map(([id, label]) => (
             <button key={id} style={s.tab(tab === id)} onClick={() => setTab(id)}>{label}</button>
