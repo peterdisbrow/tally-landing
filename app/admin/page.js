@@ -16,6 +16,9 @@ const C = {
   blue:    '#3b82f6',
 };
 
+const PLAN_OPTIONS = ['connect', 'pro', 'managed', 'event'];
+const PLAN_STATUS_OPTIONS = ['active', 'trialing', 'inactive', 'pending', 'past_due', 'canceled'];
+
 const s = {
   page:    { minHeight: '100vh', background: C.bg, color: C.white, fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif", fontSize: 14 },
   header:  { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 28px', borderBottom: `1px solid ${C.border}`, background: C.surface, position: 'sticky', top: 0, zIndex: 10 },
@@ -134,17 +137,38 @@ function ChurchesTab({ relay }) {
   const [loading, setLoading]   = useState(true);
   const [err, setErr]           = useState('');
   const [modal, setModal]       = useState(null); // 'add' | { church }
-  const [form, setForm]         = useState({ name: '', contactEmail: '' });
+  const [form, setForm]         = useState({
+    name: '',
+    contactEmail: '',
+    portalEmail: '',
+    portalPassword: '',
+    tier: 'connect',
+    billingStatus: 'active',
+  });
   const [formErr, setFormErr]   = useState('');
   const [formOk, setFormOk]     = useState('');
   const [saving, setSaving]     = useState(false);
   const [showTokens, setShowTokens] = useState({});
+  const [billingDrafts, setBillingDrafts] = useState({});
 
   const load = useCallback(async () => {
     try {
       setErr('');
       const data = await relay('/api/churches');
-      setChurches(Array.isArray(data) ? data : Object.values(data));
+      const rows = Array.isArray(data) ? data : Object.values(data);
+      setChurches(rows);
+      setBillingDrafts((prev) => {
+        const next = { ...prev };
+        for (const c of rows) {
+          if (!next[c.churchId]) {
+            next[c.churchId] = {
+              tier: c.billing_tier || 'connect',
+              status: c.billing_status || 'inactive',
+            };
+          }
+        }
+        return next;
+      });
     } catch(e) { setErr(e.message); }
     finally { setLoading(false); }
   }, [relay]);
@@ -155,12 +179,50 @@ function ChurchesTab({ relay }) {
     e.preventDefault();
     setFormErr(''); setFormOk(''); setSaving(true);
     try {
-      const data = await relay('/api/churches/register', { method: 'POST', body: { name: form.name, email: form.contactEmail } });
+      const data = await relay('/api/churches/register', {
+        method: 'POST',
+        body: {
+          name: form.name,
+          email: form.contactEmail,
+          portalEmail: form.portalEmail || undefined,
+          password: form.portalPassword || undefined,
+          tier: form.tier,
+          billingStatus: form.billingStatus,
+        },
+      });
       setFormOk(`✅ Registered! Code: ${data.registrationCode || data.token || '—'}`);
-      setForm({ name: '', contactEmail: '' });
+      setForm({
+        name: '',
+        contactEmail: '',
+        portalEmail: '',
+        portalPassword: '',
+        tier: 'connect',
+        billingStatus: 'active',
+      });
       load();
     } catch(e) { setFormErr(e.message); }
     finally { setSaving(false); }
+  }
+
+  async function saveBilling(churchId) {
+    const draft = billingDrafts[churchId];
+    if (!draft) return;
+    try {
+      await relay(`/api/churches/${churchId}/billing`, {
+        method: 'PUT',
+        body: {
+          tier: draft.tier,
+          status: draft.status,
+        },
+      });
+      setChurches((prev) => prev.map((c) => (
+        c.churchId === churchId
+          ? { ...c, billing_tier: draft.tier, billing_status: draft.status }
+          : c
+      )));
+    } catch (e) {
+      alert(`Billing update failed: ${e.message}`);
+    }
   }
 
   async function deleteChurch(churchId, name) {
@@ -198,18 +260,25 @@ function ChurchesTab({ relay }) {
               <table style={s.table}>
                 <thead>
                   <tr>
-                    {['Church', 'Reg Code', 'Conn Token', 'Status', 'ATEM', 'OBS', 'Stream', 'Last Seen', ''].map(h => <th key={h} style={s.th}>{h}</th>)}
+                    {['Church', 'Account', 'Reg Code', 'Conn Token', 'Plan', 'Status', 'ATEM', 'OBS', 'Stream', 'Last Seen', ''].map(h => <th key={h} style={s.th}>{h}</th>)}
                   </tr>
                 </thead>
                 <tbody>
                   {churches.map(c => {
                     const st = c.status || {};
                     const obs = st.obs || {};
+                    const draft = billingDrafts[c.churchId] || {
+                      tier: c.billing_tier || 'connect',
+                      status: c.billing_status || 'inactive',
+                    };
                     return (
                       <tr key={c.churchId}>
                         <td style={s.td}>
                           <div style={{ fontWeight: 600 }}>{c.name}</div>
                           <div style={{ fontSize: 11, color: C.muted, fontFamily: 'monospace' }}>{c.churchId?.slice(0, 12)}…</div>
+                        </td>
+                        <td style={s.td}>
+                          <div style={{ fontSize: 12 }}>{c.portal_email || '—'}</div>
                         </td>
                         <td style={s.td}>
                           <div
@@ -251,6 +320,40 @@ function ChurchesTab({ relay }) {
                             )}
                           </div>
                         </td>
+                        <td style={s.td}>
+                          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                            <select
+                              style={{ ...s.input, minWidth: 96, padding: '5px 8px', fontSize: 12 }}
+                              value={draft.tier}
+                              onChange={(e) => setBillingDrafts((prev) => ({
+                                ...prev,
+                                [c.churchId]: { ...draft, tier: e.target.value },
+                              }))}
+                            >
+                              {PLAN_OPTIONS.map((plan) => (
+                                <option key={plan} value={plan}>{plan}</option>
+                              ))}
+                            </select>
+                            <select
+                              style={{ ...s.input, minWidth: 104, padding: '5px 8px', fontSize: 12 }}
+                              value={draft.status}
+                              onChange={(e) => setBillingDrafts((prev) => ({
+                                ...prev,
+                                [c.churchId]: { ...draft, status: e.target.value },
+                              }))}
+                            >
+                              {PLAN_STATUS_OPTIONS.map((status) => (
+                                <option key={status} value={status}>{status}</option>
+                              ))}
+                            </select>
+                            <button
+                              style={{ ...s.btn('secondary'), padding: '4px 8px', fontSize: 11 }}
+                              onClick={() => saveBilling(c.churchId)}
+                            >
+                              Save
+                            </button>
+                          </div>
+                        </td>
                         <td style={s.td}><span style={s.badge(statusColor(c))}>{statusLabel(c)}</span></td>
                         <td style={s.td}><span style={s.badge(st.atem?.connected ? C.green : C.muted)}>{st.atem?.connected ? 'Connected' : '—'}</span></td>
                         <td style={s.td}><span style={s.badge(obs.connected ? C.green : C.muted)}>{obs.connected ? 'Online' : '—'}</span></td>
@@ -279,6 +382,32 @@ function ChurchesTab({ relay }) {
               <div style={{ marginBottom: 14 }}>
                 <label style={s.label}>Contact Email</label>
                 <input style={s.input} type="email" value={form.contactEmail} onChange={e => setForm(f => ({ ...f, contactEmail: e.target.value }))} placeholder="td@gracecommunity.org" />
+              </div>
+              <div style={{ marginBottom: 14 }}>
+                <label style={s.label}>Login Email</label>
+                <input style={s.input} type="email" value={form.portalEmail} onChange={e => setForm(f => ({ ...f, portalEmail: e.target.value }))} placeholder="admin@gracecommunity.org" />
+              </div>
+              <div style={{ marginBottom: 14 }}>
+                <label style={s.label}>Login Password</label>
+                <input style={s.input} type="password" minLength={8} value={form.portalPassword} onChange={e => setForm(f => ({ ...f, portalPassword: e.target.value }))} placeholder="Minimum 8 characters (optional)" />
+              </div>
+              <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={s.label}>Plan</label>
+                  <select style={s.input} value={form.tier} onChange={e => setForm(f => ({ ...f, tier: e.target.value }))}>
+                    {PLAN_OPTIONS.map((plan) => (
+                      <option key={plan} value={plan}>{plan}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={s.label}>Plan Status</label>
+                  <select style={s.input} value={form.billingStatus} onChange={e => setForm(f => ({ ...f, billingStatus: e.target.value }))}>
+                    {PLAN_STATUS_OPTIONS.map((status) => (
+                      <option key={status} value={status}>{status}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               {formErr && <div style={s.err}>{formErr}</div>}
               {formOk  && <div style={s.ok}>{formOk}</div>}

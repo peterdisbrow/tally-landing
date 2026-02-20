@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import crypto from 'node:crypto';
 
 const RELAY_URL = process.env.RELAY_URL || 'https://tally-production-cde2.up.railway.app';
-const RELAY_KEY = process.env.RELAY_ADMIN_KEY || process.env.ADMIN_API_KEY || 'tally-admin-0c3f1c318c8a7edddc217faecc410a98c83cecd0';
-const SESSION_SECRET = process.env.SESSION_SECRET || 'tally-session-secret';
+const RELAY_KEY = process.env.RELAY_ADMIN_KEY || process.env.ADMIN_API_KEY;
+const SESSION_SECRET = process.env.SESSION_SECRET;
 
 const ALLOWED_PATH_PREFIXES = [
   '/api/health',

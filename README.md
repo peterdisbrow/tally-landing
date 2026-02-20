@@ -28,6 +28,13 @@ npm install
 npm run dev
 ```
 
+Set relay target (for signup/login proxy routes):
+
+```bash
+RELAY_URL=https://your-relay.up.railway.app
+NEXT_PUBLIC_APP_URL=https://tally.atemschool.com
+```
+
 ## Early Access Form
 
 Submissions are sent to Mailchimp (audience `6c052ad3be`, tag `tally-early-access`) via the `/api/early-access` endpoint, with a backup written to `/tmp/early-access.json`.
@@ -40,3 +47,7 @@ Set the `MAILCHIMP_API_KEY` environment variable in the Vercel dashboard before 
 2. Add `MAILCHIMP_API_KEY` with your Mailchimp API key (datacenter: us10)
 
 If the key is missing, the form still works — submissions are saved to the backup file only.
+
+## Self-Serve Signup
+
+`/signup` creates church accounts and starts Stripe checkout via relay endpoint `/api/church/app/onboard`.

@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 import crypto from 'node:crypto';
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Tally-F78AFA6FF4F77D9D';
-const SESSION_SECRET = process.env.SESSION_SECRET || 'tally-session-secret';
-const REQUIRE_SECURE_SECRETS = process.env.NODE_ENV === 'production';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const SESSION_SECRET = process.env.SESSION_SECRET;
 
 function hmacToken(secret, ttlMs = 8 * 60 * 60 * 1000) {
   const now = Date.now();
@@ -19,17 +18,13 @@ function badConfig(message) {
 
 export async function POST(req) {
   try {
-    if (REQUIRE_SECURE_SECRETS && (!ADMIN_PASSWORD || !SESSION_SECRET)) {
-      return badConfig('ADMIN_PASSWORD/SESSION_SECRET');
+    if (!ADMIN_PASSWORD || !SESSION_SECRET) {
+      return badConfig('ADMIN_PASSWORD and/or SESSION_SECRET');
     }
 
     const { password } = await req.json();
     if (!password || password !== ADMIN_PASSWORD) {
       return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
-    }
-
-    if (!SESSION_SECRET) {
-      return badConfig('SESSION_SECRET');
     }
 
     const token = Buffer.from(hmacToken(SESSION_SECRET)).toString('base64');

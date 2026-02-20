@@ -1,0 +1,148 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+
+const BG = '#09090B';
+const CARD = '#0F1613';
+const BORDER = '#1a2e1f';
+const GREEN = '#22c55e';
+const GREEN_LT = '#4ade80';
+const WHITE = '#F8FAFC';
+const MUTED = '#94A3B8';
+const DANGER = '#ef4444';
+
+const TIERS = [
+  { value: 'connect', label: 'Connect ($49/mo)' },
+  { value: 'pro', label: 'Pro ($149/mo)' },
+  { value: 'managed', label: 'Managed ($299/mo)' },
+];
+
+export default function SignupPage() {
+  const [form, setForm] = useState({ name: '', email: '', password: '', tier: 'connect' });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(null);
+
+  const statusMessage = useMemo(() => {
+    if (typeof window === 'undefined') return '';
+    const status = new URLSearchParams(window.location.search).get('status');
+    if (status === 'paid') return 'Payment completed. You can now sign in from the Tally desktop app.';
+    if (status === 'cancelled') return 'Checkout was canceled. You can resume it by creating the account again.';
+    return '';
+  }, []);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setSubmitting(true);
+    setError('');
+    setSuccess(null);
+
+    try {
+      const res = await fetch('/api/church/onboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(data.error || 'Could not create account');
+        return;
+      }
+
+      setSuccess(data);
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      }
+    } catch (err) {
+      setError(err.message || 'Network error');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <main style={{ minHeight: '100vh', background: BG, color: WHITE, fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif", padding: '48px 20px' }}>
+      <div style={{ maxWidth: 520, margin: '0 auto' }}>
+        <a href="/" style={{ color: MUTED, textDecoration: 'none', fontSize: 13 }}>← Back to Home</a>
+
+        <div style={{ marginTop: 14, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
+          <h1 style={{ fontSize: 28, marginBottom: 8 }}>Create Your Tally Account</h1>
+          <p style={{ color: MUTED, lineHeight: 1.55, marginBottom: 18 }}>
+            Sign up, start billing checkout, then log into the desktop app with your email and password.
+          </p>
+
+          {statusMessage && (
+            <div style={{ marginBottom: 14, background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.35)', color: GREEN_LT, borderRadius: 8, padding: 10, fontSize: 13 }}>
+              {statusMessage}
+            </div>
+          )}
+
+          {error && (
+            <div style={{ marginBottom: 14, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.35)', color: DANGER, borderRadius: 8, padding: 10, fontSize: 13 }}>
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <label style={labelStyle}>Church Name</label>
+            <input style={inputStyle} value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required placeholder="Disbrow Church" />
+
+            <label style={labelStyle}>Admin Email</label>
+            <input style={inputStyle} type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} required placeholder="td@yourchurch.org" />
+
+            <label style={labelStyle}>Password</label>
+            <input style={inputStyle} type="password" minLength={8} value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} required placeholder="Minimum 8 characters" />
+
+            <label style={labelStyle}>Plan</label>
+            <select style={inputStyle} value={form.tier} onChange={(e) => setForm((f) => ({ ...f, tier: e.target.value }))}>
+              {TIERS.map((tier) => (
+                <option key={tier.value} value={tier.value}>{tier.label}</option>
+              ))}
+            </select>
+
+            <button type="submit" disabled={submitting} style={{
+              marginTop: 16,
+              width: '100%',
+              border: 0,
+              borderRadius: 8,
+              padding: '11px 14px',
+              fontSize: 14,
+              fontWeight: 700,
+              background: GREEN,
+              color: '#03140A',
+              cursor: submitting ? 'default' : 'pointer',
+              opacity: submitting ? 0.6 : 1,
+            }}>
+              {submitting ? 'Creating account…' : 'Create Account & Continue to Checkout'}
+            </button>
+          </form>
+
+          {success && !success.checkoutUrl && (
+            <p style={{ color: MUTED, marginTop: 14, fontSize: 13 }}>
+              Account created. Billing checkout URL was not returned. Contact support if this is unexpected.
+            </p>
+          )}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+const labelStyle = {
+  display: 'block',
+  fontSize: 12,
+  color: MUTED,
+  marginBottom: 6,
+  marginTop: 12,
+};
+
+const inputStyle = {
+  width: '100%',
+  border: `1px solid ${BORDER}`,
+  borderRadius: 8,
+  background: '#09090B',
+  color: WHITE,
+  fontSize: 14,
+  padding: '10px 12px',
+};
