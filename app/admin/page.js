@@ -197,7 +197,7 @@ function ChurchesTab({ relay }) {
               <table style={s.table}>
                 <thead>
                   <tr>
-                    {['Church', 'Status', 'ATEM', 'OBS', 'Stream', 'Last Seen', ''].map(h => <th key={h} style={s.th}>{h}</th>)}
+                    {['Church', 'Reg Code', 'Status', 'ATEM', 'OBS', 'Stream', 'Last Seen', ''].map(h => <th key={h} style={s.th}>{h}</th>)}
                   </tr>
                 </thead>
                 <tbody>
@@ -209,6 +209,23 @@ function ChurchesTab({ relay }) {
                         <td style={s.td}>
                           <div style={{ fontWeight: 600 }}>{c.name}</div>
                           <div style={{ fontSize: 11, color: C.muted, fontFamily: 'monospace' }}>{c.churchId?.slice(0, 12)}…</div>
+                        </td>
+                        <td style={s.td}>
+                          <div
+                            onClick={() => {
+                              if (!c.registrationCode) return;
+                              navigator.clipboard.writeText(c.registrationCode);
+                            }}
+                            title={c.registrationCode ? 'Copy registration code' : ''}
+                            style={{
+                              fontFamily: 'monospace',
+                              letterSpacing: 1,
+                              fontSize: 12,
+                              color: c.registrationCode ? C.green : C.muted,
+                              cursor: c.registrationCode ? 'pointer' : 'default',
+                            }}>
+                            {c.registrationCode || '—'}
+                          </div>
                         </td>
                         <td style={s.td}><span style={s.badge(statusColor(c))}>{statusLabel(c)}</span></td>
                         <td style={s.td}><span style={s.badge(st.atem?.connected ? C.green : C.muted)}>{st.atem?.connected ? 'Connected' : '—'}</span></td>
