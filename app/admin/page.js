@@ -42,12 +42,16 @@ const s = {
   badge:   (color) => ({ display: 'inline-block', padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 600, background: `${color}20`, color }),
   modal:   { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 500 },
   modalBox:{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 28, width: 420, maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto' },
+  wideModalBox: { background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 28, width: 640, maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto' },
+  detailTab: (active) => ({ background: active ? 'rgba(34,197,94,0.12)' : 'none', border: active ? `1px solid rgba(34,197,94,0.3)` : '1px solid transparent', color: active ? C.green : C.muted, fontSize: 12, fontWeight: 600, padding: '6px 14px', cursor: 'pointer', borderRadius: 6, transition: 'all 0.15s', whiteSpace: 'nowrap' }),
   err:     { color: C.red, fontSize: 12, marginTop: 8 },
   ok:      { color: C.green, fontSize: 12, marginTop: 8 },
   empty:   { textAlign: 'center', color: C.muted, padding: '40px 20px', fontSize: 13 },
   statCard:{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: '14px 20px', flex: 1, minWidth: 110 },
   statVal: { fontSize: 28, fontWeight: 700, color: C.green, marginTop: 4 },
   statLbl: { fontSize: 11, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.05em' },
+  section: { background: 'rgba(255,255,255,0.02)', border: `1px solid ${C.border}`, borderRadius: 8, padding: 16, marginBottom: 16 },
+  sectionTitle: { fontSize: 13, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 },
 };
 
 // ── Role helpers ──────────────────────────────────────────────────────────────
@@ -153,13 +157,720 @@ function StatsBar({ churches }) {
   );
 }
 
+// ── Automation Panel (inside ChurchDetailModal) ─────────────────────────────
+
+const TRIGGER_TYPES = [
+  { value: 'propresenter_slide_change', label: 'ProPresenter Slide Change' },
+  { value: 'schedule_timer', label: 'Schedule Timer (minutes into service)' },
+  { value: 'equipment_state_match', label: 'Equipment State Match' },
+];
+
+function AutomationPanel({ churchId, relay, role }) {
+  const [rules, setRules] = useState([]);
+  const [paused, setPaused] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createErr, setCreateErr] = useState('');
+  const [form, setForm] = useState({
+    name: '', triggerType: 'propresenter_slide_change',
+    presentationPattern: '', minutesIntoService: '5',
+    command: '', paramJson: '{}',
+  });
+  const [commandLog, setCommandLog] = useState(null);
+  const [logLoading, setLogLoading] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const data = await relay(`/api/churches/${churchId}/automation`);
+      setRules(data.rules || []);
+      setPaused(data.paused || false);
+    } catch { setRules([]); }
+    finally { setLoading(false); }
+  }, [churchId, relay]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function togglePause() {
+    const endpoint = paused ? 'resume' : 'pause';
+    try {
+      await relay(`/api/churches/${churchId}/automation/${endpoint}`, { method: 'POST' });
+      setPaused(!paused);
+    } catch {}
+  }
+
+  async function toggleRule(ruleId, currentEnabled) {
+    try {
+      await relay(`/api/churches/${churchId}/automation/${ruleId}`, {
+        method: 'PUT', body: { enabled: !currentEnabled },
+      });
+      setRules(prev => prev.map(r => r.id === ruleId ? { ...r, enabled: !currentEnabled } : r));
+    } catch {}
+  }
+
+  async function deleteRule(ruleId, name) {
+    if (!confirm(`Delete rule "${name}"?`)) return;
+    try {
+      await relay(`/api/churches/${churchId}/automation/${ruleId}`, { method: 'DELETE' });
+      setRules(prev => prev.filter(r => r.id !== ruleId));
+    } catch {}
+  }
+
+  async function createRule(e) {
+    e.preventDefault();
+    setCreating(true); setCreateErr('');
+    try {
+      let triggerConfig = {};
+      if (form.triggerType === 'propresenter_slide_change') {
+        triggerConfig = { presentationPattern: form.presentationPattern || undefined };
+      } else if (form.triggerType === 'schedule_timer') {
+        triggerConfig = { minutesIntoService: parseInt(form.minutesIntoService) || 0 };
+      } else if (form.triggerType === 'equipment_state_match') {
+        triggerConfig = { conditions: JSON.parse(form.paramJson || '{}') };
+      }
+
+      let params = {};
+      try { params = JSON.parse(form.paramJson || '{}'); } catch {}
+
+      await relay(`/api/churches/${churchId}/automation`, {
+        method: 'POST',
+        body: {
+          name: form.name,
+          triggerType: form.triggerType,
+          triggerConfig,
+          actions: [{ command: form.command, params }],
+        },
+      });
+      setShowCreate(false);
+      setForm({ name: '', triggerType: 'propresenter_slide_change', presentationPattern: '', minutesIntoService: '5', command: '', paramJson: '{}' });
+      load();
+    } catch (err) { setCreateErr(err.message); }
+    finally { setCreating(false); }
+  }
+
+  async function loadCommandLog() {
+    setLogLoading(true);
+    try {
+      const data = await relay(`/api/churches/${churchId}/command-log?limit=30`);
+      setCommandLog(Array.isArray(data) ? data : []);
+    } catch { setCommandLog([]); }
+    finally { setLogLoading(false); }
+  }
+
+  if (loading) return <div style={{ color: C.muted, fontSize: 12, padding: '24px 0', textAlign: 'center' }}>Loading automation...</div>;
+
+  return (
+    <div>
+      {/* Header with pause/resume */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ fontSize: 13, fontWeight: 700 }}>Autopilot Rules ({rules.length})</div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {canWrite(role) && (
+            <button
+              style={s.btn(paused ? 'primary' : 'danger')}
+              onClick={togglePause}
+            >
+              {paused ? '\u25B6 Resume' : '\u23F8 Pause'} Autopilot
+            </button>
+          )}
+          {canWrite(role) && (
+            <button style={s.btn('primary')} onClick={() => setShowCreate(true)}>+ New Rule</button>
+          )}
+        </div>
+      </div>
+
+      {paused && (
+        <div style={{ background: 'rgba(245,158,11,0.1)', border: `1px solid rgba(245,158,11,0.3)`, borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 12, color: C.yellow }}>
+          Autopilot is paused. No automation rules will fire until resumed.
+        </div>
+      )}
+
+      {/* Rules list */}
+      {rules.length === 0 ? (
+        <div style={s.section}>
+          <div style={{ color: C.muted, fontSize: 12, textAlign: 'center', padding: '16px 0' }}>
+            No automation rules yet. Create one to get started.
+          </div>
+        </div>
+      ) : (
+        rules.map(rule => (
+          <div key={rule.id} style={{ ...s.section, marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16 }}>{rule.enabled ? '\u{1F7E2}' : '\u{26AA}'}</span>
+                <span style={{ fontWeight: 600, fontSize: 13 }}>{rule.name}</span>
+                <span style={s.badge(C.blue)}>{rule.trigger_type?.replace(/_/g, ' ')}</span>
+              </div>
+              <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>
+                {rule.trigger_type === 'propresenter_slide_change' && rule.trigger_config?.presentationPattern
+                  ? `When presentation matches: "${rule.trigger_config.presentationPattern}"`
+                  : rule.trigger_type === 'schedule_timer'
+                  ? `At ${rule.trigger_config?.minutesIntoService || 0} minutes into service`
+                  : rule.trigger_type === 'equipment_state_match'
+                  ? `When equipment state matches conditions`
+                  : 'On any matching event'}
+                {' \u2192 '}
+                {(rule.actions || []).map(a => a.command).join(', ') || 'No actions'}
+              </div>
+              <div style={{ fontSize: 10, color: C.dim, marginTop: 2 }}>
+                Fired {rule.fire_count || 0} times
+                {rule.last_fired_at ? ` \u2022 Last: ${new Date(rule.last_fired_at).toLocaleString()}` : ''}
+              </div>
+            </div>
+            {canWrite(role) && (
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button
+                  style={{ ...s.btn(rule.enabled ? 'secondary' : 'primary'), padding: '4px 10px', fontSize: 11 }}
+                  onClick={() => toggleRule(rule.id, rule.enabled)}
+                >
+                  {rule.enabled ? 'Disable' : 'Enable'}
+                </button>
+                <button
+                  style={{ ...s.btn('danger'), padding: '4px 10px', fontSize: 11 }}
+                  onClick={() => deleteRule(rule.id, rule.name)}
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        ))
+      )}
+
+      {/* Create rule form */}
+      {showCreate && canWrite(role) && (
+        <div style={{ ...s.section, marginTop: 16 }}>
+          <div style={s.sectionTitle}>Create Automation Rule</div>
+          <form onSubmit={createRule}>
+            <div style={{ marginBottom: 14 }}>
+              <label style={s.label}>Rule Name *</label>
+              <input style={s.input} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Switch to Cam 1 during worship" required />
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={s.label}>Trigger Type *</label>
+              <select style={s.input} value={form.triggerType} onChange={e => setForm(f => ({ ...f, triggerType: e.target.value }))}>
+                {TRIGGER_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </div>
+
+            {form.triggerType === 'propresenter_slide_change' && (
+              <div style={{ marginBottom: 14 }}>
+                <label style={s.label}>Presentation Name Pattern (optional)</label>
+                <input style={s.input} value={form.presentationPattern} onChange={e => setForm(f => ({ ...f, presentationPattern: e.target.value }))} placeholder="worship (matches any presentation containing this)" />
+                <div style={{ fontSize: 11, color: C.dim, marginTop: 4 }}>Leave blank to match any slide change.</div>
+              </div>
+            )}
+            {form.triggerType === 'schedule_timer' && (
+              <div style={{ marginBottom: 14 }}>
+                <label style={s.label}>Minutes Into Service *</label>
+                <input style={s.input} type="number" min="0" value={form.minutesIntoService} onChange={e => setForm(f => ({ ...f, minutesIntoService: e.target.value }))} />
+              </div>
+            )}
+            {form.triggerType === 'equipment_state_match' && (
+              <div style={{ marginBottom: 14 }}>
+                <label style={s.label}>Conditions (JSON)</label>
+                <input style={s.input} value={form.paramJson} onChange={e => setForm(f => ({ ...f, paramJson: e.target.value }))} placeholder='{"obs.streaming": true}' />
+              </div>
+            )}
+
+            <div style={{ marginBottom: 14 }}>
+              <label style={s.label}>Action Command *</label>
+              <input style={s.input} value={form.command} onChange={e => setForm(f => ({ ...f, command: e.target.value }))} placeholder="e.g. atem.setProgram, obs.startStream" required />
+              <div style={{ fontSize: 11, color: C.dim, marginTop: 4 }}>Any Tally command: atem.cut, atem.setProgram, obs.startStream, propresenter.next, etc.</div>
+            </div>
+
+            {form.triggerType !== 'equipment_state_match' && (
+              <div style={{ marginBottom: 14 }}>
+                <label style={s.label}>Action Parameters (JSON, optional)</label>
+                <input style={s.input} value={form.paramJson} onChange={e => setForm(f => ({ ...f, paramJson: e.target.value }))} placeholder='{"input": 1}' />
+              </div>
+            )}
+
+            {createErr && <div style={s.err}>{createErr}</div>}
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
+              <button type="button" style={s.btn('secondary')} onClick={() => setShowCreate(false)}>Cancel</button>
+              <button type="submit" style={s.btn('primary')} disabled={creating}>{creating ? 'Creating...' : 'Create Rule'}</button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Command log */}
+      <div style={{ marginTop: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ fontSize: 13, fontWeight: 700 }}>Command Log</div>
+          <button style={s.btn('secondary')} onClick={loadCommandLog} disabled={logLoading}>
+            {logLoading ? 'Loading...' : commandLog ? 'Refresh' : 'Load Log'}
+          </button>
+        </div>
+
+        {commandLog && (
+          commandLog.length === 0 ? (
+            <div style={{ ...s.section, color: C.muted, fontSize: 12, textAlign: 'center', padding: '12px 0' }}>
+              No commands logged yet.
+            </div>
+          ) : (
+            <div style={{ ...s.section, maxHeight: 250, overflowY: 'auto' }}>
+              {commandLog.map((log, i) => (
+                <div key={log.id || i} style={{ display: 'flex', gap: 8, marginBottom: 8, fontSize: 11, borderBottom: i < commandLog.length - 1 ? `1px solid ${C.border}` : 'none', paddingBottom: 6 }}>
+                  <span style={{ color: C.dim, minWidth: 55, flexShrink: 0 }}>
+                    {new Date(log.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                  </span>
+                  <span style={s.badge(log.source === 'autopilot' ? C.blue : log.source === 'telegram' ? C.yellow : C.muted)}>
+                    {log.source}
+                  </span>
+                  <span style={{ color: C.white, fontWeight: 600 }}>{log.command}</span>
+                  {log.result && <span style={{ color: C.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{String(log.result).substring(0, 50)}</span>}
+                </div>
+              ))}
+            </div>
+          )
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Sessions Panel (inside ChurchDetailModal) ──────────────────────────────
+
+function SessionsPanel({ churchId, relay }) {
+  const [sessions, setSessions] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState(null);
+  const [timeline, setTimeline] = useState(null);
+  const [timelineLoading, setTimelineLoading] = useState(false);
+  const [debrief, setDebrief] = useState(null);
+  const [debriefLoading, setDebriefLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await relay(`/api/churches/${churchId}/sessions?limit=20`);
+        setSessions(data.sessions || data || []);
+        setTotal(data.total || 0);
+      } catch { setSessions([]); }
+      finally { setLoading(false); }
+    })();
+  }, [churchId, relay]);
+
+  async function loadTimeline(sessionId) {
+    if (expandedId === sessionId) {
+      setExpandedId(null);
+      setTimeline(null);
+      setDebrief(null);
+      return;
+    }
+    setExpandedId(sessionId);
+    setTimelineLoading(true);
+    setDebrief(null);
+    try {
+      const data = await relay(`/api/churches/${churchId}/sessions/${sessionId}/timeline`);
+      setTimeline(data.timeline || []);
+    } catch { setTimeline([]); }
+    finally { setTimelineLoading(false); }
+  }
+
+  async function loadDebrief(sessionId) {
+    setDebriefLoading(true);
+    try {
+      const data = await relay(`/api/churches/${churchId}/sessions/${sessionId}/debrief`);
+      setDebrief(data.debrief || 'No debrief available.');
+    } catch { setDebrief('Error loading debrief.'); }
+    finally { setDebriefLoading(false); }
+  }
+
+  function copyDebrief() {
+    if (debrief) {
+      navigator.clipboard.writeText(debrief);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
+  const gradeIcon = (grade) => {
+    if (!grade) return '\u{26AA}';
+    if (grade === 'Clean') return '\u{1F7E2}';
+    if (grade === 'Minor issues') return '\u{1F7E1}';
+    return '\u{1F534}';
+  };
+
+  const severityColor = (sev) => {
+    if (sev === 'CRITICAL' || sev === 'EMERGENCY') return C.red;
+    if (sev === 'WARNING') return C.yellow;
+    return C.green;
+  };
+
+  if (loading) return <div style={{ color: C.muted, fontSize: 12, padding: '24px 0', textAlign: 'center' }}>Loading sessions...</div>;
+
+  if (sessions.length === 0) {
+    return (
+      <div style={s.section}>
+        <div style={s.sectionTitle}>Service Sessions</div>
+        <div style={{ color: C.muted, fontSize: 12, textAlign: 'center', padding: '24px 0' }}>
+          No sessions recorded yet. Sessions are tracked automatically during service windows.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>Service Sessions ({total})</div>
+
+      {sessions.map(sess => {
+        const isExpanded = expandedId === sess.id;
+        const start = new Date(sess.started_at);
+        const dateStr = start.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        const timeStr = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+        return (
+          <div key={sess.id} style={{ ...s.section, marginBottom: 8, padding: 0 }}>
+            {/* Session header — clickable */}
+            <div
+              onClick={() => loadTimeline(sess.id)}
+              style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '12px 16px', cursor: 'pointer', transition: 'background 0.15s',
+                borderRadius: isExpanded ? '8px 8px 0 0' : 8,
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 16 }}>{gradeIcon(sess.grade)}</span>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: 13 }}>{dateStr} {timeStr}</div>
+                  <div style={{ fontSize: 11, color: C.muted }}>
+                    {sess.duration_minutes ? `${sess.duration_minutes} min` : 'In progress'} {sess.td_name ? `\u2022 TD: ${sess.td_name}` : ''}
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {(sess.alert_count || 0) > 0 && <span style={s.badge(C.red)}>{sess.alert_count} alerts</span>}
+                {(sess.auto_recovered_count || 0) > 0 && <span style={s.badge(C.green)}>{sess.auto_recovered_count} auto-fixed</span>}
+                {sess.stream_ran ? <span style={s.badge(C.blue)}>Streamed</span> : null}
+                <span style={{ color: C.muted, fontSize: 14 }}>{isExpanded ? '\u25B2' : '\u25BC'}</span>
+              </div>
+            </div>
+
+            {/* Expanded timeline */}
+            {isExpanded && (
+              <div style={{ padding: '0 16px 16px', borderTop: `1px solid ${C.border}` }}>
+                {timelineLoading ? (
+                  <div style={{ color: C.muted, fontSize: 12, padding: '16px 0', textAlign: 'center' }}>Loading timeline...</div>
+                ) : !timeline || timeline.length === 0 ? (
+                  <div style={{ color: C.muted, fontSize: 12, padding: '16px 0', textAlign: 'center' }}>No events recorded for this session.</div>
+                ) : (
+                  <div style={{ position: 'relative', paddingLeft: 24, marginTop: 12 }}>
+                    {/* Vertical line */}
+                    <div style={{ position: 'absolute', left: 7, top: 4, bottom: 4, width: 2, background: C.border }} />
+
+                    {timeline.map((item, i) => {
+                      const time = new Date(item.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+                      let dotColor = C.green;
+                      let label = '';
+                      let icon = '';
+
+                      if (item._type === 'marker') {
+                        dotColor = C.blue;
+                        label = item.label;
+                        icon = item.label === 'Session Started' ? '\u{25B6}' : '\u{23F9}';
+                        if (item.grade) label += ` (${item.grade})`;
+                      } else if (item._type === 'alert') {
+                        dotColor = severityColor(item.severity);
+                        label = item.alert_type?.replace(/_/g, ' ') || 'Alert';
+                        icon = item.severity === 'CRITICAL' || item.severity === 'EMERGENCY' ? '\u{1F534}' : '\u{26A0}\u{FE0F}';
+                        if (item.acknowledged_at) label += ' \u2714';
+                        if (item.escalated) label += ' ESCALATED';
+                      } else if (item._type === 'event') {
+                        dotColor = item.auto_resolved ? C.green : item.resolved ? C.yellow : C.muted;
+                        label = item.event_type?.replace(/_/g, ' ') || 'Event';
+                        icon = item.auto_resolved ? '\u{26A1}' : '\u{1F4CB}';
+                        if (item.auto_resolved) label += ' (auto-resolved)';
+                        else if (item.resolved) label += ' (resolved)';
+                      }
+
+                      return (
+                        <div key={`${item._type}-${item.id || i}`} style={{ display: 'flex', gap: 10, marginBottom: 10, position: 'relative' }}>
+                          {/* Dot */}
+                          <div style={{
+                            width: 16, height: 16, borderRadius: '50%', background: `${dotColor}20`,
+                            border: `2px solid ${dotColor}`, position: 'absolute', left: -24, top: 1,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8,
+                          }} />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                              <span style={{ fontSize: 12 }}>{icon}</span>
+                              <span style={{ fontSize: 12, fontWeight: 600, color: dotColor }}>{label}</span>
+                              <span style={{ fontSize: 11, color: C.dim }}>{time}</span>
+                            </div>
+                            {item.details && (
+                              <div style={{ fontSize: 11, color: C.muted, marginTop: 2, paddingLeft: 20 }}>
+                                {typeof item.details === 'string' ? item.details.substring(0, 120) : JSON.stringify(item.details).substring(0, 120)}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Debrief section */}
+                <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                  <button
+                    style={s.btn('secondary')}
+                    onClick={() => loadDebrief(sess.id)}
+                    disabled={debriefLoading}
+                  >
+                    {debriefLoading ? 'Loading...' : debrief ? 'Refresh Debrief' : 'Generate Debrief'}
+                  </button>
+                  {debrief && (
+                    <button style={s.btn('primary')} onClick={copyDebrief}>
+                      {copied ? 'Copied!' : 'Copy Debrief'}
+                    </button>
+                  )}
+                </div>
+
+                {debrief && (
+                  <pre style={{
+                    marginTop: 8, padding: 12, background: 'rgba(0,0,0,0.3)', borderRadius: 6,
+                    fontSize: 11, color: C.muted, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                    border: `1px solid ${C.border}`, maxHeight: 300, overflowY: 'auto', fontFamily: 'monospace',
+                  }}>
+                    {debrief}
+                  </pre>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Church Detail Modal ──────────────────────────────────────────────────────
+
+function ChurchDetailModal({ church, relay, role, onClose, onUpdate }) {
+  const [detailTab, setDetailTab] = useState('slack');
+  const [slackForm, setSlackForm] = useState({ webhookUrl: '', channel: '' });
+  const [slackLoaded, setSlackLoaded] = useState(false);
+  const [slackSaving, setSlackSaving] = useState(false);
+  const [slackTesting, setSlackTesting] = useState(false);
+  const [slackMsg, setSlackMsg] = useState({ type: '', text: '' });
+
+  // Load current Slack config when modal opens
+  useEffect(() => {
+    if (!church?.churchId) return;
+    (async () => {
+      try {
+        const data = await relay(`/api/churches/${church.churchId}/slack`);
+        setSlackForm({
+          webhookUrl: data.webhookUrlFull || data.webhookUrl || '',
+          channel: data.channel || '',
+        });
+      } catch {
+        // No Slack config yet — that's fine, start blank
+        setSlackForm({ webhookUrl: '', channel: '' });
+      }
+      setSlackLoaded(true);
+    })();
+  }, [church?.churchId, relay]);
+
+  async function saveSlack() {
+    if (!slackForm.webhookUrl) {
+      setSlackMsg({ type: 'err', text: 'Webhook URL is required.' });
+      return;
+    }
+    setSlackSaving(true);
+    setSlackMsg({ type: '', text: '' });
+    try {
+      await relay(`/api/churches/${church.churchId}/slack`, {
+        method: 'PUT',
+        body: { webhookUrl: slackForm.webhookUrl, channel: slackForm.channel || undefined },
+      });
+      setSlackMsg({ type: 'ok', text: 'Slack webhook saved.' });
+      if (onUpdate) onUpdate({ ...church, has_slack: true });
+    } catch (e) {
+      setSlackMsg({ type: 'err', text: e.message });
+    } finally {
+      setSlackSaving(false);
+    }
+  }
+
+  async function removeSlack() {
+    if (!confirm('Remove Slack integration for this church?')) return;
+    setSlackSaving(true);
+    setSlackMsg({ type: '', text: '' });
+    try {
+      await relay(`/api/churches/${church.churchId}/slack`, { method: 'DELETE' });
+      setSlackForm({ webhookUrl: '', channel: '' });
+      setSlackMsg({ type: 'ok', text: 'Slack integration removed.' });
+      if (onUpdate) onUpdate({ ...church, has_slack: false });
+    } catch (e) {
+      setSlackMsg({ type: 'err', text: e.message });
+    } finally {
+      setSlackSaving(false);
+    }
+  }
+
+  async function testSlack() {
+    setSlackTesting(true);
+    setSlackMsg({ type: '', text: '' });
+    try {
+      await relay(`/api/churches/${church.churchId}/slack/test`, { method: 'POST' });
+      setSlackMsg({ type: 'ok', text: 'Test message sent to Slack!' });
+    } catch (e) {
+      setSlackMsg({ type: 'err', text: `Test failed: ${e.message}` });
+    } finally {
+      setSlackTesting(false);
+    }
+  }
+
+  const statusColor = church.connected ? C.green : C.muted;
+  const statusLabel = church.connected ? 'Online' : 'Offline';
+
+  const DETAIL_TABS = [
+    ['slack', 'Slack'],
+    ['sessions', 'Sessions'],
+    ['automation', 'Automation'],
+  ];
+
+  return (
+    <div style={s.modal} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div style={s.wideModalBox}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 700 }}>{church.name}</div>
+            <div style={{ fontSize: 12, color: C.muted, fontFamily: 'monospace', marginTop: 2 }}>{church.churchId}</div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+              <span style={s.badge(statusColor)}>{statusLabel}</span>
+              <span style={s.badge(C.blue)}>{church.billing_tier || 'connect'}</span>
+              <span style={s.badge(church.billing_status === 'active' || church.billing_status === 'trialing' ? C.green : C.yellow)}>{church.billing_status || 'inactive'}</span>
+              {church.has_slack && <span style={s.badge(C.green)}>Slack</span>}
+            </div>
+          </div>
+          <button style={{ ...s.btn('secondary'), padding: '6px 12px', fontSize: 12 }} onClick={onClose}>Close</button>
+        </div>
+
+        {/* Tab bar */}
+        <div style={{ display: 'flex', gap: 6, marginBottom: 20 }}>
+          {DETAIL_TABS.map(([id, label]) => (
+            <button key={id} style={s.detailTab(detailTab === id)} onClick={() => setDetailTab(id)}>{label}</button>
+          ))}
+        </div>
+
+        {/* Slack tab */}
+        {detailTab === 'slack' && (
+          <div>
+            <div style={s.section}>
+              <div style={s.sectionTitle}>
+                <span>Slack Alerts Configuration</span>
+              </div>
+              <div style={{ color: C.muted, fontSize: 12, marginBottom: 16 }}>
+                Connect a Slack incoming webhook to receive real-time alerts for stream issues, equipment status, and auto-recoveries.
+              </div>
+
+              {!slackLoaded ? (
+                <div style={{ color: C.muted, fontSize: 12, padding: '12px 0' }}>Loading Slack config...</div>
+              ) : (
+                <>
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={s.label}>Webhook URL *</label>
+                    <input
+                      style={s.input}
+                      value={slackForm.webhookUrl}
+                      onChange={e => setSlackForm(f => ({ ...f, webhookUrl: e.target.value }))}
+                      placeholder="https://hooks.slack.com/services/T00000/B00000/XXXXXXXX"
+                      disabled={!canWrite(role)}
+                    />
+                  </div>
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={s.label}>Channel Override (optional)</label>
+                    <input
+                      style={s.input}
+                      value={slackForm.channel}
+                      onChange={e => setSlackForm(f => ({ ...f, channel: e.target.value }))}
+                      placeholder="#av-alerts"
+                      disabled={!canWrite(role)}
+                    />
+                    <div style={{ fontSize: 11, color: C.dim, marginTop: 4 }}>Leave blank to use the webhook default channel.</div>
+                  </div>
+
+                  {slackMsg.text && <div style={slackMsg.type === 'ok' ? s.ok : s.err}>{slackMsg.text}</div>}
+
+                  {canWrite(role) && (
+                    <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+                      <button
+                        style={s.btn('primary')}
+                        onClick={saveSlack}
+                        disabled={slackSaving || !slackForm.webhookUrl}
+                      >
+                        {slackSaving ? 'Saving...' : 'Save Webhook'}
+                      </button>
+                      {slackForm.webhookUrl && (
+                        <button
+                          style={s.btn('secondary')}
+                          onClick={testSlack}
+                          disabled={slackTesting}
+                        >
+                          {slackTesting ? 'Sending...' : 'Send Test'}
+                        </button>
+                      )}
+                      {church.has_slack && (
+                        <button
+                          style={s.btn('danger')}
+                          onClick={removeSlack}
+                          disabled={slackSaving}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* How-to guide */}
+            <div style={s.section}>
+              <div style={s.sectionTitle}>How to get a Slack webhook URL</div>
+              <ol style={{ margin: 0, paddingLeft: 20, color: C.muted, fontSize: 12, lineHeight: 1.8 }}>
+                <li>Go to <span style={{ color: C.white }}>api.slack.com/apps</span> and create a new app</li>
+                <li>Enable <span style={{ color: C.white }}>Incoming Webhooks</span></li>
+                <li>Click <span style={{ color: C.white }}>Add New Webhook to Workspace</span></li>
+                <li>Select a channel and copy the webhook URL</li>
+              </ol>
+            </div>
+          </div>
+        )}
+
+        {/* Sessions tab */}
+        {detailTab === 'sessions' && (
+          <SessionsPanel churchId={church.churchId} relay={relay} />
+        )}
+
+        {/* Automation tab */}
+        {detailTab === 'automation' && (
+          <AutomationPanel churchId={church.churchId} relay={relay} role={role} />
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Churches tab ─────────────────────────────────────────────────────────────
 
 function ChurchesTab({ relay, role }) {
   const [churches, setChurches] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [err, setErr]           = useState('');
-  const [modal, setModal]       = useState(null); // 'add' | { church }
+  const [modal, setModal]       = useState(null); // 'add' | null
+  const [detailChurch, setDetailChurch] = useState(null); // church object for detail modal
   const [form, setForm]         = useState({
     name: '',
     contactEmail: '',
@@ -297,8 +1008,15 @@ function ChurchesTab({ relay, role }) {
                     return (
                       <tr key={c.churchId}>
                         <td style={s.td}>
-                          <div style={{ fontWeight: 600 }}>{c.name}</div>
+                          <div
+                            style={{ fontWeight: 600, cursor: 'pointer', color: C.white, transition: 'color 0.15s' }}
+                            onClick={() => setDetailChurch(c)}
+                            onMouseEnter={e => e.currentTarget.style.color = C.green}
+                            onMouseLeave={e => e.currentTarget.style.color = C.white}
+                            title="Click for details"
+                          >{c.name}</div>
                           <div style={{ fontSize: 11, color: C.muted, fontFamily: 'monospace' }}>{c.churchId?.slice(0, 12)}…</div>
+                          {c.has_slack && <span style={{ ...s.badge(C.green), marginTop: 2, fontSize: 10 }}>Slack</span>}
                         </td>
                         <td style={s.td}>
                           <div style={{ fontSize: 12 }}>{c.portal_email || '—'}</div>
@@ -443,6 +1161,19 @@ function ChurchesTab({ relay, role }) {
             </form>
           </div>
         </div>
+      )}
+
+      {detailChurch && (
+        <ChurchDetailModal
+          church={detailChurch}
+          relay={relay}
+          role={role}
+          onClose={() => setDetailChurch(null)}
+          onUpdate={(updated) => {
+            setChurches(prev => prev.map(c => c.churchId === updated.churchId ? { ...c, ...updated } : c));
+            setDetailChurch(updated);
+          }}
+        />
       )}
     </div>
   );
