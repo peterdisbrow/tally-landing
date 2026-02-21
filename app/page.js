@@ -1,5 +1,3 @@
-'use client';
-
 import { BG, WHITE } from '../lib/tokens';
 import GlobalStyles from './components/GlobalStyles';
 import Nav from './components/Nav';

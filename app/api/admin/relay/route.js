@@ -33,7 +33,7 @@ function safePath(pathname) {
   if (/[\r\n\s]/.test(pathname)) return null;
   if (!pathname.startsWith('/api/')) return null;
 
-  const normalized = pathname.replace(/\/+/, '/');
+  const normalized = pathname.replace(/\/+/g, '/');
   const allowed = ALLOWED_PATH_PREFIXES.some(
     prefix => normalized === prefix || normalized.startsWith(`${prefix}/`)
   );
