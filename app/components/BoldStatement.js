@@ -32,7 +32,7 @@ export default function BoldStatement() {
           borderRadius: 8, border: 'none', background: GREEN, color: '#000',
           cursor: 'pointer', textDecoration: 'none',
         }}>
-          Start Free &mdash; 60 Days &rarr;
+          Start Free &mdash; 30 Days &rarr;
         </a>
       </div>
     </section>

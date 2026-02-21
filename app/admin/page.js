@@ -17,7 +17,7 @@ const C = {
 };
 
 const PLAN_OPTIONS = ['connect', 'pro', 'managed', 'event'];
-const PLAN_STATUS_OPTIONS = ['active', 'trialing', 'inactive', 'pending', 'past_due', 'canceled'];
+const PLAN_STATUS_OPTIONS = ['active', 'trialing', 'inactive', 'pending', 'past_due', 'canceled', 'trial_expired'];
 
 const s = {
   page:    { minHeight: '100vh', background: C.bg, color: C.white, fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif", fontSize: 14 },

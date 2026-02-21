@@ -59,7 +59,7 @@ export default function Hero() {
           borderRadius: 8, border: 'none', background: GREEN, color: '#000',
           cursor: 'pointer', textDecoration: 'none',
         }}>
-          Get Early Access &mdash; Free for 60 Days &rarr;
+          Get Early Access &mdash; Free for 30 Days &rarr;
         </a>
         <a href="#the-app" className="cta-ghost" style={{
           display: 'inline-block', padding: '15px 36px', fontSize: '1rem', fontWeight: 600,

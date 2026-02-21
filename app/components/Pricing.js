@@ -22,7 +22,7 @@ export default function Pricing() {
           color: WHITE,
         }}>Simple, honest pricing.</h2>
         <p style={{ color: DIM, textAlign: 'center', marginBottom: 64, fontSize: '0.95rem' }}>
-          60-day free trial for every early access church. Cancel anytime.
+          30-day free trial for every church. Cancel anytime.
         </p>
 
         <div style={{
