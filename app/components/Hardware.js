@@ -87,14 +87,24 @@ export default function Hardware() {
                 ))}
               </ul>
 
-              <a href={hw.ctaHref} style={{
-                display: 'block', textAlign: 'center',
-                padding: '13px 24px', fontSize: '0.95rem', fontWeight: 700,
-                borderRadius: 8, textDecoration: 'none',
-                background: hw.featured ? GREEN : 'transparent',
-                color: hw.featured ? '#000' : WHITE,
-                border: hw.featured ? 'none' : `1px solid ${BORDER}`,
-              }}>{hw.cta}</a>
+              {hw.comingSoon ? (
+                <div style={{
+                  display: 'block', textAlign: 'center',
+                  padding: '13px 24px', fontSize: '0.95rem', fontWeight: 700,
+                  borderRadius: 8, background: 'rgba(255,255,255,0.06)',
+                  color: MUTED, border: `1px solid ${BORDER}`,
+                  cursor: 'default',
+                }}>Coming Soon</div>
+              ) : (
+                <a href={hw.ctaHref} style={{
+                  display: 'block', textAlign: 'center',
+                  padding: '13px 24px', fontSize: '0.95rem', fontWeight: 700,
+                  borderRadius: 8, textDecoration: 'none',
+                  background: hw.featured ? GREEN : 'transparent',
+                  color: hw.featured ? '#000' : WHITE,
+                  border: hw.featured ? 'none' : `1px solid ${BORDER}`,
+                }}>{hw.cta}</a>
+              )}
             </div>
           ))}
         </div>

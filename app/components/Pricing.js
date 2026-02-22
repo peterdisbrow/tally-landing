@@ -27,7 +27,7 @@ export default function Pricing() {
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
           gap: 16, marginBottom: 32,
         }}>
           {PRICING.map((plan, i) => (

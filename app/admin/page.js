@@ -16,7 +16,7 @@ const C = {
   blue:    '#3b82f6',
 };
 
-const PLAN_OPTIONS = ['connect', 'pro', 'managed', 'event'];
+const PLAN_OPTIONS = ['connect', 'plus', 'pro', 'managed', 'event'];
 const PLAN_STATUS_OPTIONS = ['active', 'trialing', 'inactive', 'pending', 'past_due', 'canceled', 'trial_expired'];
 
 const s = {
