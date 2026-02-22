@@ -243,8 +243,8 @@ export default function PortalPage() {
               <h2 style={{ fontSize: 16, fontWeight: 800, margin: '0 0 20px' }}>Church Details</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 32px' }}>
                 <Field label="Church Name" value={church.name} />
-                <Field label="Plan" value={church.tier ? church.tier.charAt(0).toUpperCase() + church.tier.slice(1) : undefined} />
-                <Field label="Billing Status" value={church.billingStatus} />
+                <Field label="Plan" value={church.billing_tier ? church.billing_tier.charAt(0).toUpperCase() + church.billing_tier.slice(1) : undefined} />
+                <Field label="Billing Status" value={church.billing_status} />
                 <Field label="Last Seen" value={church.lastSeen ? new Date(church.lastSeen).toLocaleString() : undefined} />
                 <Field label="Registration Code" value={church.registrationCode} />
                 <Field label="Church ID" value={church.id || church.churchId} />
@@ -368,9 +368,9 @@ export default function PortalPage() {
             <div>
               <label style={labelStyle}>Current Plan</label>
               <p style={{ fontSize: 15, fontWeight: 700, color: WHITE, marginBottom: 6 }}>
-                {church.tier ? church.tier.charAt(0).toUpperCase() + church.tier.slice(1) : 'Unknown'}
+                {church.billing_tier ? church.billing_tier.charAt(0).toUpperCase() + church.billing_tier.slice(1) : 'Unknown'}
                 <span style={{ color: DIM, fontWeight: 400, fontSize: 13, marginLeft: 8 }}>
-                  {church.billingStatus || ''}
+                  {church.billing_status || ''}
                 </span>
               </p>
               <a
