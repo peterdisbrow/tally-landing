@@ -752,10 +752,384 @@ function SessionsPanel({ churchId, relay }) {
   );
 }
 
+// ── Overview Panel (inside ChurchDetailModal) ────────────────────────────────
+
+function OverviewPanel({ churchId, relay }) {
+  const [status, setStatus] = useState(null);
+  const [schedule, setSchedule] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [st, sc] = await Promise.all([
+          relay(`/api/churches/${churchId}/status`).catch(() => null),
+          relay(`/api/churches/${churchId}/schedule`).catch(() => null),
+        ]);
+        if (!cancelled) { setStatus(st); setSchedule(sc); }
+      } finally { if (!cancelled) setLoading(false); }
+    })();
+    return () => { cancelled = true; };
+  }, [churchId, relay]);
+
+  if (loading) return <div style={{ color: C.muted, fontSize: 12, padding: '24px 0', textAlign: 'center' }}>Loading...</div>;
+
+  const st = status || {};
+  const eq = st.status?.equipment || st.equipment || {};
+  const sc = schedule || {};
+  const connected = st.connected ?? false;
+  const lastSeen = st.lastSeen || st.last_seen;
+  const version = st.status?.version || st.version;
+
+  return (
+    <div>
+      {/* Connection */}
+      <div style={s.section}>
+        <div style={s.sectionTitle}>Connection</div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={s.badge(connected ? C.green : C.muted)}>{connected ? 'Online' : 'Offline'}</span>
+          {lastSeen && <span style={{ fontSize: 11, color: C.dim }}>Last seen: {new Date(lastSeen).toLocaleString()}</span>}
+          {version && <span style={s.badge(C.blue)}>v{version}</span>}
+        </div>
+      </div>
+
+      {/* Equipment */}
+      <div style={s.section}>
+        <div style={s.sectionTitle}>Equipment</div>
+        {Object.keys(eq).length === 0 ? (
+          <div style={{ color: C.muted, fontSize: 12 }}>No equipment data available.</div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+            {eq.atem && <div><span style={{ color: C.muted }}>ATEM:</span> <span style={{ color: C.white }}>{eq.atem.model || 'Connected'}</span></div>}
+            {eq.obs !== undefined && <div><span style={{ color: C.muted }}>OBS:</span> <span style={{ color: eq.obs ? C.green : C.muted }}>{eq.obs ? 'Connected' : 'Not connected'}</span></div>}
+            {eq.propresenter !== undefined && <div><span style={{ color: C.muted }}>ProPresenter:</span> <span style={{ color: eq.propresenter ? C.green : C.muted }}>{eq.propresenter ? 'Connected' : 'Not connected'}</span></div>}
+            {eq.audio && <div><span style={{ color: C.muted }}>Audio Inputs:</span> <span style={{ color: C.white }}>{Array.isArray(eq.audio) ? eq.audio.length : eq.audio}</span></div>}
+          </div>
+        )}
+      </div>
+
+      {/* Service Window */}
+      <div style={s.section}>
+        <div style={s.sectionTitle}>Service Window</div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', fontSize: 12 }}>
+          <span style={s.badge(sc.inServiceWindow ? C.green : C.muted)}>
+            {sc.inServiceWindow ? 'In Service Window' : 'Outside Service Window'}
+          </span>
+          {sc.nextService && <span style={{ color: C.dim }}>Next: {sc.nextService.day} {sc.nextService.time || ''}</span>}
+        </div>
+        {sc.schedule && sc.schedule.length > 0 && (
+          <div style={{ marginTop: 10, fontSize: 11, color: C.muted }}>
+            {sc.schedule.map((d, i) => (
+              d.times && d.times.length > 0 ? <div key={i}><span style={{ color: C.white }}>{d.day}:</span> {d.times.join(', ')}</div> : null
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── TDs Panel (inside ChurchDetailModal) ─────────────────────────────────────
+
+function TDsPanel({ churchId, relay, role }) {
+  const [tds, setTds] = useState([]);
+  const [oncall, setOncall] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState('');
+  const [addName, setAddName] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState({ type: '', text: '' });
+
+  const load = useCallback(async () => {
+    try {
+      setErr('');
+      const [tdData, ocData] = await Promise.all([
+        relay(`/api/churches/${churchId}/tds`).catch(() => []),
+        relay(`/api/churches/${churchId}/oncall`).catch(() => null),
+      ]);
+      setTds(Array.isArray(tdData) ? tdData : tdData?.tds || []);
+      setOncall(ocData?.onCall || ocData?.oncall || null);
+    } catch (e) { setErr(e.message); }
+    finally { setLoading(false); }
+  }, [churchId, relay]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function addTd(e) {
+    e.preventDefault();
+    if (!addName.trim()) return;
+    setSaving(true); setMsg({ type: '', text: '' });
+    try {
+      await relay(`/api/churches/${churchId}/tds/add`, { method: 'POST', body: { name: addName.trim() } });
+      setAddName('');
+      setMsg({ type: 'ok', text: 'TD added.' });
+      load();
+    } catch (e) { setMsg({ type: 'err', text: e.message }); }
+    finally { setSaving(false); }
+  }
+
+  async function removeTd(userId, name) {
+    if (!confirm(`Remove TD "${name}"?`)) return;
+    try {
+      await relay(`/api/churches/${churchId}/tds/${userId}`, { method: 'DELETE' });
+      setMsg({ type: 'ok', text: `${name} removed.` });
+      load();
+    } catch (e) { setMsg({ type: 'err', text: e.message }); }
+  }
+
+  async function setOnCall(tdName) {
+    try {
+      await relay(`/api/churches/${churchId}/oncall`, { method: 'POST', body: { tdName } });
+      setOncall({ tdName });
+      setMsg({ type: 'ok', text: `${tdName} is now on-call.` });
+    } catch (e) { setMsg({ type: 'err', text: e.message }); }
+  }
+
+  if (loading) return <div style={{ color: C.muted, fontSize: 12, padding: '24px 0', textAlign: 'center' }}>Loading...</div>;
+
+  return (
+    <div>
+      {err && <div style={s.err}>{err}</div>}
+
+      {/* On-Call */}
+      <div style={s.section}>
+        <div style={s.sectionTitle}>On-Call TD</div>
+        {oncall?.tdName ? (
+          <span style={s.badge(C.green)}>{oncall.tdName}</span>
+        ) : (
+          <span style={{ fontSize: 12, color: C.muted }}>No TD on-call</span>
+        )}
+      </div>
+
+      {/* TD List */}
+      <div style={s.section}>
+        <div style={s.sectionTitle}>Technical Directors ({tds.length})</div>
+        {tds.length === 0 ? (
+          <div style={{ color: C.muted, fontSize: 12 }}>No TDs registered.</div>
+        ) : (
+          <table style={s.table}>
+            <thead><tr>
+              <th style={s.th}>Name</th>
+              <th style={s.th}>Telegram</th>
+              <th style={s.th}>Phone</th>
+              <th style={s.th}>Status</th>
+              {canWrite(role) && <th style={s.th}>Actions</th>}
+            </tr></thead>
+            <tbody>
+              {tds.map((td, i) => (
+                <tr key={td.id || td.telegram_user_id || i}>
+                  <td style={s.td}>{td.name || td.td_name || '—'}</td>
+                  <td style={s.td}>
+                    {td.telegram_chat_id ? <span style={s.badge(C.green)}>Linked</span> : <span style={s.badge(C.muted)}>—</span>}
+                  </td>
+                  <td style={s.td}><span style={{ fontSize: 12, color: C.dim }}>{td.phone || '—'}</span></td>
+                  <td style={s.td}><span style={s.badge(td.active !== 0 ? C.green : C.muted)}>{td.active !== 0 ? 'Active' : 'Inactive'}</span></td>
+                  {canWrite(role) && (
+                    <td style={s.td}>
+                      <div style={{ display: 'flex', gap: 4 }}>
+                        <button style={{ ...s.btn('secondary'), padding: '4px 8px', fontSize: 10 }} onClick={() => setOnCall(td.name || td.td_name)}>On-Call</button>
+                        <button style={{ ...s.btn('danger'), padding: '4px 8px', fontSize: 10 }} onClick={() => removeTd(td.telegram_user_id || td.id, td.name || td.td_name)}>Remove</button>
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Add TD */}
+      {canWrite(role) && (
+        <div style={s.section}>
+          <div style={s.sectionTitle}>Add TD</div>
+          <form onSubmit={addTd} style={{ display: 'flex', gap: 8 }}>
+            <input style={{ ...s.input, flex: 1 }} value={addName} onChange={e => setAddName(e.target.value)} placeholder="TD name" disabled={saving} />
+            <button type="submit" style={s.btn('primary')} disabled={saving || !addName.trim()}>{saving ? 'Adding...' : 'Add'}</button>
+          </form>
+        </div>
+      )}
+
+      {msg.text && <div style={msg.type === 'ok' ? s.ok : s.err}>{msg.text}</div>}
+    </div>
+  );
+}
+
+// ── Schedule Panel (inside ChurchDetailModal) ────────────────────────────────
+
+function SchedulePanel({ churchId, relay, role }) {
+  const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const [schedule, setSchedule] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState({ type: '', text: '' });
+
+  const load = useCallback(async () => {
+    try {
+      const data = await relay(`/api/churches/${churchId}/schedule`);
+      setSchedule(data);
+      // Build draft from schedule
+      const d = {};
+      DAYS.forEach(day => { d[day] = ''; });
+      if (data?.schedule) {
+        data.schedule.forEach(s => { if (s.times?.length) d[s.day] = s.times.join(', '); });
+      }
+      if (data?.serviceTimes) {
+        data.serviceTimes.forEach(s => { if (s.times?.length) d[s.day] = s.times.join(', '); });
+      }
+      setDraft(d);
+    } catch { /* no schedule */ }
+    finally { setLoading(false); }
+  }, [churchId, relay]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function save() {
+    setSaving(true); setMsg({ type: '', text: '' });
+    try {
+      const serviceTimes = DAYS.map(day => ({
+        day,
+        times: draft[day] ? draft[day].split(',').map(t => t.trim()).filter(Boolean) : [],
+      })).filter(d => d.times.length > 0);
+      await relay(`/api/churches/${churchId}/schedule`, { method: 'PUT', body: { serviceTimes } });
+      setMsg({ type: 'ok', text: 'Schedule saved.' });
+      setEditing(false);
+      load();
+    } catch (e) { setMsg({ type: 'err', text: e.message }); }
+    finally { setSaving(false); }
+  }
+
+  if (loading) return <div style={{ color: C.muted, fontSize: 12, padding: '24px 0', textAlign: 'center' }}>Loading...</div>;
+
+  const sc = schedule || {};
+
+  return (
+    <div>
+      {/* Current Status */}
+      <div style={s.section}>
+        <div style={s.sectionTitle}>Current Status</div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', fontSize: 12 }}>
+          <span style={s.badge(sc.inServiceWindow ? C.green : C.muted)}>
+            {sc.inServiceWindow ? 'In Service Window' : 'Outside Service Window'}
+          </span>
+          {sc.nextService && <span style={{ color: C.dim }}>Next: {sc.nextService.day} {sc.nextService.time || ''}</span>}
+        </div>
+      </div>
+
+      {/* Weekly Schedule */}
+      <div style={s.section}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div style={s.sectionTitle}>Weekly Schedule</div>
+          {canWrite(role) && !editing && <button style={{ ...s.btn('secondary'), padding: '4px 12px', fontSize: 11 }} onClick={() => setEditing(true)}>Edit</button>}
+        </div>
+        {editing ? (
+          <div>
+            {DAYS.map(day => (
+              <div key={day} style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6 }}>
+                <span style={{ width: 90, fontSize: 12, color: C.muted, flexShrink: 0 }}>{day}</span>
+                <input
+                  style={{ ...s.input, flex: 1 }}
+                  value={draft[day] || ''}
+                  onChange={e => setDraft(d => ({ ...d, [day]: e.target.value }))}
+                  placeholder="e.g. 9:00 AM, 11:00 AM"
+                  disabled={saving}
+                />
+              </div>
+            ))}
+            <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+              <button style={s.btn('primary')} onClick={save} disabled={saving}>{saving ? 'Saving...' : 'Save'}</button>
+              <button style={s.btn('secondary')} onClick={() => setEditing(false)}>Cancel</button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            {DAYS.map(day => {
+              const entry = sc.schedule?.find(d => d.day === day) || sc.serviceTimes?.find(d => d.day === day);
+              const times = entry?.times || [];
+              return times.length > 0 ? (
+                <div key={day} style={{ display: 'flex', gap: 8, marginBottom: 4, fontSize: 12 }}>
+                  <span style={{ width: 90, color: C.muted, flexShrink: 0 }}>{day}</span>
+                  <span style={{ color: C.white }}>{times.join(', ')}</span>
+                </div>
+              ) : null;
+            })}
+            {!sc.schedule?.some(d => d.times?.length > 0) && !sc.serviceTimes?.some(d => d.times?.length > 0) && (
+              <div style={{ color: C.muted, fontSize: 12 }}>No service times configured.</div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {msg.text && <div style={msg.type === 'ok' ? s.ok : s.err}>{msg.text}</div>}
+    </div>
+  );
+}
+
+// ── Billing Panel (inside ChurchDetailModal) ─────────────────────────────────
+
+function BillingPanel({ churchId, relay, role, church, onUpdate }) {
+  const [tier, setTier] = useState(church?.billing_tier || 'connect');
+  const [status, setStatus] = useState(church?.billing_status || 'inactive');
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState({ type: '', text: '' });
+
+  async function save() {
+    setSaving(true); setMsg({ type: '', text: '' });
+    try {
+      await relay(`/api/churches/${churchId}/billing`, { method: 'PUT', body: { tier, status } });
+      setMsg({ type: 'ok', text: 'Billing updated.' });
+      if (onUpdate) onUpdate({ ...church, billing_tier: tier, billing_status: status });
+    } catch (e) { setMsg({ type: 'err', text: e.message }); }
+    finally { setSaving(false); }
+  }
+
+  return (
+    <div>
+      {/* Current Plan */}
+      <div style={s.section}>
+        <div style={s.sectionTitle}>Current Plan</div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <span style={s.badge(C.blue)}>{church?.billing_tier || 'connect'}</span>
+          <span style={s.badge(
+            ['active', 'trialing'].includes(church?.billing_status) ? C.green : C.yellow
+          )}>{church?.billing_status || 'inactive'}</span>
+        </div>
+      </div>
+
+      {/* Change Plan */}
+      {canWrite(role) && (
+        <div style={s.section}>
+          <div style={s.sectionTitle}>Change Plan</div>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            <div>
+              <label style={s.label}>Tier</label>
+              <select style={{ ...s.input, width: 'auto', minWidth: 120 }} value={tier} onChange={e => setTier(e.target.value)}>
+                {PLAN_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={s.label}>Status</label>
+              <select style={{ ...s.input, width: 'auto', minWidth: 120 }} value={status} onChange={e => setStatus(e.target.value)}>
+                {PLAN_STATUS_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+            <button style={s.btn('primary')} onClick={save} disabled={saving}>{saving ? 'Saving...' : 'Save'}</button>
+          </div>
+        </div>
+      )}
+
+      {msg.text && <div style={msg.type === 'ok' ? s.ok : s.err}>{msg.text}</div>}
+    </div>
+  );
+}
+
 // ── Church Detail Modal ──────────────────────────────────────────────────────
 
 function ChurchDetailModal({ church, relay, role, onClose, onUpdate }) {
-  const [detailTab, setDetailTab] = useState('chat');
+  const [detailTab, setDetailTab] = useState('overview');
   const [slackForm, setSlackForm] = useState({ webhookUrl: '', channel: '' });
   const [slackLoaded, setSlackLoaded] = useState(false);
   const [slackSaving, setSlackSaving] = useState(false);
@@ -834,10 +1208,14 @@ function ChurchDetailModal({ church, relay, role, onClose, onUpdate }) {
   const statusLabel = church.connected ? 'Online' : 'Offline';
 
   const DETAIL_TABS = [
+    ['overview', 'Overview'],
     ['chat', 'Chat'],
+    ['tds', 'TDs'],
+    ['schedule', 'Schedule'],
     ['slack', 'Slack'],
     ['sessions', 'Sessions'],
     ['automation', 'Automation'],
+    ['billing', 'Billing'],
   ];
 
   return (
@@ -859,11 +1237,16 @@ function ChurchDetailModal({ church, relay, role, onClose, onUpdate }) {
         </div>
 
         {/* Tab bar */}
-        <div style={{ display: 'flex', gap: 6, marginBottom: 20 }}>
+        <div style={{ display: 'flex', gap: 6, marginBottom: 20, overflowX: 'auto', paddingBottom: 2 }}>
           {DETAIL_TABS.map(([id, label]) => (
             <button key={id} style={s.detailTab(detailTab === id)} onClick={() => setDetailTab(id)}>{label}</button>
           ))}
         </div>
+
+        {/* Overview tab */}
+        {detailTab === 'overview' && (
+          <OverviewPanel churchId={church.churchId} relay={relay} />
+        )}
 
         {/* Chat tab */}
         {detailTab === 'chat' && (
@@ -963,6 +1346,21 @@ function ChurchDetailModal({ church, relay, role, onClose, onUpdate }) {
         {/* Automation tab */}
         {detailTab === 'automation' && (
           <AutomationPanel churchId={church.churchId} relay={relay} role={role} />
+        )}
+
+        {/* TDs tab */}
+        {detailTab === 'tds' && (
+          <TDsPanel churchId={church.churchId} relay={relay} role={role} />
+        )}
+
+        {/* Schedule tab */}
+        {detailTab === 'schedule' && (
+          <SchedulePanel churchId={church.churchId} relay={relay} role={role} />
+        )}
+
+        {/* Billing tab */}
+        {detailTab === 'billing' && (
+          <BillingPanel churchId={church.churchId} relay={relay} role={role} church={church} onUpdate={onUpdate} />
         )}
       </div>
     </div>
