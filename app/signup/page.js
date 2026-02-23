@@ -13,6 +13,7 @@ const DANGER = '#ef4444';
 
 const TIERS = [
   { value: 'connect', label: 'Connect ($49/mo)' },
+  { value: 'plus', label: 'Plus ($99/mo)' },
   { value: 'pro', label: 'Pro ($149/mo)' },
   { value: 'managed', label: 'Managed ($299/mo)' },
 ];
