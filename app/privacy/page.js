@@ -62,8 +62,18 @@ export default function PrivacyPage() {
                 store credit card numbers.
               </li>
               <li>
-                <strong>Device monitoring data:</strong> equipment status, stream health metrics,
-                and connection logs from enrolled churches. Used solely to provide the Tally service.
+                <strong>Device telemetry:</strong> equipment connection status, hardware model identifiers,
+                and configuration data from ATEM switchers, OBS, vMix, ProPresenter, audio consoles,
+                and other connected devices. Collected solely to provide monitoring and remote control.
+              </li>
+              <li>
+                <strong>Stream health metrics:</strong> bitrate, frame rate, encoder status, and
+                streaming platform connection data. Used for alerts, auto-recovery, and session recaps.
+              </li>
+              <li>
+                <strong>Video preview data:</strong> low-resolution preview frames may be transmitted
+                for live monitoring. This data is transient, transmitted in real-time, and never
+                stored on our servers.
               </li>
             </ul>
           </Section>
@@ -86,10 +96,31 @@ export default function PrivacyPage() {
           </Section>
 
           <Section title="Data retention">
-            Account data is retained while your subscription is active. If you cancel, we delete
-            your data within 30 days. You can request immediate deletion by emailing{' '}
-            <a href="mailto:andrew@atemschool.com" style={{ color: GREEN }}>
-              andrew@atemschool.com
+            <ul style={ulStyle}>
+              <li>
+                <strong>Active accounts:</strong> data is retained while your subscription is active.
+              </li>
+              <li>
+                <strong>After cancellation:</strong> account data, monitoring history, and session
+                recaps are retained for 30 days, then permanently deleted.
+              </li>
+              <li>
+                <strong>After trial expiration:</strong> if you do not subscribe, data is retained for
+                30 days then deleted.
+              </li>
+              <li>
+                <strong>Stream/preview data:</strong> video preview frames are transient and never
+                stored. Stream health metrics are retained for 90 days for session history.
+              </li>
+              <li>
+                <strong>Stripe billing data:</strong> payment history and subscription records are
+                managed by Stripe under their privacy policy. We store only your Stripe customer ID
+                and subscription status.
+              </li>
+            </ul>
+            You can request immediate deletion by emailing{' '}
+            <a href="mailto:support@atemschool.com" style={{ color: GREEN }}>
+              support@atemschool.com
             </a>
             .
           </Section>
@@ -97,16 +128,16 @@ export default function PrivacyPage() {
           <Section title="Your rights">
             You may request access to, correction of, or deletion of your personal data at any time
             by contacting us at{' '}
-            <a href="mailto:andrew@atemschool.com" style={{ color: GREEN }}>
-              andrew@atemschool.com
+            <a href="mailto:support@atemschool.com" style={{ color: GREEN }}>
+              support@atemschool.com
             </a>
             .
           </Section>
 
           <Section title="Contact">
             For privacy questions or data requests, email{' '}
-            <a href="mailto:andrew@atemschool.com" style={{ color: GREEN }}>
-              andrew@atemschool.com
+            <a href="mailto:support@atemschool.com" style={{ color: GREEN }}>
+              support@atemschool.com
             </a>
             .
           </Section>

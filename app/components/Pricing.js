@@ -84,6 +84,11 @@ export default function Pricing() {
           ))}
         </div>
 
+        <p style={{ color: DIM, textAlign: 'center', fontSize: '0.82rem', marginBottom: 24 }}>
+          All plans include email support at{' '}
+          <a href="mailto:support@atemschool.com" style={{ color: GREEN, textDecoration: 'none' }}>support@atemschool.com</a>
+        </p>
+
         {/* Event add-on */}
         <div style={{
           background: BG, border: `1px solid ${BORDER}`,

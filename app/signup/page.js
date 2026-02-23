@@ -20,6 +20,7 @@ const TIERS = [
 
 export default function SignupPage() {
   const [form, setForm] = useState({ name: '', email: '', password: '', tier: 'connect' });
+  const [tosAccepted, setTosAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(null);
@@ -38,11 +39,17 @@ export default function SignupPage() {
     setError('');
     setSuccess(null);
 
+    if (!tosAccepted) {
+      setError('You must agree to the Terms of Service and Privacy Policy.');
+      setSubmitting(false);
+      return;
+    }
+
     try {
       const res = await fetch('/api/church/onboard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, tosAcceptedAt: new Date().toISOString() }),
       });
       const data = await res.json().catch(() => ({}));
 
@@ -102,7 +109,17 @@ export default function SignupPage() {
               ))}
             </select>
 
-            <button type="submit" disabled={submitting} style={{
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 16, cursor: 'pointer', fontSize: 13, color: MUTED, lineHeight: 1.5 }}>
+              <input type="checkbox" checked={tosAccepted} onChange={(e) => setTosAccepted(e.target.checked)} style={{ marginTop: 3, accentColor: GREEN }} />
+              <span>
+                I agree to the{' '}
+                <a href="/terms" target="_blank" rel="noopener" style={{ color: GREEN, textDecoration: 'underline' }}>Terms of Service</a>
+                {' '}and{' '}
+                <a href="/privacy" target="_blank" rel="noopener" style={{ color: GREEN, textDecoration: 'underline' }}>Privacy Policy</a>
+              </span>
+            </label>
+
+            <button type="submit" disabled={submitting || !tosAccepted} style={{
               marginTop: 16,
               width: '100%',
               border: 0,
