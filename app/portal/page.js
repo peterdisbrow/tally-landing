@@ -1,17 +1,8 @@
-'use client';
+import { redirect } from 'next/navigation';
 
-import { useEffect } from 'react';
-
-const RELAY_URL = process.env.NEXT_PUBLIC_RELAY_URL || 'https://tally-production-cde2.up.railway.app';
-
+// Server-side redirect — the next.config.js redirect handles this route,
+// but if it somehow reaches the page, redirect to the church portal.
+// The relay server's auth middleware sends unauthenticated users to /church-login.
 export default function PortalPage() {
-  useEffect(() => {
-    window.location.href = `${RELAY_URL}/church-portal`;
-  }, []);
-
-  return (
-    <main style={{ minHeight: '100vh', background: '#09090B', color: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <p style={{ color: '#94A3B8' }}>Redirecting to your portal&hellip;</p>
-    </main>
-  );
+  redirect('https://api.tallyconnect.app/church-portal');
 }

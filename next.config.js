@@ -2,6 +2,25 @@
 const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: '/portal',
+        destination: 'https://api.tallyconnect.app/church-portal',
+        permanent: false,
+      },
+      {
+        source: '/church-portal',
+        destination: 'https://api.tallyconnect.app/church-portal',
+        permanent: false,
+      },
+      {
+        source: '/church-login',
+        destination: 'https://api.tallyconnect.app/church-login',
+        permanent: false,
+      },
+    ];
+  },
   async headers() {
     return [
       {
@@ -20,7 +39,7 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://plausible.io",
+              "script-src 'self' 'unsafe-inline' https://plausible.io",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob:",
               "font-src 'self'",
