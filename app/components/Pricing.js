@@ -165,7 +165,7 @@ export default function Pricing() {
             <span style={{ fontWeight: 800, color: WHITE, fontSize: '1rem' }}>Event &mdash; $99</span>
             <span style={{ color: DIM, fontSize: '0.88rem', marginLeft: 12 }}>72-hour monitoring for conferences, Easter, weddings. No subscription.</span>
           </div>
-          <a href="mailto:andrew@atemschool.com" style={{
+          <a href="mailto:sales@atemschool.com" style={{
             padding: '10px 22px', fontSize: '0.88rem', fontWeight: 700,
             borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent',
             color: WHITE, textDecoration: 'none', whiteSpace: 'nowrap',

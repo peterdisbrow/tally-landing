@@ -2,9 +2,9 @@ import { BG, CARD_BG, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens'
 import { HARDWARE } from '../../lib/data';
 
 const HIGHLIGHTS = [
-  { icon: '\ud83d\udce1', label: 'Tailscale VPN', desc: 'Andrew sees every box on a private network. No port forwarding, no firewall rules.' },
+  { icon: '\ud83d\udce1', label: 'Tailscale VPN', desc: 'Our team sees every box on a private network. No port forwarding, no firewall rules.' },
   { icon: '\ud83d\udd10', label: 'SSH Access', desc: 'Full remote shell for config changes, updates, and diagnostics \u2014 from anywhere.' },
-  { icon: '\ud83c\udfa5', label: 'Live Preview', desc: '3Mbps H.264 stream routes over VPN. Andrew watches your production in real time.' },
+  { icon: '\ud83c\udfa5', label: 'Live Preview', desc: '3Mbps H.264 stream routes over VPN. Watch your production in real time from anywhere.' },
 ];
 
 export default function Hardware() {
@@ -32,7 +32,7 @@ export default function Hardware() {
         }}>
           Pre-configured encoder boxes that plug into your ATEM aux output.
           Ships ready &mdash; no setup, no IT, no port forwarding.
-          Andrew manages it remotely from day one.
+          Managed remotely from day one.
         </p>
 
         <div style={{
