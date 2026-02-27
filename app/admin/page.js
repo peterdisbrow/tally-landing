@@ -1,8 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { C, s, ROLE_COLORS, ROLE_LABELS, canWrite, tabsForRole } from './components/adminStyles';
+import { C, s, TAB_LABELS, canWrite, tabsForRole } from './components/adminStyles';
 import useRelay from './components/useRelay';
 import LoginScreen from './components/LoginScreen';
+import Sidebar from './components/Sidebar';
 import ChurchesTab from './components/ChurchesTab';
 import ResellersTab from './components/ResellersTab';
 import UsersTab from './components/UsersTab';
@@ -10,6 +11,7 @@ import AIUsageTab from './components/AIUsageTab';
 import AlertsTab from './components/AlertsTab';
 import TicketsTab from './components/TicketsTab';
 import MonitorTab from './components/MonitorTab';
+import StatusTab from './components/StatusTab';
 import AIChatDrawer from './components/AIChatDrawer';
 
 export default function AdminPage() {
@@ -126,35 +128,49 @@ export default function AdminPage() {
 
   return (
     <div style={s.page}>
-      <header style={s.header}>
-        <div style={s.logo}>{'\u26EA'} <span style={s.logoGreen}>Tally</span> <span style={{ color: C.muted, fontWeight: 400 }}>Admin</span></div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      {/* ── Sidebar ── */}
+      <Sidebar
+        tab={tab}
+        setTab={setTab}
+        role={role}
+        user={user}
+        relayOk={relayOk}
+        relayErr={relayErr}
+        relayMeta={relayMeta}
+        onSignOut={signOut}
+      />
+
+      {/* ── Top bar ── */}
+      <div style={s.topBar}>
+        <div style={{ fontSize: 16, fontWeight: 700 }}>
+          {TAB_LABELS[tab] || 'Churches'}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: C.muted }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: relayOk === null ? C.muted : relayOk ? C.green : C.red }} />
-            {relayOk === null ? 'Connecting\u2026' : relayOk ? `Relay Live${relayMeta ? ` \u2022 ${relayMeta}` : ''}` : `Relay Offline${relayErr ? ' \u2014 ' + relayErr : ''}`}
+            <div style={{
+              width: 8, height: 8, borderRadius: '50%',
+              background: relayOk === null ? C.muted : relayOk ? C.green : C.red,
+              boxShadow: relayOk ? `0 0 6px ${C.green}` : 'none',
+            }} />
+            {relayOk === null
+              ? 'Connecting\u2026'
+              : relayOk
+                ? `Relay Live${relayMeta ? ` \u2022 ${relayMeta}` : ''}`
+                : `Relay Offline${relayErr ? ' \u2014 ' + relayErr : ''}`}
           </div>
-          {(!relayOk && relayErr) || showDiag ? (
+          {((!relayOk && relayErr) || showDiag) && (
             <button
-              style={{ ...s.btn('secondary'), fontSize: 11, padding: '6px 10px' }}
+              style={{ ...s.btn('secondary'), fontSize: 11, padding: '5px 10px' }}
               onClick={() => setShowDiag((v) => !v)}
             >
               {showDiag ? 'Hide' : 'Show'} details
             </button>
-          ) : null}
-          {user && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 12, color: C.white }}>{user.name || user.email}</span>
-              <span style={s.badge(ROLE_COLORS[role] || C.muted)}>{ROLE_LABELS[role] || role}</span>
-            </div>
           )}
-          <button
-            style={{ ...s.btn('secondary'), fontSize: 12, padding: '6px 12px' }}
-            onClick={signOut}
-          >Sign Out</button>
         </div>
-      </header>
+      </div>
 
-      <main style={s.main}>
+      {/* ── Content area ── */}
+      <div style={s.contentArea}>
         <div style={{ ...s.card, marginBottom: 16, background: '#0d1017', borderColor: '#1d2e24' }}>
           <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Tally operations dashboard</div>
           <div style={{ color: C.muted, fontSize: 12 }}>
@@ -165,11 +181,6 @@ export default function AdminPage() {
                 : 'View churches and reseller accounts.'}
           </div>
         </div>
-        <nav style={s.tabBar}>
-          {availTabs.map(([id, label]) => (
-            <button key={id} style={s.tab(tab === id)} onClick={() => setTab(id)}>{label}</button>
-          ))}
-        </nav>
 
         {showDiag && (
           <div style={{ ...s.card, marginBottom: 16, background: '#0d1017' }}>
@@ -185,7 +196,9 @@ export default function AdminPage() {
         {tab === 'alerts'    && <AlertsTab relay={relay} role={role} />}
         {tab === 'tickets'   && <TicketsTab relay={relay} role={role} />}
         {tab === 'monitor'   && <MonitorTab token={token} />}
-      </main>
+        {tab === 'status'    && <StatusTab relay={relay} role={role} />}
+      </div>
+
       <AIChatDrawer relay={relay} />
     </div>
   );

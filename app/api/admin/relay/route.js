@@ -32,6 +32,7 @@ const ALLOWED_PATH_PREFIXES = [
   '/api/admin/tickets',
   '/api/support',
   '/api/chat',
+  '/api/status',
 ];
 
 function getToken(req) {

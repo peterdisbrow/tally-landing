@@ -31,12 +31,86 @@ export const ENCODER_TYPE_NAMES = {
   'rtmp-generic': 'RTMP',
 };
 
+// ── Sidebar nav groups ───────────────────────────────────────────────────────
+export const NAV_GROUPS = [
+  {
+    label: 'Accounts',
+    items: [
+      { id: 'churches',  icon: '\u26EA', label: 'Churches' },
+      { id: 'resellers', icon: '\uD83C\uDFE2', label: 'Resellers' },
+      { id: 'users',     icon: '\uD83D\uDC64', label: 'Users' },
+    ],
+  },
+  {
+    label: 'Operations',
+    items: [
+      { id: 'alerts',  icon: '\uD83D\uDD14', label: 'Alerts' },
+      { id: 'tickets', icon: '\uD83C\uDFAB', label: 'Tickets' },
+      { id: 'monitor', icon: '\uD83D\uDCE1', label: 'Monitor' },
+      { id: 'status',  icon: '\uD83D\uDCCA', label: 'Status' },
+    ],
+  },
+  {
+    label: 'Intelligence',
+    items: [
+      { id: 'aiusage', icon: '\uD83E\uDD16', label: 'AI Usage' },
+    ],
+  },
+];
+
+// ── Label lookup for active tab title ────────────────────────────────────────
+export const TAB_LABELS = Object.fromEntries(
+  NAV_GROUPS.flatMap(g => g.items.map(i => [i.id, i.label]))
+);
+
+export const SIDEBAR_W = 240;
+
 export const s = {
   page:    { minHeight: '100vh', background: C.bg, color: C.white, fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif", fontSize: 14 },
   header:  { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 28px', borderBottom: `1px solid ${C.border}`, background: C.surface, position: 'sticky', top: 0, zIndex: 10 },
   logo:    { fontSize: 18, fontWeight: 700, letterSpacing: '-0.3px', color: C.white },
   logoGreen: { color: C.green },
   main:    { padding: '28px', maxWidth: 1200, margin: '0 auto' },
+
+  // ── Sidebar layout ──
+  sidebar: {
+    position: 'fixed', top: 0, left: 0, bottom: 0, width: SIDEBAR_W,
+    background: C.surface, borderRight: `1px solid ${C.border}`,
+    display: 'flex', flexDirection: 'column', zIndex: 20,
+    overflowY: 'auto',
+  },
+  sidebarLogo: {
+    padding: '20px 20px 16px', fontSize: 18, fontWeight: 700,
+    letterSpacing: '-0.3px', color: C.white,
+    borderBottom: `1px solid ${C.border}`,
+  },
+  sidebarSection: {
+    fontSize: 10, fontWeight: 700, color: C.dim, textTransform: 'uppercase',
+    letterSpacing: '0.08em', padding: '18px 20px 6px',
+  },
+  sidebarItem: (active) => ({
+    display: 'flex', alignItems: 'center', gap: 10,
+    padding: '9px 20px', fontSize: 13, fontWeight: 500,
+    color: active ? C.green : C.muted,
+    background: active ? 'rgba(34,197,94,0.08)' : 'transparent',
+    border: 'none',
+    borderLeft: `3px solid ${active ? C.green : 'transparent'}`,
+    cursor: 'pointer', transition: 'all 0.15s',
+    width: '100%', textAlign: 'left', fontFamily: 'inherit',
+  }),
+  sidebarFooter: {
+    marginTop: 'auto', padding: '16px 20px',
+    borderTop: `1px solid ${C.border}`,
+  },
+  topBar: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '14px 28px', borderBottom: `1px solid ${C.border}`,
+    background: C.surface, position: 'sticky', top: 0, zIndex: 10,
+    marginLeft: SIDEBAR_W,
+  },
+  contentArea: {
+    marginLeft: SIDEBAR_W, padding: '28px', maxWidth: 1200,
+  },
   card:    { background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 16 },
   tabBar:  { display: 'flex', gap: 2, borderBottom: `1px solid ${C.border}`, marginBottom: 24 },
   tab:     (active) => ({ background: 'none', border: 'none', color: active ? C.green : C.muted, fontSize: 13, fontWeight: 600, padding: '10px 16px', cursor: 'pointer', borderBottom: `2px solid ${active ? C.green : 'transparent'}`, marginBottom: -1, transition: 'all 0.15s', whiteSpace: 'nowrap' }),
@@ -103,9 +177,9 @@ export function getEncoderLiveFromStatus(status = {}) {
 
 export function tabsForRole(role) {
   switch (role) {
-    case 'super_admin': return [['churches', '\u26EA Churches'], ['resellers', '\uD83C\uDFE2 Resellers'], ['users', '\uD83D\uDC64 Users'], ['aiusage', '\uD83E\uDD16 AI Usage'], ['alerts', '\uD83D\uDD14 Alerts'], ['tickets', '\uD83C\uDFAB Tickets'], ['monitor', '\uD83D\uDCE1 Monitor']];
-    case 'admin':       return [['churches', '\u26EA Churches'], ['resellers', '\uD83C\uDFE2 Resellers'], ['aiusage', '\uD83E\uDD16 AI Usage'], ['alerts', '\uD83D\uDD14 Alerts'], ['tickets', '\uD83C\uDFAB Tickets'], ['monitor', '\uD83D\uDCE1 Monitor']];
-    case 'engineer':    return [['churches', '\u26EA Churches'], ['alerts', '\uD83D\uDD14 Alerts'], ['monitor', '\uD83D\uDCE1 Monitor']];
+    case 'super_admin': return [['churches', '\u26EA Churches'], ['resellers', '\uD83C\uDFE2 Resellers'], ['users', '\uD83D\uDC64 Users'], ['aiusage', '\uD83E\uDD16 AI Usage'], ['alerts', '\uD83D\uDD14 Alerts'], ['tickets', '\uD83C\uDFAB Tickets'], ['monitor', '\uD83D\uDCE1 Monitor'], ['status', '\uD83D\uDCCA Status']];
+    case 'admin':       return [['churches', '\u26EA Churches'], ['resellers', '\uD83C\uDFE2 Resellers'], ['aiusage', '\uD83E\uDD16 AI Usage'], ['alerts', '\uD83D\uDD14 Alerts'], ['tickets', '\uD83C\uDFAB Tickets'], ['monitor', '\uD83D\uDCE1 Monitor'], ['status', '\uD83D\uDCCA Status']];
+    case 'engineer':    return [['churches', '\u26EA Churches'], ['alerts', '\uD83D\uDD14 Alerts'], ['monitor', '\uD83D\uDCE1 Monitor'], ['status', '\uD83D\uDCCA Status']];
     case 'sales':       return [['churches', '\u26EA Churches'], ['resellers', '\uD83C\uDFE2 Resellers']];
     default:            return [['churches', '\u26EA Churches']];
   }

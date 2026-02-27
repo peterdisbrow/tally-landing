@@ -1,14 +1,35 @@
 import { NextResponse } from 'next/server';
+import { RELAY_URL } from '../../../../lib/relay';
+import { checkRateLimit } from '../../../../lib/rate-limit';
+const COOKIE_NAME = 'tally_admin_token';
 
-const RELAY_URL = process.env.RELAY_URL || 'https://tally-production-cde2.up.railway.app';
+function successResponse(data, maxAgeSeconds = 60 * 60 * 12) {
+  const response = NextResponse.json(data);
+  if (data?.token) {
+    response.cookies.set({
+      name: COOKIE_NAME,
+      value: data.token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: maxAgeSeconds,
+    });
+  }
 
-/**
- * POST /api/admin/auth
- * Proxy admin login to relay server.
- * Body: { email, password }
- * Returns: { token, user: { id, email, name, role } }
- */
+  return response;
+}
+
 export async function POST(req) {
+  if (!RELAY_URL) {
+    return NextResponse.json({ error: 'Relay URL not configured' }, { status: 500 });
+  }
+
+  const rl = await checkRateLimit('adminAuth', req);
+  if (!rl.success) {
+    return NextResponse.json({ error: 'Too many login attempts. Try again in a minute.' }, { status: 429 });
+  }
+
   let body;
   try {
     body = await req.json();
@@ -36,7 +57,11 @@ export async function POST(req) {
       data = { error: text || 'Unexpected relay response' };
     }
 
-    return NextResponse.json(data, { status: upstream.status });
+    if (!upstream.ok) {
+      return NextResponse.json({ error: data.error || `Request failed (${upstream.status})` }, { status: upstream.status });
+    }
+
+    return successResponse(data);
   } catch (e) {
     return NextResponse.json({ error: e.message || 'Relay request failed' }, { status: 502 });
   }
