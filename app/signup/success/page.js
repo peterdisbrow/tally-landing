@@ -124,7 +124,7 @@ export default function SignupSuccessPage() {
 
           {/* Support Note */}
           <p style={{ textAlign: 'center', color: DIM, fontSize: 13, marginTop: 24, lineHeight: 1.5 }}>
-            Need help? Email <a href="mailto:andrew@atemschool.com" style={{ color: GREEN }}>andrew@atemschool.com</a> &mdash; I read every message.
+            Need help? Email <a href="mailto:support@atemschool.com" style={{ color: GREEN }}>support@atemschool.com</a> &mdash; we typically respond within a few hours.
           </p>
         </div>
       </div>

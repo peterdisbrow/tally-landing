@@ -139,7 +139,7 @@ export default function SignupPage() {
 
           <form onSubmit={handleSubmit}>
             <label style={labelStyle}>Church Name</label>
-            <input style={inputStyle} value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required placeholder="Disbrow Church" />
+            <input style={inputStyle} value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required placeholder="e.g. Grace Community Church" />
 
             <label style={labelStyle}>Admin Email</label>
             <input style={inputStyle} type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} required placeholder="td@yourchurch.org" />

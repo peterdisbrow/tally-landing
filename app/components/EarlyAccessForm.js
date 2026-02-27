@@ -96,7 +96,7 @@ export default function EarlyAccessForm() {
               {error && (
                 <p style={{ color: '#fca5a5', fontSize: '0.88rem', margin: 0 }}>
                   Something went wrong &mdash; email{' '}
-                  <a href="mailto:andrew@atemschool.com" style={{ color: '#fca5a5' }}>andrew@atemschool.com</a>{' '}
+                  <a href="mailto:support@atemschool.com" style={{ color: '#fca5a5' }}>support@atemschool.com</a>{' '}
                   directly.
                 </p>
               )}
