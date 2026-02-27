@@ -142,7 +142,7 @@ export default function HelpPage() {
 
           <AccordionItem title="AI Autopilot rules">
             <p style={paraStyle}>
-              <span style={badgeStyleAlt}>Pro</span> <span style={badgeStyleAlt}>Managed</span> — Create automation rules that run during services. Three trigger types:
+              <span style={badgeStyleAlt}>Pro</span> <span style={badgeStyleAlt}>Enterprise</span> — Create automation rules that run during services. Three trigger types:
             </p>
             <ul style={ulStyle}>
               <li>
@@ -156,7 +156,7 @@ export default function HelpPage() {
               </li>
             </ul>
             <p style={{ ...paraStyle, marginTop: 12 }}>
-              Limits: Pro tier can have up to 10 rules, Managed up to 25. Each rule fires at most once per service session.
+              Limits: Pro tier can have up to 10 rules, Enterprise up to 25. Each rule fires at most once per service session.
             </p>
           </AccordionItem>
 
@@ -378,7 +378,7 @@ export default function HelpPage() {
               <ResponseBadge tier="Connect" time="48 hr" />
               <ResponseBadge tier="Plus+" time="24 hr" />
               <ResponseBadge tier="Pro" time="12 hr" />
-              <ResponseBadge tier="Managed" time="15 min" note="Mon-Fri 9-5 ET + service windows" />
+              <ResponseBadge tier="Enterprise" time="15 min" note="Mon-Fri 9-5 ET + service windows" />
             </div>
           </div>
         </div>

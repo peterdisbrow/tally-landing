@@ -53,7 +53,7 @@ export default function EarlyAccessForm() {
           }}>JOIN THE FOUNDING CHURCHES.</h2>
 
           <p style={{ color: MUTED, marginBottom: 16, lineHeight: 1.7, fontSize: '1rem' }}>
-            Early access churches get 30 days free, locked-in pricing, and direct access to Andrew during onboarding.
+            Early access churches get 30 days free, locked-in pricing, and dedicated onboarding support.
           </p>
           <p style={{ color: DIM, marginBottom: 48, lineHeight: 1.7, fontSize: '0.9rem' }}>
             No credit card required. Setup takes 10 minutes.
@@ -67,7 +67,7 @@ export default function EarlyAccessForm() {
               <div style={{ fontSize: '2.5rem', marginBottom: 16 }}>{'\ud83c\udf89'}</div>
               <p style={{ fontWeight: 800, fontSize: '1.2rem', margin: '0 0 10px', color: WHITE }}>You&apos;re on the list!</p>
               <p style={{ color: MUTED, margin: 0, fontSize: '0.95rem', lineHeight: 1.65 }}>
-                Andrew will be in touch within 24 hours with your setup link.
+                We&apos;ll be in touch within 24 hours with your setup link.
               </p>
             </div>
           ) : (

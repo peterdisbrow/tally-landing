@@ -12,7 +12,7 @@ const TIERS = [
   { value: 'connect', name: 'Connect', monthly: 49, annual: 490 },
   { value: 'plus', name: 'Plus', monthly: 99, annual: 990 },
   { value: 'pro', name: 'Pro', monthly: 149, annual: 1490 },
-  { value: 'managed', name: 'Managed', monthly: 299, annual: 2990 },
+  { value: 'managed', name: 'Enterprise', monthly: 499, annual: 4990 },
 ];
 
 export default function SignupPage() {

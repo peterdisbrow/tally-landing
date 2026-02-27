@@ -84,7 +84,7 @@ export default function TermsPage() {
                 <strong>Pro</strong> — $149/month
               </li>
               <li>
-                <strong>Managed</strong> — $299/month
+                <strong>Enterprise</strong> — $499/month
               </li>
               <li>
                 <strong>Event</strong> — $99 one-time purchase (single-event access)
@@ -157,7 +157,7 @@ export default function TermsPage() {
                 Do not share credentials with individuals outside your organization.
               </li>
               <li>
-                AI Autopilot fair-use limits apply: Pro tier limits 10 active rules, Managed limits
+                AI Autopilot fair-use limits apply: Pro tier limits 10 active rules, Enterprise limits
                 25 active rules.
               </li>
             </ul>
@@ -167,9 +167,9 @@ export default function TermsPage() {
             </p>
           </Section>
 
-          <Section title="7. Service Commitment (Managed Tier) and All-Tier Baseline">
+          <Section title="7. Service Commitment (Enterprise Tier) and All-Tier Baseline">
             <p style={{ marginBottom: 8 }}>
-              Managed tier includes support commitments for response acknowledgment (not guaranteed
+              Enterprise tier includes support commitments for response acknowledgment (not guaranteed
               issue resolution time):
             </p>
             <ul style={ulStyle}>
@@ -181,12 +181,12 @@ export default function TermsPage() {
                 "Response" means we acknowledge receipt and begin investigation.
               </li>
               <li>
-                A prorated credit applies if this managed-response commitment is missed three or more
+                A prorated credit applies if this enterprise-response commitment is missed three or more
                 times in one billing cycle.
               </li>
             </ul>
             <p style={{ marginTop: 12 }}>
-              All non-Managed plans receive support through standard channels with reasonable best-effort
+              All non-Enterprise plans receive support through standard channels with reasonable best-effort
               response times and no guaranteed SLA credit schedule unless specifically stated in a
               separate service agreement.
             </p>
