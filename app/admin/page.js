@@ -7,6 +7,10 @@ import ChurchesTab from './components/ChurchesTab';
 import ResellersTab from './components/ResellersTab';
 import UsersTab from './components/UsersTab';
 import AIUsageTab from './components/AIUsageTab';
+import AlertsTab from './components/AlertsTab';
+import TicketsTab from './components/TicketsTab';
+import MonitorTab from './components/MonitorTab';
+import AIChatDrawer from './components/AIChatDrawer';
 
 export default function AdminPage() {
   const [token, setToken]   = useState(null);
@@ -178,7 +182,11 @@ export default function AdminPage() {
         {tab === 'resellers' && <ResellersTab relay={relay} role={role} />}
         {tab === 'users'     && <UsersTab relay={relay} />}
         {tab === 'aiusage'   && <AIUsageTab relay={relay} />}
+        {tab === 'alerts'    && <AlertsTab relay={relay} role={role} />}
+        {tab === 'tickets'   && <TicketsTab relay={relay} role={role} />}
+        {tab === 'monitor'   && <MonitorTab token={token} />}
       </main>
+      <AIChatDrawer relay={relay} />
     </div>
   );
 }

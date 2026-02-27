@@ -28,6 +28,10 @@ const ALLOWED_PATH_PREFIXES = [
   '/api/admin/users',
   '/api/admin/reviews',
   '/api/admin/ai-usage',
+  '/api/admin/alerts',
+  '/api/admin/tickets',
+  '/api/support',
+  '/api/chat',
 ];
 
 function getToken(req) {

@@ -103,9 +103,9 @@ export function getEncoderLiveFromStatus(status = {}) {
 
 export function tabsForRole(role) {
   switch (role) {
-    case 'super_admin': return [['churches', '\u26EA Churches'], ['resellers', '\uD83C\uDFE2 Resellers'], ['users', '\uD83D\uDC64 Users'], ['aiusage', '\uD83E\uDD16 AI Usage']];
-    case 'admin':       return [['churches', '\u26EA Churches'], ['resellers', '\uD83C\uDFE2 Resellers'], ['aiusage', '\uD83E\uDD16 AI Usage']];
-    case 'engineer':    return [['churches', '\u26EA Churches']];
+    case 'super_admin': return [['churches', '\u26EA Churches'], ['resellers', '\uD83C\uDFE2 Resellers'], ['users', '\uD83D\uDC64 Users'], ['aiusage', '\uD83E\uDD16 AI Usage'], ['alerts', '\uD83D\uDD14 Alerts'], ['tickets', '\uD83C\uDFAB Tickets'], ['monitor', '\uD83D\uDCE1 Monitor']];
+    case 'admin':       return [['churches', '\u26EA Churches'], ['resellers', '\uD83C\uDFE2 Resellers'], ['aiusage', '\uD83E\uDD16 AI Usage'], ['alerts', '\uD83D\uDD14 Alerts'], ['tickets', '\uD83C\uDFAB Tickets'], ['monitor', '\uD83D\uDCE1 Monitor']];
+    case 'engineer':    return [['churches', '\u26EA Churches'], ['alerts', '\uD83D\uDD14 Alerts'], ['monitor', '\uD83D\uDCE1 Monitor']];
     case 'sales':       return [['churches', '\u26EA Churches'], ['resellers', '\uD83C\uDFE2 Resellers']];
     default:            return [['churches', '\u26EA Churches']];
   }
