@@ -10,14 +10,14 @@ const TABS = [
 
 const CAPTIONS = {
   status: [
-    { icon: '\ud83d\udd34', label: 'LIVE badge', desc: 'Instantly see if the stream is active' },
-    { icon: '\ud83d\udfe2', label: 'All green', desc: 'Relay, ATEM, OBS, Companion \u2014 all connected' },
-    { icon: '\ud83d\udcf9', label: 'Program & Preview', desc: 'Which camera is live, which is up next' },
+    { icon: '\ud83d\udfe2', label: 'All green', desc: 'Relay, ATEM, OBS, Companion, ProPresenter \u2014 every connection at a glance' },
+    { icon: '\ud83d\udcf9', label: 'PGM & PVW cameras', desc: 'See which camera is live and which is on deck \u2014 with live video preview' },
+    { icon: '\u26a1', label: 'Auto-recovery alerts', desc: 'Tally fixes problems before you notice \u2014 then shows you what happened' },
   ],
   equipment: [
-    { icon: '\ud83c\udfdb\ufe0f', label: 'Auto-discovers devices', desc: 'Hit Scan Network \u2014 it finds your ATEM, OBS, Companion automatically' },
+    { icon: '\ud83c\udfdb\ufe0f', label: 'Auto-discovers devices', desc: 'Finds your ATEM, OBS, Companion, ProPresenter, HyperDecks, and PTZ cameras' },
     { icon: '\u2699\ufe0f', label: 'One-time setup', desc: 'Enter IPs once, test connections, save \u2014 done in 10 minutes' },
-    { icon: '\ud83d\udd12', label: 'Encrypted credentials', desc: 'Stream keys stored in your OS keychain. Never plaintext.' },
+    { icon: '\ud83c\udfa4', label: 'Audio + video', desc: 'PTZ cameras, HyperDecks, audio consoles \u2014 all from the same screen' },
   ],
 };
 
