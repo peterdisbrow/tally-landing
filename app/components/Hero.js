@@ -22,7 +22,7 @@ export default function Hero() {
         fontWeight: 700, letterSpacing: '0.12em', color: GREEN,
       }}>
         <span style={{ width: 6, height: 6, borderRadius: '50%', background: GREEN, display: 'inline-block', boxShadow: `0 0 6px ${GREEN}` }} />
-        TALLY BY ATEM SCHOOL &mdash; EARLY ACCESS
+        TALLY BY ATEM SCHOOL &mdash; CHURCH PRODUCTION MONITORING
       </div>
 
       {/* headline */}
@@ -40,7 +40,7 @@ export default function Hero() {
         fontSize: 'clamp(1rem, 2.2vw, 1.25rem)', color: MUTED,
         maxWidth: 660, margin: '0 auto 20px', lineHeight: 1.7,
       }}>
-        Tally monitors every device in your booth &mdash; ATEM, OBS, audio, slides &mdash; and fixes problems before the congregation notices.
+        Tally monitors every device in your booth &mdash; ATEM, OBS, Audio Consoles, and Presentations &mdash; and fixes problems before the congregation notices.
         You get an alert. Everything else is automatic.
       </p>
 
@@ -54,12 +54,12 @@ export default function Hero() {
 
       {/* CTAs */}
       <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 80 }}>
-        <a href="#early-access" style={{
+        <a href="/signup" style={{
           display: 'inline-block', padding: '15px 36px', fontSize: '1rem', fontWeight: 700,
           borderRadius: 8, border: 'none', background: GREEN, color: '#000',
           cursor: 'pointer', textDecoration: 'none',
         }}>
-          Get Early Access &mdash; Free for 30 Days &rarr;
+          Start Free &mdash; 30 Days &rarr;
         </a>
         <a href="#the-app" className="cta-ghost" style={{
           display: 'inline-block', padding: '15px 36px', fontSize: '1rem', fontWeight: 600,

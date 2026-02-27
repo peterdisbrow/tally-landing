@@ -25,9 +25,9 @@ export default function BoldStatement() {
           lineHeight: 0.95, letterSpacing: '-0.04em', color: WHITE, margin: '0 0 48px',
         }}>ANYWHERE.</p>
         <p style={{ color: MUTED, fontSize: 'clamp(1rem, 2vw, 1.2rem)', maxWidth: 580, margin: '0 auto 48px', lineHeight: 1.7 }}>
-          Whether you&apos;re managing one venue or twenty, Tally keeps every production under control &mdash; without you being in the room.
+          Start with one room, then scale to multi-campus operations as your plan grows &mdash; without adding chaos to Sunday.
         </p>
-        <a href="#early-access" style={{
+        <a href="/signup" style={{
           display: 'inline-block', padding: '15px 40px', fontSize: '1rem', fontWeight: 700,
           borderRadius: 8, border: 'none', background: GREEN, color: '#000',
           cursor: 'pointer', textDecoration: 'none',

@@ -85,7 +85,7 @@ export default function OGImage() {
             maxWidth: 700,
           }}
         >
-          Monitor ATEM, OBS, audio, slides — and fix problems before anyone notices.
+          Monitor ATEM, OBS, Audio Consoles, and Presentations — and fix problems before anyone notices.
         </div>
       </div>
     ),

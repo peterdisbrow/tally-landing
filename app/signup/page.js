@@ -1,29 +1,54 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { BG, CARD_BG as CARD, BORDER, GREEN, GREEN_LT, WHITE, MUTED, DANGER } from '../../lib/tokens';
 
-const BG = '#09090B';
-const CARD = '#0F1613';
-const BORDER = '#1a2e1f';
-const GREEN = '#22c55e';
-const GREEN_LT = '#4ade80';
-const WHITE = '#F8FAFC';
-const MUTED = '#94A3B8';
-const DANGER = '#ef4444';
+const BILLING_INTERVALS = [
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'annual', label: 'Annual' },
+];
 
 const TIERS = [
-  { value: 'connect', label: 'Connect ($49/mo)' },
-  { value: 'plus', label: 'Plus ($99/mo)' },
-  { value: 'pro', label: 'Pro ($149/mo)' },
-  { value: 'managed', label: 'Managed ($299/mo)' },
+  { value: 'connect', name: 'Connect', monthly: 49, annual: 490 },
+  { value: 'plus', name: 'Plus', monthly: 99, annual: 990 },
+  { value: 'pro', name: 'Pro', monthly: 149, annual: 1490 },
+  { value: 'managed', name: 'Managed', monthly: 299, annual: 2990 },
 ];
 
 export default function SignupPage() {
-  const [form, setForm] = useState({ name: '', email: '', password: '', tier: 'connect' });
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    tier: 'connect',
+    billingInterval: 'monthly',
+  });
+  const [referralCode, setReferralCode] = useState('');
   const [tosAccepted, setTosAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(null);
+  const selectedTier = TIERS.find((tier) => tier.value === form.tier) || TIERS[0];
+  const selectedAmount = form.billingInterval === 'annual' ? selectedTier.annual : selectedTier.monthly;
+
+  // Read plan + interval + referral from query params
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const plan = params.get('plan');
+    const interval = params.get('interval');
+    const ref = params.get('ref');
+    if (plan && TIERS.some(t => t.value === plan)) {
+      setForm(f => ({ ...f, tier: plan }));
+    }
+    if (interval === 'annual' || interval === 'monthly') {
+      setForm(f => ({ ...f, billingInterval: interval }));
+    }
+    if (ref) {
+      setReferralCode(ref);
+    }
+  }, []);
 
   const statusMessage = useMemo(() => {
     if (typeof window === 'undefined') return '';
@@ -33,13 +58,15 @@ export default function SignupPage() {
     return '';
   }, []);
 
+  const canContinue = !submitting && tosAccepted && privacyAccepted;
+
   async function handleSubmit(e) {
     e.preventDefault();
     setSubmitting(true);
     setError('');
     setSuccess(null);
 
-    if (!tosAccepted) {
+    if (!tosAccepted || !privacyAccepted) {
       setError('You must agree to the Terms of Service and Privacy Policy.');
       setSubmitting(false);
       return;
@@ -49,7 +76,13 @@ export default function SignupPage() {
       const res = await fetch('/api/church/onboard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, tosAcceptedAt: new Date().toISOString() }),
+        body: JSON.stringify({
+          ...form,
+          tosAccepted: true,
+          privacyAccepted: true,
+          tosAcceptedAt: new Date().toISOString(),
+          ...(referralCode ? { referralCode } : {}),
+        }),
       });
       const data = await res.json().catch(() => ({}));
 
@@ -61,6 +94,11 @@ export default function SignupPage() {
       setSuccess(data);
       if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
+      } else {
+        // No Stripe checkout — go straight to success page
+        const params = new URLSearchParams({ church: data.name || form.name });
+        if (data.registrationCode) params.set('code', data.registrationCode);
+        window.location.href = `/signup/success?${params.toString()}`;
       }
     } catch (err) {
       setError(err.message || 'Network error');
@@ -79,6 +117,13 @@ export default function SignupPage() {
           <p style={{ color: MUTED, lineHeight: 1.55, marginBottom: 18 }}>
             Sign up, start billing checkout, then log into the desktop app with your email and password.
           </p>
+
+          {referralCode && (
+            <div style={{ marginBottom: 14, background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: GREEN_LT, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 16 }}>&#127873;</span>
+              <span>You were referred by a friend! Create your new account and subscribe — you&apos;ll both get a free month.</span>
+            </div>
+          )}
 
           {statusMessage && (
             <div style={{ marginBottom: 14, background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.35)', color: GREEN_LT, borderRadius: 8, padding: 10, fontSize: 13 }}>
@@ -105,21 +150,56 @@ export default function SignupPage() {
             <label style={labelStyle}>Plan</label>
             <select style={inputStyle} value={form.tier} onChange={(e) => setForm((f) => ({ ...f, tier: e.target.value }))}>
               {TIERS.map((tier) => (
-                <option key={tier.value} value={tier.value}>{tier.label}</option>
+                <option key={tier.value} value={tier.value}>
+                  {tier.name} ({form.billingInterval === 'annual' ? `$${tier.annual}/yr` : `$${tier.monthly}/mo`})
+                </option>
               ))}
             </select>
 
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 16, cursor: 'pointer', fontSize: 13, color: MUTED, lineHeight: 1.5 }}>
+            <label style={labelStyle}>Billing Cycle</label>
+            <div style={intervalWrapStyle}>
+              {BILLING_INTERVALS.map((interval) => {
+                const active = form.billingInterval === interval.value;
+                return (
+                  <button
+                    key={interval.value}
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, billingInterval: interval.value }))}
+                    style={{
+                      ...intervalButtonStyle,
+                      background: active ? 'rgba(34,197,94,0.18)' : 'transparent',
+                      borderColor: active ? GREEN : BORDER,
+                      color: active ? GREEN_LT : MUTED,
+                    }}
+                  >
+                    {interval.label}
+                  </button>
+                );
+              })}
+            </div>
+            <p style={{ margin: '8px 0 0', color: MUTED, fontSize: 12 }}>
+              {form.billingInterval === 'annual'
+                ? `${selectedTier.name} billed yearly at $${selectedAmount}/yr.`
+                : `${selectedTier.name} billed monthly at $${selectedAmount}/mo.`}
+            </p>
+
+            <label style={checkboxRowStyle}>
               <input type="checkbox" checked={tosAccepted} onChange={(e) => setTosAccepted(e.target.checked)} style={{ marginTop: 3, accentColor: GREEN }} />
               <span>
                 I agree to the{' '}
                 <a href="/terms" target="_blank" rel="noopener" style={{ color: GREEN, textDecoration: 'underline' }}>Terms of Service</a>
-                {' '}and{' '}
+              </span>
+            </label>
+
+            <label style={checkboxRowStyle}>
+              <input type="checkbox" checked={privacyAccepted} onChange={(e) => setPrivacyAccepted(e.target.checked)} style={{ marginTop: 3, accentColor: GREEN }} />
+              <span>
+                I agree to the{' '}
                 <a href="/privacy" target="_blank" rel="noopener" style={{ color: GREEN, textDecoration: 'underline' }}>Privacy Policy</a>
               </span>
             </label>
 
-            <button type="submit" disabled={submitting || !tosAccepted} style={{
+            <button type="submit" disabled={!canContinue} style={{
               marginTop: 16,
               width: '100%',
               border: 0,
@@ -129,8 +209,8 @@ export default function SignupPage() {
               fontWeight: 700,
               background: GREEN,
               color: '#03140A',
-              cursor: submitting ? 'default' : 'pointer',
-              opacity: submitting ? 0.6 : 1,
+              cursor: canContinue ? 'pointer' : 'default',
+              opacity: canContinue ? 1 : 0.6,
             }}>
               {submitting ? 'Creating account…' : 'Create Account & Continue to Checkout'}
             </button>
@@ -155,6 +235,17 @@ const labelStyle = {
   marginTop: 12,
 };
 
+const checkboxRowStyle = {
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: 8,
+  marginTop: 16,
+  cursor: 'pointer',
+  fontSize: 13,
+  color: MUTED,
+  lineHeight: 1.5,
+};
+
 const inputStyle = {
   width: '100%',
   border: `1px solid ${BORDER}`,
@@ -163,4 +254,21 @@ const inputStyle = {
   color: WHITE,
   fontSize: 14,
   padding: '10px 12px',
+};
+
+const intervalWrapStyle = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: 8,
+};
+
+const intervalButtonStyle = {
+  border: `1px solid ${BORDER}`,
+  borderRadius: 8,
+  background: 'transparent',
+  color: MUTED,
+  fontSize: 13,
+  fontWeight: 700,
+  padding: '9px 10px',
+  cursor: 'pointer',
 };

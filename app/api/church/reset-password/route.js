@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import crypto from 'node:crypto';
+import { checkRateLimit } from '../../../../lib/rate-limit';
 
 const SECRET = process.env.SESSION_SECRET;
-const RELAY_URL = process.env.RELAY_URL || process.env.NEXT_PUBLIC_RELAY_URL || 'https://tally-production-cde2.up.railway.app';
+if (!SECRET && process.env.NODE_ENV === 'production') {
+  console.error('⚠️  SESSION_SECRET is not set — password reset will fail at runtime.');
+}
+import { RELAY_URL } from '../../../../lib/relay';
 const RELAY_KEY = process.env.RELAY_ADMIN_KEY || process.env.ADMIN_API_KEY;
 
 /**
@@ -52,6 +56,14 @@ function verifyResetToken(token) {
  * Verifies the reset token, then asks the relay to update the password.
  */
 export async function POST(req) {
+  const rateLimitResult = await checkRateLimit('resetPw', req);
+  if (!rateLimitResult.success) {
+    return Response.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+  }
+
+  if (!RELAY_URL) {
+    return NextResponse.json({ error: 'Relay URL not configured' }, { status: 500 });
+  }
   if (!SECRET) {
     return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
   }
@@ -99,7 +111,7 @@ export async function POST(req) {
     if (!upstream.ok) {
       return NextResponse.json(
         { error: data.error || 'Password reset failed on the relay server' },
-        { status: upstream.status }
+        { status: upstream.status },
       );
     }
 

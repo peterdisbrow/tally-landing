@@ -32,14 +32,14 @@ export default function Nav() {
             </a>
           ))}
           <a
-            href="#early-access"
+            href="/signup"
             style={{
               display: 'inline-block', padding: '9px 22px', fontSize: '0.88rem', fontWeight: 700,
               borderRadius: 8, border: 'none', background: GREEN, color: '#000', cursor: 'pointer',
               textDecoration: 'none',
             }}
           >
-            Get Early Access
+            Get Started Free
           </a>
         </div>
 
@@ -69,7 +69,7 @@ export default function Nav() {
             </a>
           ))}
           <a
-            href="#early-access"
+            href="/signup"
             onClick={() => setMenuOpen(false)}
             style={{
               marginTop: 8,
@@ -77,7 +77,7 @@ export default function Nav() {
               borderTop: `1px solid ${BORDER}`
             }}
           >
-            Get Early Access
+            Get Started Free
           </a>
         </div>
       )}

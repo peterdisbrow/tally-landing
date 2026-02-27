@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-
-const RELAY_URL = process.env.RELAY_URL || process.env.NEXT_PUBLIC_RELAY_URL || 'https://tally-production-cde2.up.railway.app';
+import { RELAY_URL } from '../../../../lib/relay';
 
 /**
  * Proxy authenticated church requests to the relay server.
@@ -11,6 +10,10 @@ const RELAY_URL = process.env.RELAY_URL || process.env.NEXT_PUBLIC_RELAY_URL || 
  */
 
 async function proxyToRelay(req, method) {
+  if (!RELAY_URL) {
+    return NextResponse.json({ error: 'Relay URL not configured' }, { status: 500 });
+  }
+
   const auth = req.headers.get('authorization');
   if (!auth) {
     return NextResponse.json({ error: 'Authorization header required' }, { status: 401 });

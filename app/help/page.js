@@ -1,14 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-
-const BG = '#09090B';
-const CARD = '#0F1613';
-const BORDER = '#1a2e1f';
-const GREEN = '#22c55e';
-const WHITE = '#F8FAFC';
-const MUTED = '#94A3B8';
-const DIM = '#475569';
+import { BG, CARD_BG as CARD, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens';
 
 export default function HelpPage() {
   return (
@@ -45,7 +38,7 @@ export default function HelpPage() {
 
           <AccordionItem title="Your first 15 minutes with Tally">
             <ol style={olStyle}>
-              <li>Create your account at <a href="https://tally.atemschool.com/signup" style={linkStyle}>tally.atemschool.com/signup</a></li>
+              <li>Create your account at <a href="https://tallyconnect.app/signup" style={linkStyle}>tallyconnect.app/signup</a></li>
               <li>Choose your plan (30-day free trial included)</li>
               <li>Download the Tally desktop app from the portal</li>
               <li>Enter your registration code in the app</li>

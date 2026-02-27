@@ -11,14 +11,47 @@ import HowItWorks from './components/HowItWorks';
 import Pricing from './components/Pricing';
 import Hardware from './components/Hardware';
 import FounderQuote from './components/FounderQuote';
-import EarlyAccessForm from './components/EarlyAccessForm';
+import Testimonials from './components/Testimonials';
+import FAQ from './components/FAQ';
 import Footer from './components/Footer';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'SoftwareApplication',
+      name: 'Tally by ATEM School',
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'macOS, Windows',
+      description: 'Church production monitoring & remote control. Monitor ATEM, OBS, audio consoles, and stream health from anywhere.',
+      url: 'https://tallyconnect.app',
+      offers: {
+        '@type': 'AggregateOffer',
+        lowPrice: '0',
+        highPrice: '249',
+        priceCurrency: 'USD',
+        offerCount: 5,
+      },
+    },
+    {
+      '@type': 'Organization',
+      name: 'ATEM School',
+      url: 'https://tallyconnect.app',
+      logo: 'https://tallyconnect.app/icon.svg',
+    },
+  ],
+};
 
 export default function Home() {
   return (
     <div style={{ background: BG, color: WHITE, fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif", overflowX: 'hidden' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <GlobalStyles />
       <Nav />
+      <main id="main-content">
       <Hero />
       <Problem />
       <Features />
@@ -29,7 +62,9 @@ export default function Home() {
       <Pricing />
       <Hardware />
       <FounderQuote />
-      <EarlyAccessForm />
+      <Testimonials />
+      <FAQ />
+      </main>
       <Footer />
     </div>
   );

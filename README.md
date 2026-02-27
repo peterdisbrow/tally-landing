@@ -2,7 +2,7 @@
 
 Remote church production monitoring and control — via Telegram.
 
-**Live at:** [tally.atemschool.com](https://tally.atemschool.com)
+**Live at:** [tallyconnect.app](https://tallyconnect.app)
 
 ## Deploy to Vercel
 
@@ -16,10 +16,10 @@ Remote church production monitoring and control — via Telegram.
 Add this DNS record:
 
 ```
-tally.atemschool.com  CNAME  cname.vercel-dns.com
+tallyconnect.app  CNAME  cname.vercel-dns.com
 ```
 
-Then in Vercel Dashboard → Project Settings → Domains → Add `tally.atemschool.com`.
+Then in Vercel Dashboard → Project Settings → Domains → Add `tallyconnect.app`.
 
 ## Local Development
 
@@ -32,7 +32,7 @@ Set relay target (for signup/login proxy routes):
 
 ```bash
 RELAY_URL=https://your-relay.up.railway.app
-NEXT_PUBLIC_APP_URL=https://tally.atemschool.com
+NEXT_PUBLIC_APP_URL=https://tallyconnect.app
 ```
 
 ## Early Access Form

@@ -2,12 +2,12 @@ export const metadata = {
   title: 'Tally by ATEM School — Church Production Monitoring & Remote Control',
   description:
     'Monitor your ATEM, OBS, vMix, audio consoles, and stream health from anywhere. Real-time alerts, pre-service auto-check, and full remote control via Telegram.',
-  metadataBase: new URL('https://tally.atemschool.com'),
+  metadataBase: new URL('https://tallyconnect.app'),
   openGraph: {
     title: 'Tally by ATEM School',
     description:
-      'Monitor your church production system from anywhere. ATEM, OBS, audio, slides — Tally watches everything and fixes problems before anyone notices.',
-    url: 'https://tally.atemschool.com',
+      'Monitor your church production system from anywhere. ATEM, OBS, Audio Consoles, and Presentations — Tally watches everything and fixes problems before anyone notices.',
+    url: 'https://tallyconnect.app',
     siteName: 'Tally by ATEM School',
     locale: 'en_US',
     type: 'website',
@@ -16,7 +16,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Tally by ATEM School',
     description:
-      'Church production monitoring & remote control. ATEM, OBS, audio, slides — all in your pocket.',
+      'Church production monitoring & remote control. ATEM, OBS, Audio Consoles, and Presentations — all in your pocket.',
   },
   robots: {
     index: true,
@@ -25,6 +25,7 @@ export const metadata = {
 };
 
 import Analytics from './analytics';
+import SkipNav from './components/SkipNav';
 
 export default function RootLayout({ children }) {
   return (
@@ -38,6 +39,7 @@ export default function RootLayout({ children }) {
           lineHeight: 1.6,
         }}
       >
+        <SkipNav />
         {children}
         <Analytics />
       </body>

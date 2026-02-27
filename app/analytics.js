@@ -2,7 +2,7 @@ import Script from 'next/script';
 
 /**
  * Plausible analytics — privacy-friendly, no cookies, GDPR-compliant.
- * Set NEXT_PUBLIC_PLAUSIBLE_DOMAIN in your env (e.g. "tally.atemschool.com").
+ * Set NEXT_PUBLIC_PLAUSIBLE_DOMAIN in your env (e.g. "tallyconnect.app").
  * If the env var is missing, nothing renders — safe for local dev.
  */
 export default function Analytics() {

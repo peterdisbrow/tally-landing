@@ -1,13 +1,8 @@
+import { BG, CARD_BG as CARD, BORDER, GREEN, WHITE, MUTED } from '../../lib/tokens';
+
 export const metadata = {
   title: 'Privacy Policy — Tally by ATEM School',
 };
-
-const BG = '#09090B';
-const CARD = '#0F1613';
-const BORDER = '#1a2e1f';
-const GREEN = '#22c55e';
-const WHITE = '#F8FAFC';
-const MUTED = '#94A3B8';
 
 export default function PrivacyPage() {
   return (
@@ -41,8 +36,8 @@ export default function PrivacyPage() {
 
           <Section title="Who we are">
             Tally is operated by ATEM School (Andrew Disbrow). Our website is{' '}
-            <a href="https://tally.atemschool.com" style={{ color: GREEN }}>
-              tally.atemschool.com
+            <a href="https://tallyconnect.app" style={{ color: GREEN }}>
+              tallyconnect.app
             </a>
             .
           </Section>

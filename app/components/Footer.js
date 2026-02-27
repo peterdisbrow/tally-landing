@@ -16,7 +16,7 @@ export default function Footer() {
       <div style={{ display: 'flex', gap: 20, fontSize: '0.82rem', flexWrap: 'wrap' }}>
         <a href="/terms" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>Terms of Service</a>
         <a href="/privacy" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>Privacy Policy</a>
-        <a href="https://tally.atemschool.com" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>tally.atemschool.com</a>
+        <a href="https://tallyconnect.app" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>tallyconnect.app</a>
         <a href="https://atemschool.com" target="_blank" rel="noopener" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>atemschool.com &nearr;</a>
       </div>
     </footer>

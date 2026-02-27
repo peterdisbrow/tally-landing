@@ -1,14 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-
-const BG = '#09090B';
-const CARD = '#0F1613';
-const BORDER = '#1a2e1f';
-const GREEN = '#22c55e';
-const WHITE = '#F8FAFC';
-const MUTED = '#94A3B8';
-const DANGER = '#ef4444';
+import { BG, CARD_BG as CARD, BORDER, GREEN, WHITE, MUTED, DANGER } from '../../lib/tokens';
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');

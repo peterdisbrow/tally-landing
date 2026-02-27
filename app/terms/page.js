@@ -1,13 +1,8 @@
+import { BG, CARD_BG as CARD, BORDER, GREEN, WHITE, MUTED } from '../../lib/tokens';
+
 export const metadata = {
   title: 'Terms of Service — Tally by ATEM School',
 };
-
-const BG = '#09090B';
-const CARD = '#0F1613';
-const BORDER = '#1a2e1f';
-const GREEN = '#22c55e';
-const WHITE = '#F8FAFC';
-const MUTED = '#94A3B8';
 
 export default function TermsPage() {
   return (
@@ -20,7 +15,7 @@ export default function TermsPage() {
         padding: '48px 20px',
       }}
     >
-      <div style={{ maxWidth: 720, margin: '0 auto' }}>
+      <div style={{ maxWidth: 760, margin: '0 auto' }}>
         <a href="/" style={{ color: MUTED, textDecoration: 'none', fontSize: 13 }}>
           &larr; Back to Home
         </a>
@@ -44,7 +39,9 @@ export default function TermsPage() {
             School (Andrew Disbrow). The service provides real-time monitoring, alerting, and remote
             control capabilities for broadcast and production equipment including — but not limited
             to — Blackmagic ATEM switchers, OBS Studio, vMix, ProPresenter, Resolume, audio
-            consoles, and streaming encoders. By using Tally, you agree to these Terms of Service.
+            consoles, and streaming encoders. You are responsible for the lawful operation of the
+            software and hardware used in your church environment. By using Tally, you agree to these
+            Terms of Service.
           </Section>
 
           <Section title="2. Account Terms">
@@ -54,23 +51,22 @@ export default function TermsPage() {
               </li>
               <li>
                 Each church or organization is entitled to one Tally account. Multiple user logins
-                may be provisioned under that account depending on your subscription tier.
+                may be provisioned under that account depending on subscription tier.
               </li>
               <li>
-                You are responsible for maintaining the confidentiality of your account credentials,
-                including your password and any API keys issued to your account.
+                You are responsible for maintaining confidentiality of account credentials, passwords,
+                and API keys.
               </li>
               <li>
-                You must provide accurate and complete information during registration. You agree to
-                update your account information promptly if it changes.
-              </li>
-              <li>
-                You are responsible for all activity that occurs under your account, whether
-                authorized by you or not. Notify us immediately at{' '}
+                You are responsible for all activity on your account, authorized or not. Notify us
+                immediately at{' '}
                 <a href="mailto:support@atemschool.com" style={{ color: GREEN }}>
                   support@atemschool.com
                 </a>{' '}
-                if you suspect unauthorized access.
+                if you suspect unauthorized activity.
+              </li>
+              <li>
+                You represent you have authority to bind your organization and accept these Terms.
               </li>
             </ul>
           </Section>
@@ -95,182 +91,230 @@ export default function TermsPage() {
               </li>
             </ul>
             <p style={{ marginTop: 12 }}>
-              All subscription plans include a 30-day free trial. Subscriptions renew automatically
-              at the end of each billing period unless canceled prior to renewal. All billing and
-              payment processing is handled through Stripe. We do not store your credit card
-              information.
+              All subscription plans include a 30-day free trial. Subscriptions renew automatically at
+              the end of each billing period unless canceled before renewal. All billing and payment
+              processing is handled through Stripe. We do not store your credit card information.
             </p>
             <p style={{ marginTop: 12 }}>
-              Prices are subject to change. We will provide at least 30 days written notice (via
-              email) before any price changes take effect on your account.
+              Prices are subject to change. We will provide at least 30 days written notice (via email)
+              before any price changes take effect on your account.
+            </p>
+            <p style={{ marginTop: 12 }}>
+              Taxes and fees assessed by Stripe or any applicable government authority may be added and
+              will be your responsibility unless otherwise stated.
             </p>
           </Section>
 
           <Section title="4. Refunds & Cancellation">
             <ul style={ulStyle}>
               <li>
-                You may cancel your subscription at any time through the Stripe customer portal
-                linked in your Tally dashboard.
+                You may cancel your subscription at any time through the Stripe customer portal linked in
+                your Tally dashboard.
               </li>
               <li>
-                Upon cancellation, your service will remain active through the end of the current
-                billing period. No refunds are issued for partial months.
+                Upon cancellation, your service remains active until the end of the current billing
+                period.
               </li>
               <li>
-                After cancellation, your account data (device configurations, alert history, and
-                monitoring logs) will be retained for 30 days to allow for reactivation, after which
-                it will be permanently deleted.
+                No refunds are issued for partial monthly service except where required by law.
               </li>
               <li>
-                Annual plans that are canceled mid-term will be prorated to the remaining number of
-                full months. The prorated credit will be issued to your original payment method via
-                Stripe.
-              </li>
-            </ul>
-          </Section>
-
-          <Section title="5. Free Trial">
-            All new accounts receive a 30-day free trial with full access to the features of your
-            selected subscription tier. No credit card is required to start the trial. At the end of
-            the trial period, you must subscribe to a paid plan to continue using the service. If you
-            do not subscribe, your account will be placed on hold and your data will be retained for
-            30 days before permanent deletion.
-          </Section>
-
-          <Section title="6. Acceptable Use">
-            You agree to use Tally in a lawful and responsible manner. The following activities are
-            prohibited:
-            <ul style={ulStyle}>
-              <li>
-                Reverse engineering, decompiling, or disassembling any part of the Tally software,
-                relay server, or client applications.
+                After cancellation, account data (device configurations, alert history, and monitoring
+                logs) is retained for 30 days for reactivation, then permanently deleted.
               </li>
               <li>
-                Using automated tools or scripts to scrape, crawl, or extract data from the Tally
-                platform beyond normal API usage.
-              </li>
-              <li>
-                Using Tally to intentionally disrupt, damage, or interfere with any production
-                equipment, streaming service, or third-party system.
-              </li>
-              <li>
-                Sharing your account credentials with individuals outside your organization.
-              </li>
-              <li>
-                Exceeding fair-use limits for the AI Autopilot feature: Pro tier accounts are limited
-                to 10 active automation rules, and Managed tier accounts are limited to 25 active
-                automation rules.
+                Annual plan cancellations are prorated by remaining full months and credited via Stripe
+                to the original method.
               </li>
             </ul>
             <p style={{ marginTop: 12 }}>
-              We reserve the right to throttle or temporarily suspend accounts that generate
-              excessive API calls or place unreasonable load on the service infrastructure.
+              You are responsible for checking your payment method details and renewal dates in the
+              portal. We are not responsible for missed renewal emails or spam filtering.
             </p>
           </Section>
 
-          <Section title="7. Service Level Agreement (Managed Tier)">
-            Accounts subscribed to the Managed tier receive the following service level commitment:
-            <ul style={ulStyle}>
-              <li>
-                <strong>Response time:</strong> We will acknowledge support requests within 15
-                minutes during standard business hours (Monday–Friday, 9:00 AM – 5:00 PM Eastern
-                Time) and during your church&apos;s scheduled service windows as configured in your
-                Tally dashboard.
-              </li>
-              <li>
-                <strong>Definition of response:</strong> &quot;Response&quot; means written
-                acknowledgment that we have received your request and are actively investigating. It
-                does not guarantee resolution within the 15-minute window.
-              </li>
-              <li>
-                <strong>SLA credit:</strong> If we fail to meet the 15-minute response commitment
-                three or more times within a single billing cycle, you will receive a prorated credit
-                for that month applied to your next invoice.
-              </li>
-            </ul>
-            <p style={{ marginTop: 12 }}>The SLA does not apply to the following:</p>
-            <ul style={ulStyle}>
-              <li>
-                Scheduled maintenance windows, which will be announced at least 24 hours in advance
-                via email and the Tally dashboard.
-              </li>
-              <li>
-                Force majeure events, including natural disasters, internet backbone outages, or
-                other circumstances beyond our reasonable control.
-              </li>
-              <li>
-                Issues caused by the customer&apos;s own equipment, network, internet connection, or
-                misconfiguration of third-party software.
-              </li>
-            </ul>
+          <Section title="5. Free Trial">
+            All new accounts receive a 30-day free trial with full access to the selected tier. No
+            credit card is required to start the trial. At trial end, if you do not subscribe, your
+            account is placed on hold and retained for 30 days before deletion.
           </Section>
 
-          <Section title="8. Data & Privacy">
-            Your privacy is important to us. Please review our{' '}
+          <Section title="6. Acceptable Use">
+            You agree to use Tally lawfully and responsibly.
+            <ul style={ulStyle}>
+              <li>
+                Reverse engineering, decompiling, or disassembling Tally software, relay server, or
+                client applications is prohibited.
+              </li>
+              <li>
+                Automated scraping or data extraction beyond normal API usage is prohibited.
+              </li>
+              <li>
+                Do not use Tally to intentionally disrupt, damage, or interfere with production,
+                streaming systems, or third-party services.
+              </li>
+              <li>
+                Do not share credentials with individuals outside your organization.
+              </li>
+              <li>
+                AI Autopilot fair-use limits apply: Pro tier limits 10 active rules, Managed limits
+                25 active rules.
+              </li>
+            </ul>
+            <p style={{ marginTop: 12 }}>
+              We may throttle or temporarily suspend accounts that generate unreasonable API volume or
+              abusive load.
+            </p>
+          </Section>
+
+          <Section title="7. Service Commitment (Managed Tier) and All-Tier Baseline">
+            <p style={{ marginBottom: 8 }}>
+              Managed tier includes support commitments for response acknowledgment (not guaranteed
+              issue resolution time):
+            </p>
+            <ul style={ulStyle}>
+              <li>
+                We acknowledge support requests within 15 minutes during business hours (Mon–Fri,
+                9:00 AM–5:00 PM ET) and during configured service windows.
+              </li>
+              <li>
+                "Response" means we acknowledge receipt and begin investigation.
+              </li>
+              <li>
+                A prorated credit applies if this managed-response commitment is missed three or more
+                times in one billing cycle.
+              </li>
+            </ul>
+            <p style={{ marginTop: 12 }}>
+              All non-Managed plans receive support through standard channels with reasonable best-effort
+              response times and no guaranteed SLA credit schedule unless specifically stated in a
+              separate service agreement.
+            </p>
+          </Section>
+
+          <Section title="8. Incident Reporting and Escalation">
+            To help us support production issues quickly, service requests must include:
+            <ul style={ulStyle}>
+              <li>Church name and account email</li>
+              <li>Plan/tier and affected service window</li>
+              <li>Timestamped description of symptoms and any impacted streams</li>
+              <li>Relevant logs or screenshots (if available)</li>
+            </ul>
+            <p style={{ marginTop: 12 }}>
+              For mission-critical service windows, we recommend keeping an internal fallback procedure
+              and offsite manual control path ready in advance.
+            </p>
+          </Section>
+
+          <Section title="9. Data & Privacy">
+            Please review our{' '}
             <a href="/privacy" style={{ color: GREEN }}>
               Privacy Policy
             </a>{' '}
-            for full details on how we collect, use, and protect your information. In summary, Tally
-            collects equipment telemetry, stream health metrics, and connection data solely to
-            provide and improve the monitoring service. Video preview data transmitted through the
-            relay is transient and is not stored on our servers.
-          </Section>
-
-          <Section title="9. Limitation of Liability">
-            <p>
-              Tally is provided on an &quot;as is&quot; and &quot;as available&quot; basis without
-              warranties of any kind, whether express or implied, including but not limited to
-              implied warranties of merchantability, fitness for a particular purpose, or
-              non-infringement.
+            for detailed treatment of data collection and use.
+            <ul style={ulStyle}>
+              <li>
+                We process telemetry, stream-health metrics, and connection data only to provide and
+                improve the service.
+              </li>
+              <li>
+                Video preview data transmitted through relay is transient and not stored on our servers.
+              </li>
+              <li>
+                We maintain reasonable security practices; however, no system is completely risk-free.
+              </li>
+              <li>
+                For church compliance review, you should confirm operational data handling expectations with
+                your ministry leadership before use.
+              </li>
+            </ul>
+            <p style={{ marginTop: 12 }}>
+              You may request export or deletion of your organization&apos;s account data through support.
             </p>
+          </Section>
+
+          <Section title="10. Security, Security Incidents, and Vendor Changes">
+            You agree to keep local machine credentials secure and rotate access whenever staff roles
+            change.
             <ul style={ulStyle}>
               <li>
-                ATEM School and its operators shall not be held liable for any missed streams,
-                equipment failures, production disruptions, or any damages arising from the use or
-                inability to use the Tally service.
+                We may use trusted sub-processors and infrastructure partners as needed to operate the
+                service.
               </li>
               <li>
-                Our total aggregate liability for any claim arising out of or related to the service
-                shall not exceed the total fees you have paid to us in the three (3) months
-                immediately preceding the event giving rise to the claim.
+                If we identify a material service-affecting security incident, we will work to notify
+                affected customers as reasonably as possible.
               </li>
               <li>
-                We are not responsible for outages, errors, or disruptions caused by third-party
-                services, including but not limited to Stripe, OBS Studio, Blackmagic Design, vMix,
-                Renewed Vision (ProPresenter), or any internet service provider.
+                Material changes to these terms will be posted with notice as described in Section 12.
               </li>
             </ul>
           </Section>
 
-          <Section title="10. Modifications to Terms">
-            We reserve the right to update or modify these Terms of Service at any time. If we make
-            material changes, we will provide at least 30 days notice via email to the address
-            associated with your account. Your continued use of Tally after the effective date of any
-            changes constitutes your acceptance of the updated terms. If you do not agree to the
-            revised terms, you must discontinue use of the service and cancel your subscription.
-          </Section>
-
-          <Section title="11. Termination">
+          <Section title="11. Limitation of Liability">
+            Tally is provided on an "as is" and "as available" basis.
             <ul style={ulStyle}>
               <li>
-                We may suspend or terminate your account immediately if you violate any provision of
-                these Terms of Service, engage in prohibited activity, or if continued service to
-                your account poses a risk to the platform or other users.
+                ATEM School is not liable for missed streams, equipment failures, or production
+                disruptions.
               </li>
               <li>
-                You may terminate your account at any time by canceling your subscription through the
-                Stripe customer portal. Upon termination, the cancellation and data retention
-                policies described in Section 4 will apply.
+                Aggregate liability is limited to the total fees paid by you in the prior three (3) months
+                before the claim.
               </li>
               <li>
-                Sections that by their nature should survive termination — including Limitation of
-                Liability, Data & Privacy, and any accrued obligations — shall remain in effect.
+                We are not responsible for outages or disruptions caused by third-party services (e.g.
+                Stripe, OBS, Blackmagic, vMix, ProPresenter, ISP).
+              </li>
+            </ul>
+            <p style={{ marginTop: 12 }}>
+              This section applies to the maximum extent allowed by law.
+            </p>
+          </Section>
+
+          <Section title="12. Indemnity, Disputes, and Governing Law">
+            You agree to indemnify ATEM School for misuse of the service or breach of these Terms.
+            <ul style={ulStyle}>
+              <li>
+                Unless required by law, claims must be submitted by written notice and handled in
+                good-faith support coordination.
+              </li>
+              <li>
+                Governing law and venue: these Terms are governed by the laws of New York, with courts
+                in New York County having jurisdiction, unless mandatory consumer law requires otherwise.
+              </li>
+              <li>
+                Any arbitration clause is not included in this version to preserve straightforward email
+                dispute resolution unless separately added later.
               </li>
             </ul>
           </Section>
 
-          <Section title="12. Contact">
-            If you have any questions about these Terms of Service, please contact us at{' '}
+          <Section title="13. Modifications to Terms">
+            We may update these Terms at any time. Material changes receive at least 30 days&apos; notice via
+            email. Continued use after the effective date means acceptance; otherwise cancel before that
+            date.
+          </Section>
+
+          <Section title="14. Termination">
+            <ul style={ulStyle}>
+              <li>
+                We may suspend or terminate your account immediately for violations or conduct that
+                creates platform risk.
+              </li>
+              <li>
+                You may terminate anytime by canceling your subscription; Section 4 and data handling
+                provisions apply.
+              </li>
+              <li>
+                Surviving provisions include Limitation of Liability, Data & Privacy, and accrued
+                payment obligations.
+              </li>
+            </ul>
+          </Section>
+
+          <Section title="15. Contact">
+            If you have questions about these Terms, contact us at{' '}
             <a href="mailto:support@atemschool.com" style={{ color: GREEN }}>
               support@atemschool.com
             </a>

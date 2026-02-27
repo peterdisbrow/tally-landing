@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server';
-
-const RELAY_URL = process.env.RELAY_URL || process.env.NEXT_PUBLIC_RELAY_URL || 'https://tally-production-cde2.up.railway.app';
+import { RELAY_URL } from '../../../../lib/relay';
+import { checkRateLimit } from '../../../../lib/rate-limit';
 
 export async function POST(req) {
+  if (!RELAY_URL) {
+    return NextResponse.json({ error: 'Relay URL not configured' }, { status: 500 });
+  }
+
+  const rl = await checkRateLimit('login', req);
+  if (!rl.success) {
+    return NextResponse.json({ error: 'Too many login attempts. Try again in a minute.' }, { status: 429 });
+  }
+
   let body;
   try {
     body = await req.json();

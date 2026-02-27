@@ -7,6 +7,6 @@ export default function robots() {
         disallow: ['/admin', '/api/'],
       },
     ],
-    sitemap: 'https://tally.atemschool.com/sitemap.xml',
+    sitemap: 'https://tallyconnect.app/sitemap.xml',
   };
 }

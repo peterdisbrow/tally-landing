@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import crypto from 'node:crypto';
+import { checkRateLimit } from '../../../../lib/rate-limit';
 
 const SECRET = process.env.SESSION_SECRET;
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://tally.atemschool.com';
+if (!SECRET && process.env.NODE_ENV === 'production') {
+  console.error('⚠️  SESSION_SECRET is not set — password reset will fail at runtime.');
+}
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://tallyconnect.app';
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const FROM_EMAIL = process.env.FROM_EMAIL || 'Tally by ATEM School <noreply@atemschool.com>';
 
@@ -44,7 +48,7 @@ function buildResetEmailHtml(resetUrl) {
       </p>
       <hr style="border: none; border-top: 1px solid #eee; margin: 32px 0 16px;" />
       <p style="font-size: 12px; color: #999;">
-        Tally by ATEM School &mdash; <a href="https://tally.atemschool.com" style="color: #999;">tally.atemschool.com</a>
+        Tally by ATEM School &mdash; <a href="https://tallyconnect.app" style="color: #999;">tallyconnect.app</a>
       </p>
     </div>
   `;
@@ -72,7 +76,7 @@ async function sendResetEmail(email, resetUrl) {
         to: [email],
         subject: 'Reset your Tally password',
         html: buildResetEmailHtml(resetUrl),
-        text: `Reset your Tally password:\n\n${resetUrl}\n\nThis link expires in 1 hour. If you didn't request this, you can safely ignore this email.\n\nTally by ATEM School — tally.atemschool.com`,
+        text: `Reset your Tally password:\n\n${resetUrl}\n\nThis link expires in 1 hour. If you didn't request this, you can safely ignore this email.\n\nTally by ATEM School — tallyconnect.app`,
         tags: [{ name: 'category', value: 'password-reset' }],
       }),
     });
@@ -93,6 +97,11 @@ async function sendResetEmail(email, resetUrl) {
 }
 
 export async function POST(req) {
+  const rateLimitResult = await checkRateLimit('forgotPw', req);
+  if (!rateLimitResult.success) {
+    return Response.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+  }
+
   if (!SECRET) {
     return NextResponse.json({ error: 'Server misconfigured (SESSION_SECRET missing)' }, { status: 500 });
   }

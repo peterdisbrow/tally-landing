@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { readFile, writeFile } from 'fs/promises';
+import { checkRateLimit } from '../../../lib/rate-limit';
 
 const MAILCHIMP_API_KEY = process.env.MAILCHIMP_API_KEY;
 const AUDIENCE_ID = '6c052ad3be';
@@ -33,6 +34,11 @@ async function addTagToMember(email) {
 }
 
 export async function POST(request) {
+  const rateLimitResult = await checkRateLimit('signup', request);
+  if (!rateLimitResult.success) {
+    return Response.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+  }
+
   try {
     const { name, church, email } = await request.json();
     if (!name || !email) {
