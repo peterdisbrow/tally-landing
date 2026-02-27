@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-
-const RELAY_URL = process.env.RELAY_URL || 'https://tally-production-cde2.up.railway.app';
-const RELAY_KEY = process.env.RELAY_ADMIN_KEY || process.env.ADMIN_API_KEY;
+import { RELAY_URL } from '../../../../lib/relay';
+if (!RELAY_URL) {
+  console.error('[admin/relay] RELAY_URL is not configured');
+}
 
 const ALLOWED_PATH_PREFIXES = [
   '/api/health',
@@ -25,7 +26,23 @@ const ALLOWED_PATH_PREFIXES = [
   '/api/bot',
   '/api/admin/me',
   '/api/admin/users',
+  '/api/admin/reviews',
+  '/api/admin/ai-usage',
 ];
+
+function getToken(req) {
+  const headerToken = (req.headers.get('x-admin-token') || '').trim();
+  if (headerToken) return headerToken;
+
+  const cookieToken = req.cookies?.get?.('tally_admin_token')?.value;
+  if (cookieToken && cookieToken.trim()) return cookieToken.trim();
+
+  return '';
+}
+
+function isLikelyJwt(token) {
+  return /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token);
+}
 
 function safePath(pathname) {
   if (!pathname || !pathname.startsWith('/')) return null;
@@ -33,70 +50,68 @@ function safePath(pathname) {
   if (/[\r\n\s]/.test(pathname)) return null;
   if (!pathname.startsWith('/api/')) return null;
 
-  const normalized = pathname.replace(/\/+/g, '/');
+  const normalized = pathname.replace(/\/+$/g, '').replace(/\/+/, '/');
   const allowed = ALLOWED_PATH_PREFIXES.some(
-    prefix => normalized === prefix || normalized.startsWith(`${prefix}/`)
+    prefix => normalized === prefix || normalized.startsWith(`${prefix}/`),
   );
   return allowed ? normalized : null;
+}
+
+function parseJsonText(text, status) {
+  try {
+    return [JSON.parse(text), 'json'];
+  } catch {
+    return [{ error: text || 'Upstream returned non-JSON response' }, 'fallback'];
+  }
+}
+
+function badRequest(message, status = 400) {
+  return NextResponse.json({ error: message }, { status });
 }
 
 /**
  * Proxy admin requests to the relay server.
  *
- * Auth: The client sends the JWT in the x-admin-token header.
- * We forward it to the relay as Authorization: Bearer <jwt>.
- * The relay validates the JWT and checks role permissions.
- *
- * Legacy fallback: If RELAY_KEY is set and the token doesn't look like a JWT,
- * fall back to x-api-key auth for backward compat.
+ * Auth: client sends the admin JWT in x-admin-token or in HttpOnly cookie `tally_admin_token`.
+ * Only valid JWT-shaped tokens are accepted.
  */
 async function proxyRequest(req, method) {
-  const token = req.headers.get('x-admin-token') || '';
-  if (!token) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!RELAY_URL) {
+    return badRequest('Relay URL not configured', 500);
+  }
+
+  const token = getToken(req);
+  if (!token || !isLikelyJwt(token)) {
+    return badRequest('Unauthorized', 401);
   }
 
   const { searchParams } = new URL(req.url);
   const upstreamPath = safePath(searchParams.get('path') || '/api/health');
   if (!upstreamPath) {
-    return NextResponse.json({ error: 'Invalid relay path' }, { status: 400 });
-  }
-
-  if (!RELAY_URL) {
-    return NextResponse.json({ error: 'Relay URL not configured' }, { status: 500 });
+    return badRequest('Invalid relay path');
   }
 
   let body;
   if (method !== 'GET' && method !== 'DELETE') {
     try {
       body = await req.text();
-    } catch {}
-  }
-
-  // Determine auth strategy: JWT (3 dot-separated parts) or legacy API key
-  const isJwt = token.split('.').length === 3;
-
-  const headers = { 'Content-Type': 'application/json' };
-  if (isJwt) {
-    headers['Authorization'] = `Bearer ${token}`;
-  } else if (RELAY_KEY) {
-    headers['x-api-key'] = RELAY_KEY;
-  } else {
-    return NextResponse.json({ error: 'Relay credentials not configured' }, { status: 500 });
+    } catch {
+      body = undefined;
+    }
   }
 
   const upstream = await fetch(`${RELAY_URL}${upstreamPath}`, {
     method,
-    headers,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
     ...(body ? { body } : {}),
   });
 
-  const data = await upstream.text();
-  try {
-    return NextResponse.json(JSON.parse(data), { status: upstream.status });
-  } catch {
-    return new NextResponse(data, { status: upstream.status });
-  }
+  const text = await upstream.text();
+  const [payload] = parseJsonText(text, upstream.status);
+  return NextResponse.json(payload, { status: upstream.status });
 }
 
 export async function GET(req) { return proxyRequest(req, 'GET'); }
