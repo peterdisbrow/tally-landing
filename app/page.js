@@ -23,7 +23,7 @@ const jsonLd = {
       name: 'Tally by ATEM School',
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'macOS, Windows',
-      description: 'Church production monitoring & remote control. Monitor ATEM, OBS, audio consoles, and stream health from anywhere.',
+      description: 'Church production monitoring, AI control, and auto-recovery. Monitor ATEM, OBS, vMix, audio consoles, encoders, and stream health from anywhere. 23 integrations.',
       url: 'https://tallyconnect.app',
       offers: {
         '@type': 'AggregateOffer',

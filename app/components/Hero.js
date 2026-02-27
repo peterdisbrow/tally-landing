@@ -40,8 +40,7 @@ export default function Hero() {
         fontSize: 'clamp(1rem, 2.2vw, 1.25rem)', color: MUTED,
         maxWidth: 660, margin: '0 auto 20px', lineHeight: 1.7,
       }}>
-        Tally monitors every device in your booth &mdash; ATEM, OBS, Audio Consoles, and Presentations &mdash; and fixes problems before the congregation notices.
-        You get an alert. Everything else is automatic.
+        Tally monitors every device in your booth &mdash; ATEM, OBS, audio consoles, encoders, and presentations &mdash; fixes problems before the congregation notices, and gives your team AI-powered control from anywhere.
       </p>
 
       {/* social proof line */}
@@ -49,7 +48,7 @@ export default function Hero() {
         color: DIM, fontSize: '0.9rem', margin: '0 auto 52px',
         fontFamily: 'ui-monospace, monospace', letterSpacing: '0.04em',
       }}>
-        Built by a 15-year broadcast engineer who&apos;s been in your booth.
+        23 integrations &middot; AI autopilot &middot; Built by a 15-year broadcast engineer.
       </p>
 
       {/* CTAs */}

@@ -5,7 +5,7 @@ import { CARD_BG, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens';
 const FAQ_ITEMS = [
   {
     q: 'What equipment does Tally work with?',
-    a: 'ATEM switchers, OBS Studio, vMix, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen & Heath, Yamaha CL/QL), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Dante audio, Planning Center, Slack, and Telegram. 17 integrations and counting.',
+    a: 'ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen & Heath, Yamaha CL/QL), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Dante audio, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, and Telegram. 23 integrations and counting.',
   },
   {
     q: 'What happens if our internet goes down?',
@@ -13,11 +13,19 @@ const FAQ_ITEMS = [
   },
   {
     q: 'How long does setup take?',
-    a: 'About 10 minutes. Download the app on your booth computer, sign in with your registration code, and Tally auto-discovers your ATEM, OBS, and other gear on the network. No port forwarding, no complex configuration.',
+    a: 'About 10 minutes. Download the app on your booth computer, sign in with your registration code, and Tally auto-discovers your ATEM, OBS, and other gear on the network. No port forwarding, no complex configuration. Your church gets its own self-service portal immediately.',
   },
   {
     q: 'What if our stream drops during service?',
-    a: 'Tally detects it in seconds and auto-restarts OBS streaming. Most recoveries happen in under 10 seconds \u2014 before anyone in the congregation notices. You get a Telegram alert that says "handled."',
+    a: 'Tally detects it in seconds and auto-restarts your stream. Most recoveries happen in under 10 seconds \u2014 before anyone in the congregation notices. You get a Telegram or Slack alert that says "handled." If nobody acknowledges within 90 seconds, Tally escalates to your backup TD.',
+  },
+  {
+    q: 'What does the AI do?',
+    a: 'Two things. First, AI natural language commands let your TDs type plain English like "cut to camera 2 and start recording" instead of navigating menus. Second, AI Autopilot lets you create rules that fire automatically during service \u2014 like switching cameras when worship slides start. Available on Plus and above.',
+  },
+  {
+    q: 'What is the Church Portal?',
+    a: 'Every church gets a self-service web dashboard where your team can manage TDs, set service schedules, view session history and incident timelines, configure alert preferences, generate guest access tokens for volunteers, and handle billing \u2014 all without contacting support.',
   },
   {
     q: 'Do I need a dedicated computer?',
@@ -25,7 +33,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Can volunteers run this?',
-    a: "That's the whole point. Tally handles troubleshooting automatically so volunteers can focus on the creative side \u2014 camera work, slides, audio levels. They stop dreading tech Sundays because they're not responsible for fixing crashes anymore.",
+    a: "That's the whole point. Tally handles troubleshooting automatically so volunteers can focus on the creative side \u2014 camera work, slides, audio levels. Guest TD tokens give temporary access that auto-expires, so volunteers get exactly the access they need.",
   },
   {
     q: 'What happens when my trial ends?',
