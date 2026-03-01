@@ -14,6 +14,7 @@ export default function Footer() {
         <span style={{ color: DIM, fontSize: '0.82rem' }}>&middot; by ATEM School</span>
       </div>
       <div style={{ display: 'flex', gap: 20, fontSize: '0.82rem', flexWrap: 'wrap' }}>
+        <a href="/blog" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>Blog</a>
         <a href="https://api.tallyconnect.app/how-to" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>How-To Guides</a>
         <a href="/help" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>Help Center</a>
         <a href="/terms" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>Terms of Service</a>

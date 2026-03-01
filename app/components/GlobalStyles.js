@@ -24,6 +24,10 @@ export default function GlobalStyles() {
         border-color: ${GREEN} !important;
         box-shadow: 0 0 20px rgba(34,197,94,0.1);
       }
+      .blog-card:hover {
+        border-color: ${GREEN} !important;
+        box-shadow: 0 0 20px rgba(34,197,94,0.1);
+      }
       .price-card-default:hover {
         border-color: ${GREEN} !important;
       }
