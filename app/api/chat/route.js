@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { checkRateLimit } from '../../../lib/rate-limit';
+import { checkChatBudget, trackChatUsage } from '../../../lib/chat-budget';
 import { SYSTEM_PROMPT } from '../../../lib/chat-knowledge';
 
 const anthropic = new Anthropic(); // reads ANTHROPIC_API_KEY from env
@@ -10,6 +11,15 @@ export async function POST(request) {
   if (!rl.success) {
     return Response.json(
       { error: 'Too many messages. Please wait a moment.' },
+      { status: 429 },
+    );
+  }
+
+  /* ── Budget guardrails (daily IP cap, monthly budget, abuse detection) ── */
+  const budget = await checkChatBudget(request);
+  if (!budget.allowed) {
+    return Response.json(
+      { error: budget.message },
       { status: 429 },
     );
   }
@@ -46,6 +56,9 @@ export async function POST(request) {
       max_tokens: 1024,
       temperature: 0.7,
     });
+
+    // Track usage now — API call is being made
+    trackChatUsage(request).catch(() => {});
 
     const encoder = new TextEncoder();
     let closed = false;
