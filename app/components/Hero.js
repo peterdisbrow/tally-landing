@@ -48,7 +48,7 @@ export default function Hero() {
         color: DIM, fontSize: '0.9rem', margin: '0 auto 52px',
         fontFamily: 'ui-monospace, monospace', letterSpacing: '0.04em',
       }}>
-        23 integrations &middot; AI autopilot &middot; Built by a 15-year broadcast engineer.
+        23 integrations &middot; AI autopilot &middot; AI setup assistant &middot; 15 how-to guides.
       </p>
 
       {/* CTAs */}

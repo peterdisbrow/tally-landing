@@ -13,7 +13,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'How long does setup take?',
-    a: 'About 10 minutes. Download the app on your booth computer, sign in with your registration code, and Tally auto-discovers your ATEM, OBS, and other gear on the network. No port forwarding, no complex configuration. Your church gets its own self-service portal immediately.',
+    a: 'About 10 minutes. Download the app on your booth computer, sign in with your registration code, and Tally auto-discovers your ATEM, OBS, and other gear on the network. No port forwarding, no complex configuration. Your church gets its own self-service portal immediately. Want to go faster? The AI Setup Assistant can auto-configure your mixer channels and ATEM input labels from a patch list or camera plot.',
   },
   {
     q: 'What if our stream drops during service?',
@@ -21,7 +21,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What does the AI do?',
-    a: 'Two things. First, AI natural language commands let your TDs type plain English like "cut to camera 2 and start recording" instead of navigating menus. Second, AI Autopilot lets you create rules that fire automatically during service \u2014 like switching cameras when worship slides start. Available on Plus and above.',
+    a: 'Three things. First, AI natural language commands let your TDs type plain English like "cut to camera 2 and start recording" instead of navigating menus. Second, AI Autopilot lets you create rules that fire automatically during service \u2014 like switching cameras when worship slides start. Third, the AI Setup Assistant auto-configures your mixer channels and ATEM input labels from a patch list, camera plot, or photo \u2014 using AI vision to parse whatever format you have. Available on Plus and above.',
   },
   {
     q: 'What is the Church Portal?',
