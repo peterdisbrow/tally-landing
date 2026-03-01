@@ -60,7 +60,7 @@ const DEMO_STAGES = [
     messages: [
       { content: 'Service complete! Here\'s your automatic debrief:' },
       { content: '```tally-output\nSESSION DEBRIEF \u2014 Sunday Morning\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\nDuration: 1h 23m\nDevices: 6/6 healthy\nStream: 1h 22m uptime (99.8%)\nRecording: 1h 23m (local + HyperDeck)\nIncidents: 1 (auto-recovered in 8.2s)\nPeak viewers: 847\n\n\u2192 Full report pushed to Planning Center\n```' },
-      { content: 'That\'s Tally \u2014 one command to go live, auto-recovery when things break, and a full debrief after every service.\n\n**Ready to try it with your gear?**\n\n[CTA:Start Free Trial:/signup]\n[CTA:See Pricing:#pricing]' },
+      { content: 'That\'s Tally \u2014 one command to go live, auto-recovery when things break, and a full debrief after every service.\n\n**Ready to try it with your gear?**\n\n[CTA:Get Started Free:/signup]\n[CTA:See Pricing:#pricing]' },
     ],
     waitForInput: false,
     nextLabel: null, // no continue — demo ends
@@ -71,7 +71,7 @@ const DEMO_STAGES = [
 
 function buildPricingResponse() {
   const lines = PRICING.map(p => `**${p.name}** — $${p.monthlyPrice}/mo · ${p.desc}`);
-  return `${lines.join('\n')}\n\nAll plans include a **30-day free trial** — no credit card.\n\n[CTA:Start Free Trial:/signup]\n\nHow many rooms are you running? I can narrow it down.`;
+  return `${lines.join('\n')}\n\nAll plans include **30 days free** — no credit card.\n\n[CTA:Get Started Free:/signup]\n\nHow many rooms are you running? I can narrow it down.`;
 }
 
 function buildFeaturesResponse() {
@@ -90,11 +90,11 @@ function buildIntegrationsResponse() {
 }
 
 function buildSetupResponse() {
-  return `Setup takes **10 minutes**:\n\n1. Download the app (macOS or Windows)\n2. Sign in with your code\n3. Tally auto-discovers your gear on the network\n\nNo port forwarding. Works behind firewalls. Runs on your existing booth computer.\n\n[CTA:Start Free Trial:/signup]`;
+  return `Setup takes **10 minutes**:\n\n1. Download the app (macOS or Windows)\n2. Sign in with your code\n3. Tally auto-discovers your gear on the network\n\nNo port forwarding. Works behind firewalls. Runs on your existing booth computer.\n\n[CTA:Get Started Free:/signup]`;
 }
 
 function buildTrialResponse() {
-  return `**30-day free trial** — no credit card, full access, cancel anytime.\n\n[CTA:Start Free Trial:/signup]\n\nNot sure which plan? Tell me about your setup and I'll recommend one.`;
+  return `**Free for 30 days** — no credit card, full access, cancel anytime. You pick a plan later.\n\n[CTA:Get Started Free:/signup]\n\nTell me about your setup and I'll help you get the most out of it.`;
 }
 
 function buildSupportResponse() {
@@ -102,7 +102,7 @@ function buildSupportResponse() {
 }
 
 function buildWhatIsTallyResponse() {
-  return `**Tally** monitors every device in your church booth — ATEM, OBS, audio, encoders, ProPresenter — and fixes problems before anyone notices.\n\n• **Auto-recovery** — restarts your stream in under 10 seconds\n• **AI commands** — type "cut to camera 2" in plain English\n• **Remote control** — from your phone or Telegram\n\n10-minute setup. Runs on your existing computer.\n\n[CTA:Start Free Trial:/signup]\n\nWant to see pricing or try a live demo?`;
+  return `**Tally** monitors every device in your church booth — ATEM, OBS, audio, encoders, ProPresenter — and fixes problems before anyone notices.\n\n• **Auto-recovery** — restarts your stream in under 10 seconds\n• **AI commands** — type "cut to camera 2" in plain English\n• **Remote control** — from your phone or Telegram\n\n10-minute setup. Runs on your existing computer.\n\n[CTA:Get Started Free:/signup]\n\nWant to see pricing or try a live demo?`;
 }
 
 function buildAutoRecoveryResponse() {
@@ -118,7 +118,7 @@ function buildAtemResponse() {
 }
 
 function buildProPresenterResponse() {
-  return `**Full ProPresenter control** — slides, looks, timers, stage messages, playlists. All via natural language.\n\nExample: "next slide", "start 5-minute countdown", "send stage message: 2 minutes left."\n\nAvailable on **Plus** ($99/mo) and above.\n\n[CTA:Start Free Trial:/signup?plan=plus]\n\nWant to try ProPresenter commands in the demo?`;
+  return `**Full ProPresenter control** — slides, looks, timers, stage messages, playlists. All via natural language.\n\nExample: "next slide", "start 5-minute countdown", "send stage message: 2 minutes left."\n\nAvailable on **Plus** ($99/mo) and above.\n\n[CTA:Get Started Free:/signup]\n\nWant to try ProPresenter commands in the demo?`;
 }
 
 function buildAudioResponse() {
@@ -130,11 +130,11 @@ function buildInternetResponse() {
 }
 
 function buildSystemRequirementsResponse() {
-  return `Runs on your **existing booth computer** — no dedicated hardware needed.\n\n• macOS 11+ or Windows 10+\n• Uses ~200MB RAM\n• Same network as your devices\n\nLightweight monitoring — won't affect OBS or vMix performance.\n\n[CTA:Start Free Trial:/signup]`;
+  return `Runs on your **existing booth computer** — no dedicated hardware needed.\n\n• macOS 11+ or Windows 10+\n• Uses ~200MB RAM\n• Same network as your devices\n\nLightweight monitoring — won't affect OBS or vMix performance.\n\n[CTA:Get Started Free:/signup]`;
 }
 
 function buildVolunteerResponse() {
-  return `**Built for volunteer teams.** Auto-recovery handles problems, AI commands use plain English, and alerts tell people *what to do* — not just that something broke.\n\nGuest TD tokens auto-expire in 7 days. On-call rotation ensures the right person gets pinged.\n\n[CTA:Start Free Trial:/signup]\n\nWant to see pricing or try the demo?`;
+  return `**Built for volunteer teams.** Auto-recovery handles problems, AI commands use plain English, and alerts tell people *what to do* — not just that something broke.\n\nGuest TD tokens auto-expire in 7 days. On-call rotation ensures the right person gets pinged.\n\n[CTA:Get Started Free:/signup]\n\nWant to see pricing or try the demo?`;
 }
 
 function buildMultiSiteResponse() {
@@ -147,15 +147,15 @@ function buildMultiSiteResponse() {
 }
 
 function buildPlanningCenterResponse() {
-  return `**Bi-directional Planning Center sync.** Service times pull in automatically, production notes push back after each service.\n\nAvailable on **Pro** ($149/mo) and above.\n\n[CTA:Start Free Trial:/signup?plan=pro]\n\nAlready using Planning Center? Tell me about your setup.`;
+  return `**Bi-directional Planning Center sync.** Service times pull in automatically, production notes push back after each service.\n\nAvailable on **Pro** ($149/mo) and above.\n\n[CTA:Get Started Free:/signup]\n\nAlready using Planning Center? Tell me about your setup.`;
 }
 
 function buildAutopilotResponse() {
-  return `**AI Autopilot** — create rules like "when worship slides start → switch to camera 1" and Tally executes automatically.\n\n• **Pro** ($149/mo) — 10 rules\n• **Enterprise** ($499/mo) — 25 rules\n\n[CTA:Start Free Trial:/signup?plan=pro]\n\nWant to hear about a specific use case?`;
+  return `**AI Autopilot** — create rules like "when worship slides start → switch to camera 1" and Tally executes automatically.\n\n• **Pro** ($149/mo) — 10 rules\n• **Enterprise** ($499/mo) — 25 rules\n\n[CTA:Get Started Free:/signup]\n\nWant to hear about a specific use case?`;
 }
 
 function buildRecommendPlanResponse() {
-  return `Quick guide:\n\n• **1 room, basic** → Connect $49/mo\n• **2-3 rooms, AI features** → Plus $99/mo\n• **Multi-room, automation** → Pro $149/mo *(most popular)*\n• **Multi-site** → Enterprise $499/mo\n• **One-time event** → Event $99\n\nAll include a **30-day free trial**.\n\n[CTA:Start Free Trial:/signup]\n\nTell me about your setup — I'll narrow it down!`;
+  return `Quick guide:\n\n• **1 room, basic** → Connect $49/mo\n• **2-3 rooms, AI features** → Plus $99/mo\n• **Multi-room, automation** → Pro $149/mo *(most popular)*\n• **Multi-site** → Enterprise $499/mo\n• **One-time event** → Event $99\n\nAll include **30 days free**.\n\n[CTA:Get Started Free:/signup]\n\nTell me about your setup — I'll narrow it down!`;
 }
 
 function buildSecurityResponse() {
