@@ -126,6 +126,29 @@ export default function Hardware() {
             </div>
           ))}
         </div>
+
+        {/* Blackmagic reseller */}
+        <div style={{
+          background: CARD_BG, border: `1px solid ${BORDER}`,
+          borderRadius: 12, padding: '24px 28px', marginTop: 24,
+          display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap',
+        }}>
+          <div style={{
+            fontFamily: 'ui-monospace, monospace', fontSize: '0.7rem',
+            fontWeight: 700, letterSpacing: '0.1em', color: GREEN,
+            background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
+            borderRadius: 6, padding: '4px 12px', whiteSpace: 'nowrap',
+          }}>AUTHORIZED RESELLER</div>
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <span style={{ fontWeight: 800, color: WHITE, fontSize: '1rem' }}>Blackmagic Design</span>
+            <span style={{ color: DIM, fontSize: '0.88rem', marginLeft: 12 }}>Tally members get exclusive pricing on ATEM switchers, HyperDecks, and cameras.</span>
+          </div>
+          <a href="mailto:sales@atemschool.com?subject=Blackmagic%20Member%20Pricing" style={{
+            padding: '10px 22px', fontSize: '0.88rem', fontWeight: 700,
+            borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent',
+            color: WHITE, textDecoration: 'none', whiteSpace: 'nowrap',
+          }}>Request a Quote &rarr;</a>
+        </div>
       </div>
     </section>
   );
