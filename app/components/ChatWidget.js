@@ -16,43 +16,51 @@ const DEMO_STAGES = [
   // Stage 0: Pre-service check
   {
     messages: [
-      { content: '**Live demo!** You\'re connected to a simulated booth. Let\'s walk through a full Sunday service.\n\n30 minutes before service — running automated pre-service check...' },
-      { content: '```tally-output\n\u2713 ATEM Mini Extreme — connected, Program: CAM 1\n\u2713 OBS Studio — connected, scene "Main Camera"\n\u2713 X32 Audio — online, scene "Sunday AM"\n\u2713 ProPresenter — connected, playlist "Sunday Morning"\n\u2713 YouTube stream key — verified\n\u2713 All 6 devices healthy\n\nPRE-SERVICE CHECK: ALL CLEAR \u2713\n```\n\nEverything\'s green. Service starts in 30 minutes.' },
+      { content: '**Live demo!** You\'re connected to a simulated booth. Let\'s get your Sunday stream up and running.\n\nFirst \u2014 automated pre-service check...' },
+      { content: '```tally-output\n\u2713 ATEM Mini Extreme \u2014 connected, Program: Color Bars\n\u2713 OBS Studio \u2014 connected, scene "Main Camera"\n\u2713 X32 Audio \u2014 online, scene "Sunday AM"\n\u2713 ProPresenter \u2014 connected, playlist "Sunday Morning"\n\u2713 YouTube stream key \u2014 verified\n\u2713 All 6 devices healthy\n\nPRE-SERVICE CHECK: ALL CLEAR \u2713\n```\n\nAll green. Right now Color Bars are in program \u2014 let\'s fix that before we go live.' },
     ],
     waitForInput: false,
-    nextLabel: 'Start the service \u2192',
+    nextLabel: 'Get the stream ready \u2192',
   },
-  // Stage 1: Worship starts — prompt user to switch cameras
+  // Stage 1: Put logo in program
   {
     messages: [
-      { content: 'Worship set begins. The band kicks in — let\'s switch cameras.\n\nType: **"cut to camera 2"**' },
+      { content: 'Let\'s put your church logo on screen so viewers see branding when they tune in.\n\nType: **"set program to media player 1"**' },
     ],
     waitForInput: true,
   },
-  // Stage 2: Camera response + prompt for slides
+  // Stage 2: Logo response + start stream
   {
     messages: [
-      { content: '```tally-output\nATEM > Program: CAM 2 \u2014 Pastor (Input 2)\nATEM > Transition: Cut complete\nAudio > X32 fader Ch1 "Pastor Lav" \u2192 -\u221E dB (auto)\nAudio > X32 fader Ch2 "Worship Lead" \u2192 0 dB (auto)\nStatus: LIVE \u25CF 1080p30 \u00B7 5.8 Mbps \u00B7 0 dropped\n```\n\nCamera switched. Audio followed automatically.' },
-      { content: 'The worship leader signals for the next song. Let\'s advance ProPresenter.\n\nType: **"next slide"**' },
+      { content: '```tally-output\nATEM > Program: Media Player 1 \u2014 Church Logo\nATEM > Transition: Cut complete\nStatus: OFFLINE \u25CB Ready to stream\n```\n\nLogo\'s up. Now let\'s go live.' },
+      { content: 'Time to start the stream to YouTube.\n\nType: **"start stream"**' },
     ],
     waitForInput: true,
   },
-  // Stage 3: Slide response + stream failure + auto-recovery
+  // Stage 3: Stream started + start recording
   {
     messages: [
-      { content: '```tally-output\nProPresenter > Slide 4/12 \u2014 "How Great Is Our God"\nProPresenter > Stage display updated\nATEM > Auto-triggered: DSK 1 ON (lyric overlay)\nStatus: LIVE \u25CF 1080p30 \u00B7 5.8 Mbps \u00B7 0 dropped\n```\n\nSlides advanced. Lyric overlay triggered automatically.' },
-      { content: 'Uh oh \u2014 the stream just dropped. This is where Tally shines.\n\nWatch what happens...' },
-      { content: '```tally-output\n\u26A0 ALERT: Stream dropped \u2014 encoder offline\n  Detecting... YouTube RTMP connection lost\n\nAuto-Recovery activated:\n  Step 1: Reconnecting OBS to YouTube...\n  Step 2: Verifying stream key...\n  Step 3: Restarting broadcast...\n  Step 4: Confirming upstream...\n\n\u2713 Stream restored in 8.2 seconds\n\u2713 Slack alert: "#production \u2014 Stream recovered automatically"\n\u2713 0 frames lost. Viewers saw a 3-second buffer.\n```\n\n**Stream recovered automatically.** No one touched anything.' },
+      { content: '```tally-output\nOBS > Stream started \u2192 YouTube Live\nOBS > Bitrate: 6000 kbps \u00B7 1080p30\nOBS > YouTube status: LIVE \u25CF\nSlack > #production \u2014 "Stream is live on YouTube"\nStatus: LIVE \u25CF 1080p30 \u00B7 6.0 Mbps \u00B7 0 dropped\n```\n\nYou\'re live! Don\'t forget to hit record \u2014 you\'ll want the local backup.' },
+      { content: 'Type: **"start recording"**' },
+    ],
+    waitForInput: true,
+  },
+  // Stage 4: Recording started + stream failure + auto-recovery
+  {
+    messages: [
+      { content: '```tally-output\nOBS > Recording started \u2192 /recordings/2026-03-02_sunday.mkv\nHyperDeck > Recording started \u2192 Slot 1, SSD 847 GB free\nStatus: LIVE \u25CF Recording \u25CF 1080p30 \u00B7 6.0 Mbps\n```\n\nStream and recording both running. Service is underway...' },
+      { content: '15 minutes in \u2014 the stream just dropped. This is where Tally shines.\n\nWatch what happens...' },
+      { content: '```tally-output\n\u26A0 ALERT: Stream dropped \u2014 encoder offline\n  Detecting... YouTube RTMP connection lost\n\nAuto-Recovery activated:\n  Step 1: Reconnecting OBS to YouTube...\n  Step 2: Verifying stream key...\n  Step 3: Restarting broadcast...\n  Step 4: Confirming upstream...\n\n\u2713 Stream restored in 8.2 seconds\n\u2713 Slack alert: "#production \u2014 Stream recovered automatically"\n\u2713 Recording continued uninterrupted\n\u2713 Viewers saw a 3-second buffer\n```\n\n**Stream recovered automatically.** Recording never stopped. No one touched anything.' },
     ],
     waitForInput: false,
     nextLabel: 'See the debrief \u2192',
   },
-  // Stage 4: Post-service debrief + CTA
+  // Stage 5: Post-service debrief + CTA
   {
     messages: [
       { content: 'Service complete! Here\'s your automatic debrief:' },
-      { content: '```tally-output\nSESSION DEBRIEF \u2014 Sunday Morning\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\nDuration: 1h 23m\nDevices: 6/6 healthy\nStream: 1h 22m uptime (99.8%)\nIncidents: 1 (auto-recovered in 8.2s)\nCamera switches: 24\nSlide advances: 12\nPeak viewers: 847\n\n\u2192 Full report pushed to Planning Center\n```' },
-      { content: 'That\'s Tally \u2014 monitoring, auto-recovery, and AI control. Your whole booth, in your pocket.\n\n**Ready to try it with your gear?**\n\n[CTA:Start Free Trial:/signup]\n[CTA:See Pricing:#pricing]' },
+      { content: '```tally-output\nSESSION DEBRIEF \u2014 Sunday Morning\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\nDuration: 1h 23m\nDevices: 6/6 healthy\nStream: 1h 22m uptime (99.8%)\nRecording: 1h 23m (local + HyperDeck)\nIncidents: 1 (auto-recovered in 8.2s)\nPeak viewers: 847\n\n\u2192 Full report pushed to Planning Center\n```' },
+      { content: 'That\'s Tally \u2014 one command to go live, auto-recovery when things break, and a full debrief after every service.\n\n**Ready to try it with your gear?**\n\n[CTA:Start Free Trial:/signup]\n[CTA:See Pricing:#pricing]' },
     ],
     waitForInput: false,
     nextLabel: null, // no continue — demo ends
