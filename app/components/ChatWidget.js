@@ -11,6 +11,54 @@ const PILLS = [
   { label: 'Try a live demo',    msg: 'I want to try a live demo. What commands can I send?' },
 ];
 
+/* ─── Multistep Sunday Service Simulation ─── */
+const DEMO_STAGES = [
+  // Stage 0: Pre-service check
+  {
+    messages: [
+      { content: '**Live demo!** You\'re connected to a simulated booth. Let\'s walk through a full Sunday service.\n\n30 minutes before service — running automated pre-service check...' },
+      { content: '```tally-output\n\u2713 ATEM Mini Extreme — connected, Program: CAM 1\n\u2713 OBS Studio — connected, scene "Main Camera"\n\u2713 X32 Audio — online, scene "Sunday AM"\n\u2713 ProPresenter — connected, playlist "Sunday Morning"\n\u2713 YouTube stream key — verified\n\u2713 All 6 devices healthy\n\nPRE-SERVICE CHECK: ALL CLEAR \u2713\n```\n\nEverything\'s green. Service starts in 30 minutes.' },
+    ],
+    waitForInput: false,
+    nextLabel: 'Start the service \u2192',
+  },
+  // Stage 1: Worship starts — prompt user to switch cameras
+  {
+    messages: [
+      { content: 'Worship set begins. The band kicks in — let\'s switch cameras.\n\nType: **"cut to camera 2"**' },
+    ],
+    waitForInput: true,
+  },
+  // Stage 2: Camera response + prompt for slides
+  {
+    messages: [
+      { content: '```tally-output\nATEM > Program: CAM 2 \u2014 Pastor (Input 2)\nATEM > Transition: Cut complete\nAudio > X32 fader Ch1 "Pastor Lav" \u2192 -\u221E dB (auto)\nAudio > X32 fader Ch2 "Worship Lead" \u2192 0 dB (auto)\nStatus: LIVE \u25CF 1080p30 \u00B7 5.8 Mbps \u00B7 0 dropped\n```\n\nCamera switched. Audio followed automatically.' },
+      { content: 'The worship leader signals for the next song. Let\'s advance ProPresenter.\n\nType: **"next slide"**' },
+    ],
+    waitForInput: true,
+  },
+  // Stage 3: Slide response + stream failure + auto-recovery
+  {
+    messages: [
+      { content: '```tally-output\nProPresenter > Slide 4/12 \u2014 "How Great Is Our God"\nProPresenter > Stage display updated\nATEM > Auto-triggered: DSK 1 ON (lyric overlay)\nStatus: LIVE \u25CF 1080p30 \u00B7 5.8 Mbps \u00B7 0 dropped\n```\n\nSlides advanced. Lyric overlay triggered automatically.' },
+      { content: 'Uh oh \u2014 the stream just dropped. This is where Tally shines.\n\nWatch what happens...' },
+      { content: '```tally-output\n\u26A0 ALERT: Stream dropped \u2014 encoder offline\n  Detecting... YouTube RTMP connection lost\n\nAuto-Recovery activated:\n  Step 1: Reconnecting OBS to YouTube...\n  Step 2: Verifying stream key...\n  Step 3: Restarting broadcast...\n  Step 4: Confirming upstream...\n\n\u2713 Stream restored in 8.2 seconds\n\u2713 Slack alert: "#production \u2014 Stream recovered automatically"\n\u2713 0 frames lost. Viewers saw a 3-second buffer.\n```\n\n**Stream recovered automatically.** No one touched anything.' },
+    ],
+    waitForInput: false,
+    nextLabel: 'See the debrief \u2192',
+  },
+  // Stage 4: Post-service debrief + CTA
+  {
+    messages: [
+      { content: 'Service complete! Here\'s your automatic debrief:' },
+      { content: '```tally-output\nSESSION DEBRIEF \u2014 Sunday Morning\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\nDuration: 1h 23m\nDevices: 6/6 healthy\nStream: 1h 22m uptime (99.8%)\nIncidents: 1 (auto-recovered in 8.2s)\nCamera switches: 24\nSlide advances: 12\nPeak viewers: 847\n\n\u2192 Full report pushed to Planning Center\n```' },
+      { content: 'That\'s Tally \u2014 monitoring, auto-recovery, and AI control. Your whole booth, in your pocket.\n\n**Ready to try it with your gear?**\n\n[CTA:Start Free Trial:/signup]\n[CTA:See Pricing:#pricing]' },
+    ],
+    waitForInput: false,
+    nextLabel: null, // no continue — demo ends
+  },
+];
+
 /* ─── Static responses — no AI tokens needed ─── */
 
 function buildPricingResponse() {
@@ -111,7 +159,7 @@ function buildEventResponse() {
 }
 
 function buildDemoIntro() {
-  return `**Live demo!** You're connected to a simulated booth: ATEM, X32, OBS, ProPresenter.\n\nTry:\n• "cut to camera 2"\n• "fade to black"\n• "mute channel 3"\n• "next slide"\n\nType a command!`;
+  return '__DEMO_START__';
 }
 
 /* Keyword matching for static flows — order matters: specific patterns before generic ones.
@@ -214,6 +262,8 @@ export default function ChatWidget() {
   const [sending, setSending]   = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [leadCaptured, setLeadCaptured] = useState(false);
+  const [demoStage, setDemoStage] = useState(null);
+  const demoAdvancing = useRef(false);
   const messagesEndRef = useRef(null);
   const visibleSectionRef = useRef('default');
 
@@ -288,6 +338,64 @@ export default function ChatWidget() {
     return content.replace(/\[LEAD_CAPTURE:[^\]]+\]\n?/g, '');
   }, [leadCaptured]);
 
+  /* ── Demo: fake-stream a single message ── */
+  const fakeStream = useCallback(async (text) => {
+    setMessages(prev => [...prev, { role: 'assistant', content: '', streaming: true }]);
+    const words = text.split(/(\s+)/);
+    let revealed = '';
+    const chunkSize = 3;
+    for (let i = 0; i < words.length; i += chunkSize) {
+      revealed += words.slice(i, i + chunkSize).join('');
+      const snapshot = revealed;
+      await new Promise(r => setTimeout(r, 18 + Math.random() * 12));
+      setMessages(prev => {
+        const msgs = [...prev];
+        msgs[msgs.length - 1] = { role: 'assistant', content: snapshot, streaming: true };
+        return msgs;
+      });
+    }
+    // finalize
+    setMessages(prev => {
+      const msgs = [...prev];
+      msgs[msgs.length - 1] = { role: 'assistant', content: text };
+      return msgs;
+    });
+  }, []);
+
+  /* ── Demo: play a full stage ── */
+  const playDemoStage = useCallback(async (stageIndex) => {
+    if (stageIndex >= DEMO_STAGES.length) {
+      // Demo complete — exit demo mode
+      setDemoStage(null);
+      demoAdvancing.current = false;
+      return;
+    }
+    demoAdvancing.current = true;
+    setDemoStage(stageIndex);
+    const stage = DEMO_STAGES[stageIndex];
+
+    for (let i = 0; i < stage.messages.length; i++) {
+      if (i > 0) await new Promise(r => setTimeout(r, 800));
+      await fakeStream(stage.messages[i].content);
+    }
+
+    demoAdvancing.current = false;
+  }, [fakeStream]);
+
+  /* ── Demo: advance to next stage (called by Continue button) ── */
+  const advanceDemo = useCallback(() => {
+    if (demoAdvancing.current) return;
+    playDemoStage((demoStage ?? -1) + 1);
+  }, [demoStage, playDemoStage]);
+
+  /* ── Demo: skip demo entirely ── */
+  const skipDemo = useCallback(() => {
+    setDemoStage(null);
+    demoAdvancing.current = false;
+    setMessages(prev => [...prev, { role: 'assistant', content: 'Demo skipped. Ask me anything about Tally!' }]);
+    setSending(false);
+  }, []);
+
   /* ── Send message ── */
   const send = useCallback(async (overrideMsg) => {
     const msg = (overrideMsg || input).trim();
@@ -297,26 +405,34 @@ export default function ChatWidget() {
     const userMsg = { role: 'user', content: msg };
     setMessages(prev => [...prev, userMsg]);
 
+    /* ── If in demo mode, any user input advances to next stage ── */
+    if (demoStage !== null && !demoAdvancing.current) {
+      setSending(true);
+      const nextStage = demoStage + 1;
+      if (nextStage >= DEMO_STAGES.length) {
+        setDemoStage(null);
+        demoAdvancing.current = false;
+        setSending(false);
+      } else {
+        await playDemoStage(nextStage);
+        setSending(false);
+      }
+      return;
+    }
+
     /* ── Try static response first (no tokens) ── */
     const staticReply = getStaticReply(msg);
     if (staticReply) {
-      setSending(true);
-      // Simulate streaming: reveal text word-by-word
-      setMessages(prev => [...prev, { role: 'assistant', content: '', streaming: true }]);
-      const words = staticReply.split(/(\s+)/); // preserve whitespace
-      let revealed = '';
-      const chunkSize = 3; // reveal 3 tokens at a time for natural feel
-      for (let i = 0; i < words.length; i += chunkSize) {
-        revealed += words.slice(i, i + chunkSize).join('');
-        const snapshot = revealed;
-        await new Promise(r => setTimeout(r, 18 + Math.random() * 12));
-        setMessages(prev => {
-          const msgs = [...prev];
-          msgs[msgs.length - 1] = { role: 'assistant', content: snapshot, streaming: true };
-          return msgs;
-        });
+      /* Demo sentinel — enter multistep demo mode */
+      if (staticReply === '__DEMO_START__') {
+        setSending(true);
+        await playDemoStage(0);
+        setSending(false);
+        return;
       }
-      // Mark streaming complete
+      setSending(true);
+      await fakeStream(staticReply);
+      // process lead capture on finalized message
       setMessages(prev => {
         const msgs = [...prev];
         const last = msgs[msgs.length - 1];
@@ -414,7 +530,7 @@ export default function ChatWidget() {
     } finally {
       setSending(false);
     }
-  }, [input, sending, messages, processLeadCapture]);
+  }, [input, sending, messages, processLeadCapture, demoStage, playDemoStage, fakeStream]);
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -434,6 +550,8 @@ export default function ChatWidget() {
   const clearChat = () => {
     setMessages([]);
     setLeadCaptured(false);
+    setDemoStage(null);
+    demoAdvancing.current = false;
     localStorage.removeItem(STORAGE_KEY);
   };
 
@@ -446,6 +564,10 @@ export default function ChatWidget() {
   /* ── Typing indicator ── */
   const isStreaming = messages.length > 0 && messages[messages.length - 1]?.streaming;
   const showTyping = sending || (isStreaming && messages[messages.length - 1]?.content === '');
+
+  /* ── Demo continue button state ── */
+  const currentDemoStage = demoStage !== null ? DEMO_STAGES[demoStage] : null;
+  const showDemoContinue = demoStage !== null && !sending && currentDemoStage && !currentDemoStage.waitForInput && currentDemoStage.nextLabel !== null;
 
   /* ── Drawer sizing ── */
   const drawerStyle = isMobile
@@ -568,39 +690,67 @@ export default function ChatWidget() {
                 ))}
               </div>
             )}
+
+            {/* Demo: Continue button */}
+            {showDemoContinue && (
+              <div style={{ alignSelf: 'flex-start', marginTop: 4 }}>
+                <button
+                  onClick={advanceDemo}
+                  style={{
+                    background: 'transparent', border: `1px solid ${GREEN}`,
+                    borderRadius: 20, padding: '7px 18px', color: GREEN_LT,
+                    fontSize: 12, cursor: 'pointer', fontFamily: 'ui-monospace, monospace',
+                    transition: 'background 0.2s, border-color 0.2s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(34,197,94,0.1)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                >
+                  {currentDemoStage.nextLabel || 'Continue \u2192'}
+                </button>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
 
           {/* Input */}
           <div style={{
             padding: '10px 14px', borderTop: `1px solid ${BORDER}`,
-            display: 'flex', gap: 8,
+            display: 'flex', flexDirection: 'column', gap: 6,
           }}>
-            <textarea
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask about Tally, or try a command..."
-              rows={1}
-              style={{
-                flex: 1, background: BG, border: `1px solid ${BORDER}`,
-                borderRadius: 8, padding: '8px 10px', color: WHITE,
-                fontSize: 13, resize: 'none', outline: 'none',
-                fontFamily: 'inherit', maxHeight: 80,
-              }}
-            />
-            <button
-              onClick={() => send()}
-              disabled={sending || !input.trim()}
-              style={{
-                background: GREEN, color: '#000', border: 'none',
-                borderRadius: 8, padding: '8px 14px', fontSize: 13,
-                fontWeight: 600, cursor: sending ? 'not-allowed' : 'pointer',
-                opacity: (sending || !input.trim()) ? 0.5 : 1,
-              }}
-            >
-              Send
-            </button>
+            {demoStage !== null && (
+              <button onClick={skipDemo} style={{
+                background: 'none', border: 'none', color: DIM, fontSize: 10,
+                cursor: 'pointer', padding: 0, alignSelf: 'flex-end',
+                textDecoration: 'underline',
+              }}>Skip demo</button>
+            )}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <textarea
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={demoStage !== null && currentDemoStage?.waitForInput ? 'Type the command above...' : 'Ask about Tally, or try a command...'}
+                rows={1}
+                style={{
+                  flex: 1, background: BG, border: `1px solid ${BORDER}`,
+                  borderRadius: 8, padding: '8px 10px', color: WHITE,
+                  fontSize: 13, resize: 'none', outline: 'none',
+                  fontFamily: 'inherit', maxHeight: 80,
+                }}
+              />
+              <button
+                onClick={() => send()}
+                disabled={sending || !input.trim()}
+                style={{
+                  background: GREEN, color: '#000', border: 'none',
+                  borderRadius: 8, padding: '8px 14px', fontSize: 13,
+                  fontWeight: 600, cursor: sending ? 'not-allowed' : 'pointer',
+                  opacity: (sending || !input.trim()) ? 0.5 : 1,
+                }}
+              >
+                Send
+              </button>
+            </div>
           </div>
         </div>
       )}
