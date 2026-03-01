@@ -14,17 +14,13 @@ const PILLS = [
 /* ─── Static responses — no AI tokens needed ─── */
 
 function buildPricingResponse() {
-  const lines = PRICING.map(p => {
-    const save = p.annualPrice ? ` ($${p.annualPrice}/yr — save 2 months)` : '';
-    return `**${p.name}** — $${p.monthlyPrice}/mo${save}\n${p.desc}\n• ${p.features.join('\n• ')}`;
-  });
-  return `Here are our plans:\n\n${lines.join('\n\n')}\n\nAll plans include a 30-day free trial — no credit card required.\n\n[CTA:Start Free Trial:/signup]\n\nWhich plan sounds like the best fit for your church?`;
+  const lines = PRICING.map(p => `**${p.name}** — $${p.monthlyPrice}/mo · ${p.desc}`);
+  return `${lines.join('\n')}\n\nAll plans include a **30-day free trial** — no credit card.\n\n[CTA:Start Free Trial:/signup]\n\nHow many rooms are you running? I can narrow it down.`;
 }
 
 function buildFeaturesResponse() {
-  const top6 = FEATURES.slice(0, 6);
-  const lines = top6.map(f => `**${f.name}** — ${f.desc}`);
-  return `Tally has ${FEATURES.length} major features. Here are the highlights:\n\n${lines.join('\n\n')}\n\nWant to hear about the other ${FEATURES.length - 6} features, or ask about a specific one?`;
+  const top = FEATURES.slice(0, 5).map(f => `• **${f.name}** — ${f.desc}`);
+  return `Top features:\n\n${top.join('\n')}\n\nWant details on any of these, or ask about something specific?`;
 }
 
 function buildIntegrationsResponse() {
@@ -34,55 +30,55 @@ function buildIntegrationsResponse() {
     byTag[i.tag].push(i.name);
   });
   const lines = Object.entries(byTag).map(([tag, names]) => `**${tag}**: ${names.join(', ')}`);
-  return `Tally supports ${INTEGRATIONS.length} integrations:\n\n${lines.join('\n')}\n\nIs your gear on the list? Tell me what you run and I'll confirm compatibility.`;
+  return `${INTEGRATIONS.length} integrations:\n\n${lines.join('\n')}\n\nTell me what gear you run — I'll confirm compatibility.`;
 }
 
 function buildSetupResponse() {
-  return `Setup takes about 10 minutes:\n\n1. **Download** the Tally app on your booth computer (macOS or Windows)\n2. **Sign in** with your registration code\n3. **Auto-discovery** — Tally finds your ATEM, OBS, Companion, and other devices on the network automatically\n4. **AI Setup Assistant** (optional) — upload a patch list, camera plot, CSV, or even a photo and Tally auto-configures your mixer channels and ATEM input labels\n\nNo port forwarding needed. Works behind church firewalls. Runs alongside OBS, ProPresenter, etc. on your existing computer.\n\n[CTA:Start Free Trial:/signup]`;
+  return `Setup takes **10 minutes**:\n\n1. Download the app (macOS or Windows)\n2. Sign in with your code\n3. Tally auto-discovers your gear on the network\n\nNo port forwarding. Works behind firewalls. Runs on your existing booth computer.\n\n[CTA:Start Free Trial:/signup]`;
 }
 
 function buildTrialResponse() {
-  return `Getting started is easy:\n\n• **30-day free trial** — no credit card required\n• Full access to all features on your chosen plan\n• Cancel anytime, no questions asked\n• If you don't subscribe after the trial, monitoring stops but your data is preserved for 30 days\n\n[CTA:Start Free Trial:/signup]\n\nNot sure which plan? Tell me about your setup (how many rooms, what gear) and I'll recommend one.`;
+  return `**30-day free trial** — no credit card, full access, cancel anytime.\n\n[CTA:Start Free Trial:/signup]\n\nNot sure which plan? Tell me about your setup and I'll recommend one.`;
 }
 
 function buildSupportResponse() {
-  return `Here's how to get help:\n\n• **Email**: support@atemschool.com\n• **Sales**: sales@atemschool.com\n• **How-To Guides**: 16 step-by-step setup guides at tallyconnect.app → Guides\n• **Help Center**: tallyconnect.app/help\n\nOr just ask me here — I can answer most questions about features, setup, and troubleshooting!`;
+  return `• **Support**: support@atemschool.com\n• **Sales**: sales@atemschool.com\n• **Guides**: tallyconnect.app → Guides\n\nOr just ask me here — I can help with most questions!`;
 }
 
 function buildWhatIsTallyResponse() {
-  return `**Tally** is a desktop app (macOS + Windows) that monitors every device in your church production booth — ATEM switchers, OBS, audio consoles, encoders, ProPresenter, and more.\n\nWhat makes it different:\n• **Auto-recovery** — stream goes down, Tally restarts it before anyone notices\n• **AI commands** — type "cut to camera 2" in plain English\n• **Remote control** — manage your booth from your phone or Telegram\n• **Pre-service checks** — automated green-light 30 min before every service\n\nIt runs on your existing booth computer alongside your other software. Setup takes about 10 minutes — no port forwarding, works behind church firewalls.\n\n[CTA:Start Free Trial:/signup]\n\nWant to see pricing, try a live demo, or hear about a specific feature?`;
+  return `**Tally** monitors every device in your church booth — ATEM, OBS, audio, encoders, ProPresenter — and fixes problems before anyone notices.\n\n• **Auto-recovery** — restarts your stream in under 10 seconds\n• **AI commands** — type "cut to camera 2" in plain English\n• **Remote control** — from your phone or Telegram\n\n10-minute setup. Runs on your existing computer.\n\n[CTA:Start Free Trial:/signup]\n\nWant to see pricing or try a live demo?`;
 }
 
 function buildAutoRecoveryResponse() {
-  return `**Auto-Recovery** is one of Tally's most loved features.\n\nHere's how it works:\n1. Tally detects your stream dropped (OBS, vMix, or hardware encoder)\n2. Within **10 seconds**, it automatically restarts the stream\n3. Your TD gets an alert with diagnosis steps\n4. The congregation usually never notices\n\nIt works with:\n• OBS Studio\n• vMix\n• Ecamm Live\n• Hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO)\n\nEvery recovery is logged in the post-service timeline so your team can review what happened.\n\nAuto-recovery is included on **all plans** starting at $49/mo. Want to try a live demo of what happens when a stream drops?`;
+  return `**Auto-Recovery** detects a dropped stream and restarts it in under **10 seconds** — usually before anyone notices.\n\nWorks with OBS, vMix, Ecamm, and hardware encoders (Blackmagic, Teradek, YoloBox, AJA HELO). Included on all plans.\n\nWant to see it in action? Try the live demo!`;
 }
 
 function buildAlertsResponse() {
-  return `Tally sends real-time alerts to **Slack** and **Telegram** when something needs attention.\n\nHow alerts work:\n• **Instant notification** — your TD gets a message within seconds\n• **Diagnosis steps** — not just "something broke" but what to do about it\n• **One-tap acknowledge** — confirm you're on it from your phone\n• **90-second escalation** — if nobody responds, the next person on the rotation gets pinged\n\nAlert examples:\n• Stream dropped + auto-recovered\n• Device disconnected\n• Pre-service check failed\n• Audio levels abnormal\n\nAlerts are included on **all plans**. You can customize which events trigger alerts and who gets them.\n\nWant to hear about on-call TD rotation, or try a live demo?`;
+  return `Tally sends **Slack + Telegram alerts** with diagnosis steps — not just "something broke" but what to do.\n\n• One-tap acknowledge from your phone\n• 90-second escalation if nobody responds\n• Customizable per event type\n\nIncluded on all plans. Want to hear about on-call TD rotation?`;
 }
 
 function buildAtemResponse() {
-  return `Tally has **deep ATEM integration** — every model is supported, from ATEM Mini to Constellation.\n\nWhat you can do:\n• **Monitor** — see program/preview sources, transition state, streaming status\n• **Control** — cut, dissolve, fade to black, set preview/program, run macros\n• **DSK/USK** — toggle downstream and upstream keyers\n• **Aux outputs** — route any source to any aux\n• **Input labels** — rename inputs via AI Setup Assistant\n• **Recording** — start/stop HyperDeck or internal recording\n\nAll control works from your phone via Telegram or the web dashboard — you don't need to be at the switcher.\n\nThe AI understands plain English: just type "dissolve to camera 3" or "fade to black."\n\nWant to try ATEM commands in the live demo? Type "cut to camera 2" to start!`;
+  return `**Every ATEM model** is supported — Mini to Constellation.\n\nCut, dissolve, fade to black, run macros, control DSK/USK, route aux — all from your phone via Telegram.\n\nThe AI understands plain English: just type "dissolve to camera 3."\n\nWant to try it? Type "cut to camera 2" for a live demo!`;
 }
 
 function buildProPresenterResponse() {
-  return `Tally offers **deep ProPresenter integration** — not just monitoring but full control.\n\nWhat you can control:\n• **Slides** — next, previous, go to specific slide\n• **Looks** — trigger saved looks by name\n• **Timers** — start, stop, and configure countdown timers\n• **Stage messages** — send messages to confidence monitors\n• **Playlists** — navigate between playlists\n• **Clear all** — clear all layers at once\n\nAll commands work via natural language: "next slide", "start 5-minute countdown", "send stage message: 2 minutes left."\n\nProPresenter control is available on **Plus** ($99/mo) and above.\n\n[CTA:Start Free Trial:/signup?plan=plus]\n\nWant to try ProPresenter commands in the live demo?`;
+  return `**Full ProPresenter control** — slides, looks, timers, stage messages, playlists. All via natural language.\n\nExample: "next slide", "start 5-minute countdown", "send stage message: 2 minutes left."\n\nAvailable on **Plus** ($99/mo) and above.\n\n[CTA:Start Free Trial:/signup?plan=plus]\n\nWant to try ProPresenter commands in the demo?`;
 }
 
 function buildAudioResponse() {
-  return `Tally monitors and controls all major audio consoles used in churches:\n\n**Supported mixers:**\n• Behringer X32 / X-Air series\n• Midas M32 / Wing\n• Allen & Heath SQ / dLive / Avantis\n• Yamaha CL / QL / TF\n• Dante audio network\n\n**What you can do:**\n• Mute/unmute channels from your phone\n• Set fader levels\n• Recall scenes/snapshots\n• Monitor channel levels in real time\n• Get alerts on audio issues\n\nThe AI understands commands like "mute channel 3" or "unmute pastor lav."\n\nThe **AI Setup Assistant** can auto-configure your mixer channels from a patch list — upload a CSV, PDF, or even a photo.\n\nWant to try audio commands in the live demo?`;
+  return `Supported: **X32, M32, Allen & Heath SQ/dLive, Yamaha CL/QL/TF, Dante.**\n\nMute/unmute, set faders, recall scenes — all from your phone. AI understands "mute channel 3" or "unmute pastor lav."\n\nWant to try audio commands in the demo?`;
 }
 
 function buildInternetResponse() {
-  return `Great question — this comes up a lot!\n\n**Tally is a monitoring layer, not a dependency.** Your gear works exactly the same without it.\n\nIf your internet goes down:\n• Your ATEM, ProPresenter, audio console — everything keeps running normally\n• Tally detects the disconnection and alerts your TD via Telegram/Slack\n• When internet returns, Tally reconnects automatically and resumes monitoring\n• Nothing is lost — the app runs locally on your booth computer\n\nTally doesn't route any audio or video through the internet. It only sends status data and commands over your network.\n\nFeel better? Want to hear about setup, or try a live demo?`;
+  return `**Your gear keeps running normally** — Tally is a monitoring layer, not a dependency. No audio or video goes through the internet.\n\nIf internet drops, Tally reconnects automatically when it's back. Nothing is lost.\n\nFeel better? Want to hear about setup?`;
 }
 
 function buildSystemRequirementsResponse() {
-  return `**No dedicated computer needed.** Tally runs on your existing booth computer alongside OBS, ProPresenter, and whatever else you're already running.\n\n**Requirements:**\n• macOS 11+ or Windows 10+\n• 4GB RAM (uses ~200MB)\n• Network connection to your devices (same LAN)\n• Internet connection for remote access and alerts\n\nTally is lightweight — it's a monitoring app, not a video processor. It won't affect your OBS or vMix performance.\n\n**Optional hardware:** We're also developing pre-configured **Tally Box** hardware ($299–$799) for churches that want a dedicated monitoring appliance — but it's not required.\n\n[CTA:Start Free Trial:/signup]`;
+  return `Runs on your **existing booth computer** — no dedicated hardware needed.\n\n• macOS 11+ or Windows 10+\n• Uses ~200MB RAM\n• Same network as your devices\n\nLightweight monitoring — won't affect OBS or vMix performance.\n\n[CTA:Start Free Trial:/signup]`;
 }
 
 function buildVolunteerResponse() {
-  return `**Tally is built specifically for volunteer-run teams.** That's the whole point.\n\nHow it helps volunteers:\n• **Auto-recovery** handles problems automatically — no troubleshooting needed\n• **Pre-service checks** verify everything is working 30 min before service\n• **AI commands** in plain English — no need to memorize switcher menus\n• **Alerts with diagnosis steps** — not just "something broke" but what to do\n• **Guest TD tokens** — temporary access for rotating volunteers (auto-expire in 7 days)\n• **On-call rotation** — alerts go to whoever is scheduled, not everyone\n\nThe goal: your volunteers focus on the creative work (camera angles, graphics, mix) while Tally handles the technical babysitting.\n\n[CTA:Start Free Trial:/signup]\n\nWant to see pricing or try the demo?`;
+  return `**Built for volunteer teams.** Auto-recovery handles problems, AI commands use plain English, and alerts tell people *what to do* — not just that something broke.\n\nGuest TD tokens auto-expire in 7 days. On-call rotation ensures the right person gets pinged.\n\n[CTA:Start Free Trial:/signup]\n\nWant to see pricing or try the demo?`;
 }
 
 function buildMultiSiteResponse() {
@@ -91,31 +87,31 @@ function buildMultiSiteResponse() {
     const roomFeature = p.features.find(f => /room/i.test(f));
     return `• **${p.name}** ($${p.monthlyPrice}/mo) — ${roomFeature}`;
   });
-  return `Tally is **built for multi-room and multi-site** churches.\n\nRoom limits by plan:\n${lines.join('\n')}\n\nEach room gets independent monitoring, alerts, and control. Your dashboard shows all rooms at a glance — one login, full visibility.\n\nFor multi-site campuses, **Enterprise** ($499/mo) includes dedicated onboarding, custom autopilot rules, and a dedicated support engineer.\n\nHow many rooms are you running? I can recommend the right plan.`;
+  return `Multi-room ready:\n\n${lines.join('\n')}\n\nOne dashboard, all rooms at a glance. How many rooms are you running?`;
 }
 
 function buildPlanningCenterResponse() {
-  return `Tally integrates with **Planning Center** for bi-directional sync.\n\n**What it does:**\n• **Pull** — Automatically imports service times from Planning Center. No manual scheduling.\n• **Push** — After each service, production notes push back into the plan automatically.\n• **Session recaps** — Full timeline of what happened during service goes into Planning Center.\n\nThis means your production team's notes, incidents, and auto-recoveries are all documented in the same place your worship team plans.\n\nPlanning Center sync is available on **Pro** ($149/mo) and above.\n\n[CTA:Start Free Trial:/signup?plan=pro]\n\nAlready using Planning Center? Tell me about your setup and I'll recommend a plan.`;
+  return `**Bi-directional Planning Center sync.** Service times pull in automatically, production notes push back after each service.\n\nAvailable on **Pro** ($149/mo) and above.\n\n[CTA:Start Free Trial:/signup?plan=pro]\n\nAlready using Planning Center? Tell me about your setup.`;
 }
 
 function buildAutopilotResponse() {
-  return `**AI Autopilot** lets you create rules that Tally executes automatically during service.\n\nExample rules:\n• "When worship slides start → switch to camera 1"\n• "When sermon begins → switch to camera 2, unmute pastor lav"\n• "5 minutes before service → run pre-service check"\n• "When stream drops → restart and alert TD"\n\nHow it works:\n1. You define trigger conditions and actions in the dashboard\n2. Tally monitors for those conditions during service\n3. When triggered, Tally executes the actions automatically\n4. Everything is logged in the post-service timeline\n\nAutopilot limits by plan:\n• **Pro** ($149/mo) — 10 automation rules\n• **Enterprise** ($499/mo) — 25 rules + custom rules built for you\n\n[CTA:Start Free Trial:/signup?plan=pro]\n\nWant to try a demo, or hear about a specific use case?`;
+  return `**AI Autopilot** — create rules like "when worship slides start → switch to camera 1" and Tally executes automatically.\n\n• **Pro** ($149/mo) — 10 rules\n• **Enterprise** ($499/mo) — 25 rules\n\n[CTA:Start Free Trial:/signup?plan=pro]\n\nWant to hear about a specific use case?`;
 }
 
 function buildRecommendPlanResponse() {
-  return `Here's a quick guide to picking the right plan:\n\n**Small church, 1 room, basic monitoring:**\n→ **Connect** at $49/mo — monitoring, alerts, auto-recovery, remote control\n\n**Growing church, 2-3 rooms, want AI features:**\n→ **Plus** at $99/mo — all integrations, AI commands, live preview, ProPresenter control\n\n**Multi-room, need automation:**\n→ **Pro** at $149/mo — AI Autopilot, Planning Center sync, monthly reports *(most popular)*\n\n**Multi-site / large organization:**\n→ **Enterprise** at $499/mo — unlimited rooms, dedicated engineer, 15-min SLA\n\n**One-time event (Easter, conference, wedding):**\n→ **Event** at $99 one-time — 72 hours of full monitoring\n\nAll plans include a **30-day free trial** — no credit card required.\n\n[CTA:Start Free Trial:/signup]\n\nTell me about your setup and I'll narrow it down!`;
+  return `Quick guide:\n\n• **1 room, basic** → Connect $49/mo\n• **2-3 rooms, AI features** → Plus $99/mo\n• **Multi-room, automation** → Pro $149/mo *(most popular)*\n• **Multi-site** → Enterprise $499/mo\n• **One-time event** → Event $99\n\nAll include a **30-day free trial**.\n\n[CTA:Start Free Trial:/signup]\n\nTell me about your setup — I'll narrow it down!`;
 }
 
 function buildSecurityResponse() {
-  return `Security and privacy are built into Tally's architecture.\n\n**How your data is protected:**\n• Tally runs **locally** on your booth computer — video and audio never leave your network\n• Remote access uses **encrypted tunnels** (Tailscale/WireGuard) — no port forwarding needed\n• All API communication is over **HTTPS/TLS**\n• **Guest TD tokens** auto-expire in 7 days with full audit trail\n• Each church gets an **isolated dashboard** — no cross-church data access\n• Credentials are stored encrypted on your local machine\n\n**What Tally does NOT do:**\n• Route video/audio through external servers\n• Store your stream content\n• Share data between churches\n\nQuestions about a specific security concern? Or want to see pricing?`;
+  return `Video and audio **never leave your network**. Tally runs locally — remote access uses encrypted tunnels, no port forwarding.\n\nEach church gets an isolated dashboard. Guest tokens auto-expire. All comms over HTTPS/TLS.\n\nQuestions about a specific concern?`;
 }
 
 function buildEventResponse() {
-  return `**Tally Event** is perfect for one-time productions — Easter services, conferences, weddings, concerts.\n\n**$99 one-time** (no subscription):\n• 72 hours of full monitoring\n• All device integrations\n• Auto-recovery\n• Alerts to your TD\n• Pre-event system check\n• Post-event incident report\n\nJust download the app, enter your event code, and Tally monitors everything for the duration.\n\nRunning a recurring event? You might want a monthly plan instead — **Connect** starts at $49/mo with a 30-day free trial.\n\n[CTA:Get Event Pass:/signup?plan=event]\n\nTell me about your event and I'll help you decide!`;
+  return `**Tally Event** — **$99 one-time** for 72 hours of full monitoring. Perfect for Easter, conferences, weddings.\n\nAll integrations, auto-recovery, alerts, and a post-event report.\n\n[CTA:Get Event Pass:/signup?plan=event]\n\nTell me about your event!`;
 }
 
 function buildDemoIntro() {
-  return `Welcome to the live demo! This simulates a real Tally-connected production booth.\n\nYour demo setup:\n• **ATEM** — 6 inputs (CAM 1 Wide, CAM 2 Pastor, CAM 3 Band, CAM 4 Overhead, Media Player 1, Color Bars)\n• **Audio** — Behringer X32 (Ch 1: Pastor Lav, Ch 2: Worship Lead, Ch 3–12: Band & Choir)\n• **OBS** — Streaming to YouTube at 6000kbps\n• **ProPresenter** — "Sunday Morning" playlist, slide 3 of 12\n\nTry any of these commands:\n• "cut to camera 2"\n• "fade to black"\n• "mute channel 3"\n• "next slide"\n• "start recording"\n• "run pre-service check"\n\nType a command and I'll show you what Tally does!`;
+  return `**Live demo!** You're connected to a simulated booth: ATEM, X32, OBS, ProPresenter.\n\nTry:\n• "cut to camera 2"\n• "fade to black"\n• "mute channel 3"\n• "next slide"\n\nType a command!`;
 }
 
 /* Keyword matching for static flows — order matters: specific patterns before generic ones.
@@ -304,7 +300,31 @@ export default function ChatWidget() {
     /* ── Try static response first (no tokens) ── */
     const staticReply = getStaticReply(msg);
     if (staticReply) {
-      setMessages(prev => [...prev, { role: 'assistant', content: staticReply }]);
+      setSending(true);
+      // Simulate streaming: reveal text word-by-word
+      setMessages(prev => [...prev, { role: 'assistant', content: '', streaming: true }]);
+      const words = staticReply.split(/(\s+)/); // preserve whitespace
+      let revealed = '';
+      const chunkSize = 3; // reveal 3 tokens at a time for natural feel
+      for (let i = 0; i < words.length; i += chunkSize) {
+        revealed += words.slice(i, i + chunkSize).join('');
+        const snapshot = revealed;
+        await new Promise(r => setTimeout(r, 18 + Math.random() * 12));
+        setMessages(prev => {
+          const msgs = [...prev];
+          msgs[msgs.length - 1] = { role: 'assistant', content: snapshot, streaming: true };
+          return msgs;
+        });
+      }
+      // Mark streaming complete
+      setMessages(prev => {
+        const msgs = [...prev];
+        const last = msgs[msgs.length - 1];
+        const cleaned = processLeadCapture(last.content);
+        msgs[msgs.length - 1] = { role: 'assistant', content: cleaned };
+        return msgs;
+      });
+      setSending(false);
       return;
     }
 
