@@ -1,6 +1,7 @@
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { BG, CARD_BG, BORDER, GREEN, GREEN_LT, WHITE, MUTED, DIM } from '../../lib/tokens';
+import { FEATURES, INTEGRATIONS, PRICING } from '../../lib/data';
 
 /* ─── Quick-action pills shown on first open ─── */
 const PILLS = [
@@ -8,6 +9,66 @@ const PILLS = [
   { label: 'See pricing',        msg: 'What are your pricing plans?' },
   { label: 'Try a live demo',    msg: 'I want to try a live demo. What commands can I send?' },
 ];
+
+/* ─── Static responses — no AI tokens needed ─── */
+
+function buildPricingResponse() {
+  const lines = PRICING.map(p => {
+    const save = p.annualPrice ? ` ($${p.annualPrice}/yr — save 2 months)` : '';
+    return `**${p.name}** — $${p.monthlyPrice}/mo${save}\n${p.desc}\n• ${p.features.join('\n• ')}`;
+  });
+  return `Here are our plans:\n\n${lines.join('\n\n')}\n\nAll plans include a 30-day free trial — no credit card required. Which plan sounds like the best fit for your church?`;
+}
+
+function buildFeaturesResponse() {
+  const top6 = FEATURES.slice(0, 6);
+  const lines = top6.map(f => `**${f.name}** — ${f.desc}`);
+  return `Tally has ${FEATURES.length} major features. Here are the highlights:\n\n${lines.join('\n\n')}\n\nWant to hear about the other ${FEATURES.length - 6} features, or ask about a specific one?`;
+}
+
+function buildIntegrationsResponse() {
+  const byTag = {};
+  INTEGRATIONS.forEach(i => {
+    if (!byTag[i.tag]) byTag[i.tag] = [];
+    byTag[i.tag].push(i.name);
+  });
+  const lines = Object.entries(byTag).map(([tag, names]) => `**${tag}**: ${names.join(', ')}`);
+  return `Tally supports ${INTEGRATIONS.length} integrations:\n\n${lines.join('\n')}\n\nIs your gear on the list? Tell me what you run and I'll confirm compatibility.`;
+}
+
+function buildSetupResponse() {
+  return `Setup takes about 10 minutes:\n\n1. **Download** the Tally app on your booth computer (macOS or Windows)\n2. **Sign in** with your registration code\n3. **Auto-discovery** — Tally finds your ATEM, OBS, Companion, and other devices on the network automatically\n4. **AI Setup Assistant** (optional) — upload a patch list, camera plot, CSV, or even a photo and Tally auto-configures your mixer channels and ATEM input labels\n\nNo port forwarding needed. Works behind church firewalls. Runs alongside OBS, ProPresenter, etc. on your existing computer.\n\nWant to start a free trial?`;
+}
+
+function buildTrialResponse() {
+  return `Getting started is easy:\n\n• **30-day free trial** — no credit card required\n• Full access to all features on your chosen plan\n• Cancel anytime, no questions asked\n• If you don't subscribe after the trial, monitoring stops but your data is preserved for 30 days\n\n→ **Start your free trial at /signup**\n\nNot sure which plan? Tell me about your setup (how many rooms, what gear) and I'll recommend one.`;
+}
+
+function buildSupportResponse() {
+  return `Here's how to get help:\n\n• **Email**: support@atemschool.com\n• **Sales**: sales@atemschool.com\n• **How-To Guides**: 16 step-by-step setup guides at tallyconnect.app → Guides\n• **Help Center**: tallyconnect.app/help\n\nOr just ask me here — I can answer most questions about features, setup, and troubleshooting!`;
+}
+
+function buildDemoIntro() {
+  return `Welcome to the live demo! This simulates a real Tally-connected production booth.\n\nYour demo setup:\n• **ATEM** — 6 inputs (CAM 1 Wide, CAM 2 Pastor, CAM 3 Band, CAM 4 Overhead, Media Player 1, Color Bars)\n• **Audio** — Behringer X32 (Ch 1: Pastor Lav, Ch 2: Worship Lead, Ch 3–12: Band & Choir)\n• **OBS** — Streaming to YouTube at 6000kbps\n• **ProPresenter** — "Sunday Morning" playlist, slide 3 of 12\n\nTry any of these commands:\n• "cut to camera 2"\n• "fade to black"\n• "mute channel 3"\n• "next slide"\n• "start recording"\n• "run pre-service check"\n\nType a command and I'll show you what Tally does!`;
+}
+
+/* Keyword matching for static flows */
+const STATIC_FLOWS = [
+  { match: (m) => /\b(pricing|plans?|cost|how much|price)\b/i.test(m),         reply: buildPricingResponse },
+  { match: (m) => /\b(features?|what (does|can)|capabilities|overview)\b/i.test(m) && !/demo/i.test(m), reply: buildFeaturesResponse },
+  { match: (m) => /\b(integrations?|devices?|supported|compatible|work with|connect to)\b/i.test(m), reply: buildIntegrationsResponse },
+  { match: (m) => /\b(set ?up|install|get started|onboard|how.*(start|begin))\b/i.test(m) && !/trial/i.test(m), reply: buildSetupResponse },
+  { match: (m) => /\b(free trial|sign ?up|try|start.*trial|cancel)\b/i.test(m) && !/demo/i.test(m), reply: buildTrialResponse },
+  { match: (m) => /\b(support|help|contact|email|phone)\b/i.test(m),           reply: buildSupportResponse },
+  { match: (m) => /\b(demo|try.*command|simulate|live demo)\b/i.test(m),       reply: buildDemoIntro },
+];
+
+function getStaticReply(message) {
+  for (const flow of STATIC_FLOWS) {
+    if (flow.match(message)) return flow.reply();
+  }
+  return null;
+}
 
 /* ─── Parse tally-output fenced blocks ─── */
 function renderContent(text) {
@@ -59,8 +120,16 @@ export default function ChatWidget() {
     if (!overrideMsg) setInput('');
     const userMsg = { role: 'user', content: msg };
     setMessages(prev => [...prev, userMsg]);
-    setSending(true);
 
+    /* ── Try static response first (no tokens) ── */
+    const staticReply = getStaticReply(msg);
+    if (staticReply) {
+      setMessages(prev => [...prev, { role: 'assistant', content: staticReply }]);
+      return;
+    }
+
+    /* ── Fall through to AI for custom questions & demo commands ── */
+    setSending(true);
     try {
       const history = [...messages, userMsg].slice(-20).map(m => ({ role: m.role, content: m.content }));
       const res = await fetch('/api/chat', {
