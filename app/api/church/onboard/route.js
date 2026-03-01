@@ -3,7 +3,7 @@ import { RELAY_URL } from '../../../../lib/relay';
 import { checkRateLimit } from '../../../../lib/rate-limit';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://tallyconnect.app';
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = process.env.FROM_EMAIL || 'Tally by ATEM School <noreply@atemschool.com>';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'Tally <noreply@atemschool.com>';
 const GITHUB_RELEASES_URL = 'https://github.com/atemschool/tally/releases/latest';
 
 const ALLOWED_TIERS = new Set(['connect', 'plus', 'pro', 'managed', 'event']);
@@ -100,7 +100,7 @@ function buildWelcomeEmailHtml({ churchName, email, registrationCode }) {
 
       <hr style="border: none; border-top: 1px solid #eee; margin: 32px 0 16px;" />
       <p style="font-size: 12px; color: #999;">
-        Tally by ATEM School &mdash; <a href="https://tallyconnect.app" style="color: #999;">tallyconnect.app</a>
+        Tally &mdash; <a href="https://tallyconnect.app" style="color: #999;">tallyconnect.app</a>
       </p>
     </div>
   `;
@@ -127,7 +127,7 @@ Have your tech directors send this to @tallybot:
 Church Portal: ${APP_URL}/portal
 Help Center: ${APP_URL}/help
 
-Tally by ATEM School — tallyconnect.app`;
+Tally — tallyconnect.app`;
 }
 
 async function sendWelcomeEmail({ churchName, email, registrationCode }) {

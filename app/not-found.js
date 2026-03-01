@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Page Not Found — Tally by ATEM School',
+  title: 'Page Not Found — Tally',
 };
 
 export default function NotFound() {

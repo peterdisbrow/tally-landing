@@ -3,10 +3,10 @@ import { BLOG_POSTS } from '../../lib/blog';
 import BlogCard from '../components/BlogCard';
 
 export const metadata = {
-  title: 'Blog — Tally by ATEM School',
+  title: 'Blog — Tally',
   description: 'Church production tips, live streaming guides, and ATEM tutorials from the Tally team.',
   openGraph: {
-    title: 'Blog — Tally by ATEM School',
+    title: 'Blog — Tally',
     description: 'Church production tips, live streaming guides, and ATEM tutorials from the Tally team.',
     type: 'website',
     url: 'https://tallyconnect.app/blog',
@@ -22,7 +22,7 @@ export default function BlogIndex() {
     url: 'https://tallyconnect.app/blog',
     publisher: {
       '@type': 'Organization',
-      name: 'ATEM School',
+      name: 'Tally',
       url: 'https://tallyconnect.app',
     },
     blogPost: BLOG_POSTS.map(p => ({

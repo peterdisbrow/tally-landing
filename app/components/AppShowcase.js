@@ -105,7 +105,7 @@ export default function AppShowcase() {
               marginLeft: 12, fontSize: '0.78rem',
               fontFamily: 'ui-monospace, monospace', color: DIM,
             }}>
-              Tally by ATEM School &mdash; {activeTab === 'status' ? 'Main Sanctuary' : 'Equipment Configuration'}
+              Tally &mdash; {activeTab === 'status' ? 'Main Sanctuary' : 'Equipment Configuration'}
             </span>
           </div>
           <Image

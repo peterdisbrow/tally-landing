@@ -18,7 +18,6 @@ export default function Nav() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ width: 9, height: 9, borderRadius: '50%', background: GREEN, display: 'inline-block', boxShadow: `0 0 8px ${GREEN}` }} />
           <span style={{ color: WHITE, fontWeight: 900, fontSize: '1.15rem', letterSpacing: '-0.01em' }}>Tally</span>
-          <span style={{ color: DIM, fontSize: '0.82rem', marginLeft: 2 }}>by ATEM School</span>
         </div>
         <div className="nav-links">
           {NAV_LINKS.map(link => (

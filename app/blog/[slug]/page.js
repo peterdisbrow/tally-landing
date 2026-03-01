@@ -58,7 +58,7 @@ export default async function BlogPost({ params }) {
     },
     publisher: {
       '@type': 'Organization',
-      name: 'ATEM School',
+      name: 'Tally',
       url: 'https://tallyconnect.app',
     },
     mainEntityOfPage: `https://tallyconnect.app/blog/${post.slug}`,

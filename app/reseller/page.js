@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 
 export const metadata = {
-  title: 'Reseller Program — Tally by ATEM School',
+  title: 'Reseller Program — Tally',
   description: 'Earn recurring commissions selling Tally to your church clients. Free to join — 25-50% revenue share on every subscription.',
 };
 

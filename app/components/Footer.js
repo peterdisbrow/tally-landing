@@ -11,7 +11,6 @@ export default function Footer() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <span style={{ width: 8, height: 8, borderRadius: '50%', background: GREEN, display: 'inline-block', boxShadow: `0 0 6px ${GREEN}` }} />
         <span style={{ color: WHITE, fontWeight: 800, fontSize: '0.95rem' }}>TALLY</span>
-        <span style={{ color: DIM, fontSize: '0.82rem' }}>&middot; by ATEM School</span>
       </div>
       <div style={{ display: 'flex', gap: 20, fontSize: '0.82rem', flexWrap: 'wrap' }}>
         <a href="/blog" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>Blog</a>
@@ -20,7 +19,7 @@ export default function Footer() {
         <a href="/terms" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>Terms of Service</a>
         <a href="/privacy" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>Privacy Policy</a>
         <a href="https://tallyconnect.app" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>tallyconnect.app</a>
-        <a href="https://atemschool.com" target="_blank" rel="noopener" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>atemschool.com &nearr;</a>
+
       </div>
     </footer>
   );

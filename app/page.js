@@ -20,7 +20,7 @@ const jsonLd = {
   '@graph': [
     {
       '@type': 'SoftwareApplication',
-      name: 'Tally by ATEM School',
+      name: 'Tally',
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'macOS, Windows',
       description: 'Church production monitoring, AI control, and auto-recovery. Monitor ATEM, OBS, vMix, audio consoles, encoders, and stream health from anywhere. 23 integrations.',
@@ -35,7 +35,7 @@ const jsonLd = {
     },
     {
       '@type': 'Organization',
-      name: 'ATEM School',
+      name: 'Tally',
       url: 'https://tallyconnect.app',
       logo: 'https://tallyconnect.app/icon.svg',
     },

@@ -1,7 +1,7 @@
 import { BG, CARD_BG as CARD, BORDER, GREEN, WHITE, MUTED } from '../../lib/tokens';
 
 export const metadata = {
-  title: 'Privacy Policy — Tally by ATEM School',
+  title: 'Privacy Policy — Tally',
 };
 
 export default function PrivacyPage() {

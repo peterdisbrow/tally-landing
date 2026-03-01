@@ -1,4 +1,4 @@
-# Tally by ATEM School
+# Tally
 
 Remote church production monitoring and control — via Telegram.
 

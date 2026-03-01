@@ -22,7 +22,7 @@ export default function Hero() {
         fontWeight: 700, letterSpacing: '0.12em', color: GREEN,
       }}>
         <span style={{ width: 6, height: 6, borderRadius: '50%', background: GREEN, display: 'inline-block', boxShadow: `0 0 6px ${GREEN}` }} />
-        TALLY BY ATEM SCHOOL &mdash; CHURCH PRODUCTION MONITORING
+        TALLY &mdash; CHURCH PRODUCTION MONITORING
       </div>
 
       {/* headline */}

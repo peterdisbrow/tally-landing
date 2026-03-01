@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Help & Support — Tally by ATEM School',
+  title: 'Help & Support — Tally',
 };
 
 export default function HelpLayout({ children }) {

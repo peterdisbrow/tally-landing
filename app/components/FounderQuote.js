@@ -37,7 +37,7 @@ export default function FounderQuote() {
             }}>A</div>
             <div>
               <div style={{ fontWeight: 800, color: WHITE, fontSize: '0.95rem' }}>Andrew Disbrow</div>
-              <div style={{ color: DIM, fontSize: '0.82rem' }}>Broadcast Engineer &middot; Founder, ATEM School</div>
+              <div style={{ color: DIM, fontSize: '0.82rem' }}>Broadcast Engineer &middot; Founder, Tally</div>
             </div>
           </div>
         </div>

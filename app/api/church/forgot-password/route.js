@@ -8,7 +8,7 @@ if (!SECRET && process.env.NODE_ENV === 'production') {
 }
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://tallyconnect.app';
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = process.env.FROM_EMAIL || 'Tally by ATEM School <noreply@atemschool.com>';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'Tally <noreply@atemschool.com>';
 
 const TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
@@ -48,7 +48,7 @@ function buildResetEmailHtml(resetUrl) {
       </p>
       <hr style="border: none; border-top: 1px solid #eee; margin: 32px 0 16px;" />
       <p style="font-size: 12px; color: #999;">
-        Tally by ATEM School &mdash; <a href="https://tallyconnect.app" style="color: #999;">tallyconnect.app</a>
+        Tally &mdash; <a href="https://tallyconnect.app" style="color: #999;">tallyconnect.app</a>
       </p>
     </div>
   `;
@@ -76,7 +76,7 @@ async function sendResetEmail(email, resetUrl) {
         to: [email],
         subject: 'Reset your Tally password',
         html: buildResetEmailHtml(resetUrl),
-        text: `Reset your Tally password:\n\n${resetUrl}\n\nThis link expires in 1 hour. If you didn't request this, you can safely ignore this email.\n\nTally by ATEM School — tallyconnect.app`,
+        text: `Reset your Tally password:\n\n${resetUrl}\n\nThis link expires in 1 hour. If you didn't request this, you can safely ignore this email.\n\nTally — tallyconnect.app`,
         tags: [{ name: 'category', value: 'password-reset' }],
       }),
     });

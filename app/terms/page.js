@@ -1,7 +1,7 @@
 import { BG, CARD_BG as CARD, BORDER, GREEN, WHITE, MUTED } from '../../lib/tokens';
 
 export const metadata = {
-  title: 'Terms of Service — Tally by ATEM School',
+  title: 'Terms of Service — Tally',
 };
 
 export default function TermsPage() {

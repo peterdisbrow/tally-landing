@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'Tally by ATEM School — Church Production Monitoring & Remote Control';
+export const alt = 'Tally — Church Production Monitoring & Remote Control';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -46,7 +46,7 @@ export default function OGImage() {
             }}
           />
           <span style={{ color: '#F8FAFC', fontSize: 28, fontWeight: 900 }}>Tally</span>
-          <span style={{ color: '#475569', fontSize: 18 }}>by ATEM School</span>
+          <span style={{ color: '#475569', fontSize: 18 }}>Church Production Monitoring</span>
         </div>
 
         {/* Headline */}

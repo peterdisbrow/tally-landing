@@ -1,20 +1,20 @@
 export const metadata = {
-  title: 'Tally by ATEM School — Church Production Monitoring & Remote Control',
+  title: 'Tally — Church Production Monitoring & Remote Control',
   description:
     'Monitor your ATEM, OBS, vMix, audio consoles, and stream health from anywhere. Real-time alerts, pre-service auto-check, and full remote control via Telegram.',
   metadataBase: new URL('https://tallyconnect.app'),
   openGraph: {
-    title: 'Tally by ATEM School',
+    title: 'Tally — Church Production Monitoring',
     description:
       'Monitor your church production system from anywhere. ATEM, OBS, Audio Consoles, and Presentations — Tally watches everything and fixes problems before anyone notices.',
     url: 'https://tallyconnect.app',
-    siteName: 'Tally by ATEM School',
+    siteName: 'Tally',
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Tally by ATEM School',
+    title: 'Tally — Church Production Monitoring',
     description:
       'Church production monitoring & remote control. ATEM, OBS, Audio Consoles, and Presentations — all in your pocket.',
   },
