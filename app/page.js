@@ -23,7 +23,7 @@ const jsonLd = {
       name: 'Tally',
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'macOS, Windows',
-      description: 'Church production monitoring, AI control, and auto-recovery. Monitor ATEM, OBS, vMix, audio consoles, encoders, and stream health from anywhere. 23 integrations.',
+      description: 'Church production monitoring, AI control, and auto-recovery. Monitor ATEM, OBS, vMix, audio consoles, encoders, and stream health from anywhere. 26 integrations.',
       url: 'https://tallyconnect.app',
       offers: {
         '@type': 'AggregateOffer',

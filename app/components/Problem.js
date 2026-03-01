@@ -2,7 +2,7 @@ import { BG, CARD_BG, BORDER, GREEN, WHITE, MUTED } from '../../lib/tokens';
 
 const STATS = [
   { stat: '3+ min', label: 'typical delay before someone notices a stream failure' },
-  { stat: '10 min', label: 'setup \u2014 auto-discovers your ATEM, OBS, and 23 integrations' },
+  { stat: '10 min', label: 'setup \u2014 auto-discovers your ATEM, OBS, and 26 integrations' },
   { stat: '< 10s', label: 'Tally auto-recovery \u2014 stream back before anyone notices' },
 ];
 
