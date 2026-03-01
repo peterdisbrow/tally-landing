@@ -26,6 +26,7 @@ export const metadata = {
 
 import Analytics from './analytics';
 import SkipNav from './components/SkipNav';
+import ChatWidget from './components/ChatWidget';
 
 export default function RootLayout({ children }) {
   return (
@@ -42,6 +43,7 @@ export default function RootLayout({ children }) {
         <SkipNav />
         {children}
         <Analytics />
+        <ChatWidget />
       </body>
     </html>
   );
