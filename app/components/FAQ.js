@@ -17,7 +17,11 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What if our stream drops during service?',
-    a: 'Tally detects it in seconds and auto-restarts your stream. Most recoveries happen in under 10 seconds \u2014 before anyone in the congregation notices. You get a Telegram or Slack alert that says "handled." If nobody acknowledges within 90 seconds, Tally escalates to your backup TD.',
+    a: 'Tally detects it in seconds, verifies it\u2019s a real outage (not a momentary blip), and auto-restarts your stream. Most recoveries happen in under 10 seconds \u2014 before anyone in the congregation notices. You get a Telegram or Slack alert that says "handled." If nobody acknowledges within 90 seconds, Tally escalates to your backup TD.',
+  },
+  {
+    q: 'What about false triggers or accidental restarts?',
+    a: 'Tally verifies before it acts. Before any recovery, it checks your encoder status, network upstream, and platform ingest to confirm a real failure \u2014 brief packet loss and transient dips are ignored and logged as suppressed false alarms. Recovery rules are configurable per church: auto-recover, notify-only, or ask-first. Max retry limits prevent infinite loops. Hardware failures (ATEM disconnect, mixer offline) go straight to your TD \u2014 Tally won\u2019t try to power-cycle your gear.',
   },
   {
     q: 'What does the AI do?',

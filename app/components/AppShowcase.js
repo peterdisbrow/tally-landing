@@ -6,6 +6,7 @@ import { BG, CARD_BG, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens'
 const TABS = [
   { id: 'status',    label: '\ud83d\udcca  Status View' },
   { id: 'equipment', label: '\u2699\ufe0f  Equipment Setup' },
+  { id: 'engineer',  label: '\ud83d\udee0\ufe0f  Tally Engineer' },
 ];
 
 const CAPTIONS = {
@@ -18,6 +19,11 @@ const CAPTIONS = {
     { icon: '\ud83c\udfdb\ufe0f', label: 'Auto-discovers devices', desc: 'Finds your ATEM, OBS, Companion, ProPresenter, HyperDecks, and PTZ cameras' },
     { icon: '\u2699\ufe0f', label: 'One-time setup', desc: 'Enter IPs once, test connections, save \u2014 done in 10 minutes' },
     { icon: '\ud83c\udfa4', label: 'Audio + video', desc: 'PTZ cameras, HyperDecks, audio consoles \u2014 all from the same screen' },
+  ],
+  engineer: [
+    { icon: '\u2705', label: 'Go / No-Go status', desc: 'One glance tells you if every system is ready for service' },
+    { icon: '\ud83e\udde0', label: 'AI diagnostics', desc: 'Ask questions in plain English \u2014 Tally Engineer checks your gear and answers' },
+    { icon: '\ud83d\udcdd', label: 'Action plans', desc: 'Prioritized steps to fix issues before they become problems on Sunday' },
   ],
 };
 
@@ -105,12 +111,12 @@ export default function AppShowcase() {
               marginLeft: 12, fontSize: '0.78rem',
               fontFamily: 'ui-monospace, monospace', color: DIM,
             }}>
-              Tally &mdash; {activeTab === 'status' ? 'Main Sanctuary' : 'Equipment Configuration'}
+              Tally &mdash; {activeTab === 'status' ? 'Main Sanctuary' : activeTab === 'equipment' ? 'Equipment Configuration' : 'Tally Engineer'}
             </span>
           </div>
           <Image
-            src={activeTab === 'status' ? '/app-status.png' : '/app-equipment.png'}
-            alt={activeTab === 'status' ? 'Tally status dashboard showing live stream status, connected devices, and camera preview' : 'Tally equipment setup screen showing auto-discovered ATEM, OBS, and Companion devices'}
+            src={activeTab === 'status' ? '/app-status.png' : activeTab === 'equipment' ? '/app-equipment.png' : '/app-engineer.png'}
+            alt={activeTab === 'status' ? 'Tally status dashboard showing live stream status, connected devices, and camera preview' : activeTab === 'equipment' ? 'Tally equipment setup screen showing auto-discovered ATEM, OBS, and Companion devices' : 'Tally Engineer AI diagnostics with Go/No-Go status and action plans'}
             width={1200}
             height={761}
             priority={activeTab === 'status'}
