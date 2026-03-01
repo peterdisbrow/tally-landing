@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { checkRateLimit } from '../../../lib/rate-limit';
 import { SYSTEM_PROMPT } from '../../../lib/chat-knowledge';
@@ -9,7 +8,7 @@ export async function POST(request) {
   /* ── Rate limit ── */
   const rl = await checkRateLimit('chat', request);
   if (!rl.success) {
-    return NextResponse.json(
+    return Response.json(
       { error: 'Too many messages. Please wait a moment.' },
       { status: 429 },
     );
@@ -20,12 +19,12 @@ export async function POST(request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON.' }, { status: 400 });
+    return Response.json({ error: 'Invalid JSON.' }, { status: 400 });
   }
 
   const { message, history } = body;
   if (!message || typeof message !== 'string' || message.length > 1000) {
-    return NextResponse.json({ error: 'Invalid message.' }, { status: 400 });
+    return Response.json({ error: 'Invalid message.' }, { status: 400 });
   }
 
   /* ── Build messages array ── */
@@ -38,9 +37,9 @@ export async function POST(request) {
     { role: 'user', content: message },
   ];
 
-  /* ── Call Claude ── */
+  /* ── Stream from Claude via SSE ── */
   try {
-    const response = await anthropic.messages.create({
+    const stream = anthropic.messages.stream({
       model: 'claude-haiku-4-5-20251001',
       system: SYSTEM_PROMPT,
       messages,
@@ -48,11 +47,53 @@ export async function POST(request) {
       temperature: 0.7,
     });
 
-    const reply = response.content[0]?.text || 'Sorry, I could not generate a response.';
-    return NextResponse.json({ reply });
+    const encoder = new TextEncoder();
+    let closed = false;
+    const readable = new ReadableStream({
+      async start(controller) {
+        const send = (obj) => {
+          if (closed) return;
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`));
+        };
+        const finish = () => {
+          if (closed) return;
+          closed = true;
+          controller.close();
+        };
+
+        try {
+          stream.on('text', (delta) => {
+            send({ type: 'delta', text: delta });
+          });
+
+          stream.on('end', () => {
+            send({ type: 'done' });
+            finish();
+          });
+
+          stream.on('error', (err) => {
+            console.error('Stream error:', err.message);
+            send({ type: 'error', message: 'Something went wrong.' });
+            finish();
+          });
+        } catch (err) {
+          console.error('Stream setup error:', err.message);
+          send({ type: 'error', message: 'Something went wrong.' });
+          finish();
+        }
+      },
+    });
+
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
   } catch (err) {
     console.error('Chat API error:', err.message);
-    return NextResponse.json(
+    return Response.json(
       { error: 'Something went wrong. Please try again.' },
       { status: 500 },
     );
