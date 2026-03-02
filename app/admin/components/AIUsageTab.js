@@ -7,6 +7,7 @@ const FEATURE_LABELS = {
   setup_assistant: '🎛️ Setup Assistant',
   dashboard_chat: '💬 Dashboard Chat',
   church_chat: '💬 Church Chat',
+  landing_chat: '🌐 Landing Page AI',
 };
 
 function StatCard({ label, value, highlight }) {
