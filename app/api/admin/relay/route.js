@@ -56,11 +56,16 @@ function safePath(pathname) {
   if (/[\r\n\s]/.test(pathname)) return null;
   if (!pathname.startsWith('/api/')) return null;
 
-  const normalized = pathname.replace(/\/+$/g, '').replace(/\/+/, '/');
+  // Strip query string for prefix validation, but preserve it for upstream
+  const [pathOnly, ...qsParts] = pathname.split('?');
+  const normalized = pathOnly.replace(/\/+$/g, '').replace(/\/+/, '/');
   const allowed = ALLOWED_PATH_PREFIXES.some(
     prefix => normalized === prefix || normalized.startsWith(`${prefix}/`),
   );
-  return allowed ? normalized : null;
+  if (!allowed) return null;
+  // Return path with query string intact
+  const qs = qsParts.length ? `?${qsParts.join('?')}` : '';
+  return `${normalized}${qs}`;
 }
 
 function parseJsonText(text, status) {

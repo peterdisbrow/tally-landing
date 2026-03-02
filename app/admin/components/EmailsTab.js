@@ -17,16 +17,67 @@ function fmtDate(iso) {
   try { return new Date(iso).toLocaleString(); } catch { return iso; }
 }
 
-const TYPE_COLORS = {
-  welcome: C.green, trial_ending: C.yellow, trial_expired: C.red,
-  payment_success: C.green, payment_failed: C.red, plan_upgraded: C.blue,
-  weekly_recap: C.blue, first_service: C.green, downgrade: C.yellow,
-  grace_period_ending: C.yellow, invoice_upcoming: C.blue,
-  dispute_alert: C.red, urgent_alert_escalation: C.red,
-  cancellation_survey: C.muted, email_change: C.blue,
-  registration_confirmation: C.green, lead_welcome: C.green,
-  lead_day3: C.blue, lead_day7: C.blue, lead_day14: C.yellow,
-};
+function fmtType(type) {
+  return (type || '').replace(/[-_]/g, ' ');
+}
+
+// Badge color by email type (hyphen-case keys matching relay API)
+function typeColor(type) {
+  if (/welcome|verified|registration|confirmed|first-service|reactivation/.test(type)) return C.green;
+  if (/failed|expired|dispute|urgent|cancellation-confirm/.test(type)) return C.red;
+  if (/ending|downgrade|grace|win-back|lead-day14|survey/.test(type)) return C.yellow;
+  if (/upgrade|invoice|digest|recap|lead-day|email-change/.test(type)) return C.blue;
+  return C.muted;
+}
+
+// ── Template category grouping ─────────────────────────────────────────────────
+const TEMPLATE_CATEGORIES = [
+  {
+    label: 'Onboarding',
+    icon: '🚀',
+    match: (t) => /welcome|setup|registration|first-sunday|week-one|first-service/.test(t),
+  },
+  {
+    label: 'Trial & Billing',
+    icon: '💳',
+    match: (t) => /trial|payment|upgrade|downgrade|grace|invoice|cancellation-confirm/.test(t),
+  },
+  {
+    label: 'Alerts & Operations',
+    icon: '🔔',
+    match: (t) => /alert|escalation|digest|recap/.test(t),
+  },
+  {
+    label: 'Engagement',
+    icon: '📬',
+    match: (t) => /win-back|review|survey|reactivation/.test(t),
+  },
+  {
+    label: 'Account',
+    icon: '🔑',
+    match: (t) => /password|email-change/.test(t),
+  },
+  {
+    label: 'Sales & Leads',
+    icon: '🎯',
+    match: (t) => /lead-/.test(t),
+  },
+];
+
+function categorizeTemplates(templates) {
+  const grouped = TEMPLATE_CATEGORIES.map(cat => ({ ...cat, items: [] }));
+  const other = { label: 'Other', icon: '📄', items: [] };
+
+  for (const tpl of templates) {
+    const placed = grouped.find(g => g.match(tpl.type));
+    if (placed) placed.items.push(tpl);
+    else other.items.push(tpl);
+  }
+
+  const result = grouped.filter(g => g.items.length > 0);
+  if (other.items.length > 0) result.push(other);
+  return result;
+}
 
 // ── Preview Modal ──────────────────────────────────────────────────────────────
 function PreviewModal({ html, title, onClose }) {
@@ -51,6 +102,7 @@ function PreviewModal({ html, title, onClose }) {
 // ── Send History sub-tab ───────────────────────────────────────────────────────
 function SendHistory({ relay }) {
   const [rows, setRows]       = useState([]);
+  const [total, setTotal]     = useState(0);
   const [stats, setStats]     = useState({});
   const [loading, setLoading] = useState(true);
   const [err, setErr]         = useState('');
@@ -59,6 +111,7 @@ function SendHistory({ relay }) {
   const [offset, setOffset]   = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [preview, setPreview] = useState(null);
+  const [knownTypes, setKnownTypes] = useState([]);
   const LIMIT = 50;
 
   // Load stats once
@@ -67,6 +120,10 @@ function SendHistory({ relay }) {
       try {
         const d = await relay('/api/admin/emails/stats');
         setStats(d || {});
+        // Extract known types from byType for the filter dropdown
+        if (Array.isArray(d?.byType)) {
+          setKnownTypes(d.byType.map(t => t.email_type).filter(Boolean));
+        }
       } catch {}
     })();
   }, [relay]);
@@ -78,11 +135,14 @@ function SendHistory({ relay }) {
       const off = reset ? 0 : offset;
       let path = `/api/admin/emails?limit=${LIMIT}&offset=${off}`;
       if (typeFilter) path += `&type=${encodeURIComponent(typeFilter)}`;
-      if (search) path += `&church=${encodeURIComponent(search)}`;
+      if (search) path += `&search=${encodeURIComponent(search)}`;
       const d = await relay(path);
-      const list = Array.isArray(d) ? d : d?.emails || [];
+      // API returns { rows: [...], total: N }
+      const list = Array.isArray(d?.rows) ? d.rows : Array.isArray(d) ? d : [];
+      const tot = d?.total ?? list.length;
       if (reset) {
         setRows(list);
+        setTotal(tot);
         setOffset(list.length);
       } else {
         setRows(prev => [...prev, ...list]);
@@ -96,17 +156,12 @@ function SendHistory({ relay }) {
   useEffect(() => { load(true); }, [relay, typeFilter, search]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openPreview = async (row) => {
-    // Build a simple preview from stored data
-    if (row.html_body) {
-      setPreview({ html: row.html_body, title: row.subject || row.email_type });
-      return;
-    }
-    // Try fetching template preview as fallback
+    // Try fetching template preview
     try {
       const d = await relay(`/api/admin/emails/templates/${encodeURIComponent(row.email_type)}/preview`);
-      setPreview({ html: d?.html || '<p>No preview available</p>', title: row.subject || row.email_type });
+      setPreview({ html: d?.html || '<p>No preview available</p>', title: row.subject || fmtType(row.email_type) });
     } catch {
-      setPreview({ html: '<p>No preview available for this email.</p>', title: row.email_type });
+      setPreview({ html: '<p>No preview available for this email.</p>', title: fmtType(row.email_type) });
     }
   };
 
@@ -133,11 +188,11 @@ function SendHistory({ relay }) {
         <select
           value={typeFilter}
           onChange={e => setTypeFilter(e.target.value)}
-          style={{ ...s.input, width: 200, padding: '6px 10px', fontSize: 13 }}
+          style={{ ...s.input, width: 220, padding: '6px 10px', fontSize: 13 }}
         >
           <option value="">All Types</option>
-          {Object.keys(TYPE_COLORS).map(t => (
-            <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
+          {knownTypes.map(t => (
+            <option key={t} value={t}>{fmtType(t)}</option>
           ))}
         </select>
 
@@ -151,7 +206,7 @@ function SendHistory({ relay }) {
         <button style={s.btn('secondary')} onClick={() => load(true)}>&#8635; Refresh</button>
 
         <div style={{ marginLeft: 'auto', color: C.muted, fontSize: 12 }}>
-          {rows.length} email{rows.length !== 1 ? 's' : ''} shown
+          {rows.length}{total > rows.length ? ` of ${total}` : ''} email{rows.length !== 1 ? 's' : ''}
         </div>
       </div>
 
@@ -177,11 +232,11 @@ function SendHistory({ relay }) {
             <tbody>
               {rows.map((r, i) => (
                 <tr key={r.id || i} style={{ cursor: 'pointer' }} onClick={() => openPreview(r)}>
-                  <td style={s.td} title={fmtDate(r.sent_at || r.created_at)}>{timeAgo(r.sent_at || r.created_at)}</td>
+                  <td style={s.td} title={fmtDate(r.sent_at)}>{timeAgo(r.sent_at)}</td>
                   <td style={s.td}>{r.church_name || r.church_id || '—'}</td>
                   <td style={s.td}>
-                    <span style={s.badge(TYPE_COLORS[r.email_type] || C.muted)}>
-                      {(r.email_type || '').replace(/_/g, ' ')}
+                    <span style={s.badge(typeColor(r.email_type))}>
+                      {fmtType(r.email_type)}
                     </span>
                   </td>
                   <td style={{ ...s.td, fontSize: 12, color: C.muted }}>{r.recipient || '—'}</td>
@@ -235,7 +290,7 @@ function Templates({ relay, role }) {
   const openPreview = async (type) => {
     try {
       const d = await relay(`/api/admin/emails/templates/${encodeURIComponent(type)}/preview`);
-      setPreview({ html: d?.html || '<p>No preview</p>', title: type.replace(/_/g, ' ') });
+      setPreview({ html: d?.html || '<p>No preview</p>', title: fmtType(type) });
     } catch (e) {
       setPreview({ html: `<p>Error: ${e.message}</p>`, title: type });
     }
@@ -243,8 +298,8 @@ function Templates({ relay, role }) {
 
   const startEdit = (tpl) => {
     setEditing(tpl);
-    setEditSubj(tpl.override_subject || tpl.subject || '');
-    setEditHtml(tpl.override_html || '');
+    setEditSubj(tpl.overrideSubject || tpl.subject || '');
+    setEditHtml(tpl.overrideHtml || '');
     setSaveMsg('');
   };
 
@@ -263,12 +318,14 @@ function Templates({ relay, role }) {
   };
 
   const revertOverride = async (type) => {
-    if (!confirm(`Revert "${type.replace(/_/g, ' ')}" to default template?`)) return;
+    if (!confirm(`Revert "${fmtType(type)}" to default template?`)) return;
     try {
       await relay(`/api/admin/emails/templates/${encodeURIComponent(type)}`, { method: 'DELETE' });
       load();
     } catch (e) { setErr(e.message); }
   };
+
+  const groups = categorizeTemplates(templates);
 
   return (
     <div>
@@ -279,44 +336,63 @@ function Templates({ relay, role }) {
         <div style={s.empty}>No templates found.</div>
       )}
 
-      {!loading && templates.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
-          {templates.map(tpl => (
-            <div key={tpl.type} style={{ ...s.card, marginBottom: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 700 }}>{(tpl.type || '').replace(/_/g, ' ')}</div>
-                  <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{tpl.trigger || tpl.description || ''}</div>
-                </div>
-                {tpl.has_override && (
-                  <span style={s.badge(C.yellow)}>Override</span>
-                )}
+      {!loading && groups.length > 0 && (
+        <div>
+          {groups.map(group => (
+            <div key={group.label} style={{ marginBottom: 24 }}>
+              {/* Category header */}
+              <div style={{
+                fontSize: 12, fontWeight: 700, color: C.muted, textTransform: 'uppercase',
+                letterSpacing: '0.06em', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6,
+              }}>
+                <span>{group.icon}</span> {group.label}
+                <span style={{ fontSize: 11, fontWeight: 400, color: C.dim }}>({group.items.length})</span>
               </div>
-              <div style={{ display: 'flex', gap: 6, marginTop: 'auto' }}>
-                <button
-                  style={{ ...s.btn('secondary'), fontSize: 11, padding: '5px 10px' }}
-                  onClick={() => openPreview(tpl.type)}
-                >
-                  Preview
-                </button>
-                {canWrite(role) && (
-                  <>
-                    <button
-                      style={{ ...s.btn('secondary'), fontSize: 11, padding: '5px 10px' }}
-                      onClick={() => startEdit(tpl)}
-                    >
-                      Edit
-                    </button>
-                    {tpl.has_override && (
+
+              {/* Template cards grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 10 }}>
+                {group.items.map(tpl => (
+                  <div key={tpl.type} style={{
+                    ...s.card, marginBottom: 0, padding: 14,
+                    display: 'flex', flexDirection: 'column', gap: 6,
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700 }}>{tpl.name || fmtType(tpl.type)}</div>
+                        <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{tpl.trigger || ''}</div>
+                      </div>
+                      {tpl.hasOverride && (
+                        <span style={{ ...s.badge(C.yellow), flexShrink: 0, marginLeft: 6 }}>Override</span>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, marginTop: 'auto', paddingTop: 4 }}>
                       <button
-                        style={{ ...s.btn('danger'), fontSize: 11, padding: '5px 10px' }}
-                        onClick={() => revertOverride(tpl.type)}
+                        style={{ ...s.btn('secondary'), fontSize: 11, padding: '4px 10px' }}
+                        onClick={() => openPreview(tpl.type)}
                       >
-                        Revert
+                        Preview
                       </button>
-                    )}
-                  </>
-                )}
+                      {canWrite(role) && (
+                        <>
+                          <button
+                            style={{ ...s.btn('secondary'), fontSize: 11, padding: '4px 10px' }}
+                            onClick={() => startEdit(tpl)}
+                          >
+                            Edit
+                          </button>
+                          {tpl.hasOverride && (
+                            <button
+                              style={{ ...s.btn('danger'), fontSize: 11, padding: '4px 10px' }}
+                              onClick={() => revertOverride(tpl.type)}
+                            >
+                              Revert
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}
@@ -330,7 +406,7 @@ function Templates({ relay, role }) {
         <div style={s.modal} onClick={e => { if (e.target === e.currentTarget) { setEditing(null); } }}>
           <div style={{ ...s.wideModalBox, width: 680 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 700 }}>Edit: {(editing.type || '').replace(/_/g, ' ')}</div>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>Edit: {editing.name || fmtType(editing.type)}</div>
               <button style={{ background: 'none', border: 'none', color: C.muted, fontSize: 20, cursor: 'pointer' }} onClick={() => setEditing(null)}>&times;</button>
             </div>
 
