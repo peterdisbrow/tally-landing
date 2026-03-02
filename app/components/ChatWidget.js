@@ -276,9 +276,16 @@ export default function ChatWidget() {
   const [isMobile, setIsMobile] = useState(false);
   const [leadCaptured, setLeadCaptured] = useState(false);
   const [demoStage, setDemoStage] = useState(null);
+  const [hidden, setHidden]     = useState(false);
   const demoAdvancing = useRef(false);
   const messagesEndRef = useRef(null);
   const visibleSectionRef = useRef('default');
+
+  /* ── Hide on admin/portal/signin/signup pages (they have their own chat) ── */
+  useEffect(() => {
+    const path = window.location.pathname;
+    setHidden(path.startsWith('/admin') || path.startsWith('/portal') || path.startsWith('/signin') || path.startsWith('/signup'));
+  }, []);
 
   /* ── Inject keyframes for typing indicator ── */
   useEffect(() => {
@@ -586,6 +593,8 @@ export default function ChatWidget() {
   const drawerStyle = isMobile
     ? { position: 'fixed', inset: 0, width: '100%', height: '100%', borderRadius: 0, zIndex: 100 }
     : { position: 'fixed', bottom: 86, right: 28, width: 380, maxHeight: '60vh', borderRadius: 14, zIndex: 100 };
+
+  if (hidden) return null;
 
   return (
     <>

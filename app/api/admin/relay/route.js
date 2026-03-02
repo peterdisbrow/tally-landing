@@ -30,6 +30,7 @@ const ALLOWED_PATH_PREFIXES = [
   '/api/admin/ai-usage',
   '/api/admin/alerts',
   '/api/admin/tickets',
+  '/api/admin/emails',
   '/api/support',
   '/api/chat',
   '/api/status',

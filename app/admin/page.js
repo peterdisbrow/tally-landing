@@ -10,6 +10,7 @@ import UsersTab from './components/UsersTab';
 import AIUsageTab from './components/AIUsageTab';
 import AlertsTab from './components/AlertsTab';
 import TicketsTab from './components/TicketsTab';
+import EmailsTab from './components/EmailsTab';
 import MonitorTab from './components/MonitorTab';
 import StatusTab from './components/StatusTab';
 import AIChatDrawer from './components/AIChatDrawer';
@@ -195,6 +196,7 @@ export default function AdminPage() {
         {tab === 'aiusage'   && <AIUsageTab relay={relay} />}
         {tab === 'alerts'    && <AlertsTab relay={relay} role={role} />}
         {tab === 'tickets'   && <TicketsTab relay={relay} role={role} />}
+        {tab === 'emails'    && <EmailsTab relay={relay} role={role} />}
         {tab === 'monitor'   && <MonitorTab token={token} />}
         {tab === 'status'    && <StatusTab relay={relay} role={role} />}
       </div>
