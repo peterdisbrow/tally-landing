@@ -1,9 +1,9 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { checkRateLimit } from '../../../lib/rate-limit';
 import { checkChatBudget, trackChatUsage } from '../../../lib/chat-budget';
 import { SYSTEM_PROMPT } from '../../../lib/chat-knowledge';
+import { RELAY_URL } from '../../../lib/relay';
 
-const anthropic = new Anthropic(); // reads ANTHROPIC_API_KEY from env
+const CHAT_PROXY_SECRET = process.env.CHAT_PROXY_SECRET || '';
 
 export async function POST(request) {
   /* ── Rate limit ── */
@@ -47,57 +47,36 @@ export async function POST(request) {
     { role: 'user', content: message },
   ];
 
-  /* ── Stream from Claude via SSE ── */
+  /* ── Stream from relay server (uses relay's Anthropic API key) ── */
   try {
-    const stream = anthropic.messages.stream({
-      model: 'claude-haiku-4-5-20251001',
-      system: SYSTEM_PROMPT,
-      messages,
-      max_tokens: 300,
-      temperature: 0.7,
+    const upstream = await fetch(`${RELAY_URL}/api/chat/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-chat-secret': CHAT_PROXY_SECRET,
+      },
+      body: JSON.stringify({
+        system: SYSTEM_PROMPT,
+        messages,
+        max_tokens: 300,
+        temperature: 0.7,
+      }),
     });
+
+    if (!upstream.ok) {
+      const errBody = await upstream.text().catch(() => '');
+      console.error('Chat proxy error:', upstream.status, errBody.slice(0, 200));
+      return Response.json(
+        { error: 'Something went wrong. Please try again.' },
+        { status: 500 },
+      );
+    }
 
     // Track usage now — API call is being made
     trackChatUsage(request).catch(() => {});
 
-    const encoder = new TextEncoder();
-    let closed = false;
-    const readable = new ReadableStream({
-      async start(controller) {
-        const send = (obj) => {
-          if (closed) return;
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`));
-        };
-        const finish = () => {
-          if (closed) return;
-          closed = true;
-          controller.close();
-        };
-
-        try {
-          stream.on('text', (delta) => {
-            send({ type: 'delta', text: delta });
-          });
-
-          stream.on('end', () => {
-            send({ type: 'done' });
-            finish();
-          });
-
-          stream.on('error', (err) => {
-            console.error('Stream error:', err.message);
-            send({ type: 'error', message: 'Something went wrong.' });
-            finish();
-          });
-        } catch (err) {
-          console.error('Stream setup error:', err.message);
-          send({ type: 'error', message: 'Something went wrong.' });
-          finish();
-        }
-      },
-    });
-
-    return new Response(readable, {
+    // Pass through the SSE stream from relay
+    return new Response(upstream.body, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
