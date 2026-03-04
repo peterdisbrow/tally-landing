@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pre-Service Checklist Generator — TallyConnect</title>
+  <meta name="description" content="Generate a custom pre-service checklist based on your exact gear stack. Free tool from TallyConnect." />
+  <meta property="og:title" content="Pre-Service Checklist Generator" />
+  <meta property="og:description" content="Custom pre-service checklist for your church's exact gear stack. Free from TallyConnect." />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="/tools/styles.css" />
+  <style>
+    /* ── Checklist Generator specific styles ── */
+    .hero-section {
+      text-align: center;
+      padding: 80px 0 48px;
+    }
+    .hero-section h1 { margin-bottom: 16px; }
+    .hero-section p { max-width: 560px; margin: 0 auto 32px; font-size: 1.05rem; }
+
+    /* Step indicator */
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+    .step-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    .step-dot.active {
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+    }
+    .step-dot.done { background: var(--accent); }
+
+    /* Builder wrap */
+    .builder-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding-bottom: 80px;
+    }
+
+    /* Gear grid */
+    .gear-section { margin-bottom: 28px; animation: fadeUp 0.35s ease; }
+    .gear-section h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .gear-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 8px;
+    }
+    .gear-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      user-select: none;
+    }
+    .gear-item:hover { border-color: var(--accent); }
+    .gear-item.selected {
+      border-color: var(--accent);
+      background: rgba(34,197,94,0.06);
+    }
+    .gear-item input[type="checkbox"] {
+      accent-color: var(--accent);
+      width: 16px; height: 16px;
+      cursor: pointer;
+    }
+    .gear-item label {
+      margin: 0;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    /* Service type + team size */
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .choice-btn {
+      padding: 16px 20px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 0.92rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .choice-btn:hover { border-color: var(--accent); }
+    .choice-btn.selected {
+      border-color: var(--accent);
+      background: rgba(34,197,94,0.06);
+    }
+    .choice-btn small {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Nav buttons */
+    .builder-nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 24px;
+    }
+
+    /* ── Generated Checklist ── */
+    .checklist-output { animation: fadeUp 0.35s ease; }
+    .checklist-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .checklist-header h2 { margin: 0; }
+    .checklist-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .checklist-actions .btn { padding: 10px 20px; font-size: 0.88rem; }
+
+    .checklist-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .checklist-meta .badge { font-size: 0.62rem; }
+
+    /* Phase sections */
+    .phase {
+      margin-bottom: 28px;
+      padding: 24px 20px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .phase-time {
+      flex-shrink: 0;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      padding: 4px 10px;
+      background: rgba(34,197,94,0.08);
+      border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 4px;
+    }
+    .phase-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 8px 0;
+    }
+    .check-item + .check-item { border-top: 1px solid rgba(26,46,31,0.5); }
+    .check-item input[type="checkbox"] {
+      accent-color: var(--accent);
+      width: 18px; height: 18px;
+      margin-top: 2px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .check-item label {
+      margin: 0;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      line-height: 1.5;
+    }
+    .check-item.checked label {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+    .check-item .gear-tag {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.04);
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-left: 6px;
+    }
+
+    /* CTA bar */
+    .checklist-cta {
+      text-align: center;
+      padding: 40px 0;
+    }
+    .checklist-cta h3 { margin-bottom: 8px; }
+    .checklist-cta p { max-width: 480px; margin: 0 auto 24px; font-size: 0.92rem; }
+    .checklist-cta .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* Print overrides */
+    .print-footer {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+      font-size: 0.82rem;
+      color: #666;
+      border-top: 1px solid #ddd;
+      margin-top: 24px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      padding: 12px 24px;
+      background: var(--accent);
+      color: var(--on-accent);
+      font-weight: 700;
+      font-size: 0.88rem;
+      border-radius: var(--radius-sm);
+      opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
+      z-index: 100;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .hidden { display: none !important; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media print {
+      .phase { border: 1px solid #ccc; background: #fff; }
+      .phase-time { background: #eee; border-color: #ccc; color: #333; }
+      .check-item label, .phase-title { color: #000; }
+      .gear-tag { background: #eee; color: #555; }
+      .checklist-cta, .builder-nav { display: none !important; }
+      .print-footer { display: block; }
+      .checklist-meta .badge { background: #eee; border-color: #ccc; color: #333; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <a href="/" class="logo">Tally<span>Connect</span></a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/tools/healthcheck/">Health Check</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <!-- ── Welcome ── -->
+    <section id="welcomeScreen" class="hero-section">
+      <p class="eyebrow">Free Tool</p>
+      <h1>Pre-Service Checklist Generator</h1>
+      <p>Select your gear, pick your service type, and get a custom pre-service checklist tailored to your exact setup. Print it, share it with your team, or copy it as markdown.</p>
+      <button class="btn btn-primary" id="startBtn">Build My Checklist</button>
+    </section>
+
+    <!-- ── Builder ── -->
+    <section id="builderScreen" class="hidden">
+      <div class="step-indicator" id="stepIndicator"></div>
+      <div class="builder-wrap" id="builderContent"></div>
+    </section>
+
+    <!-- ── Generated Checklist ── -->
+    <section id="checklistScreen" class="hidden">
+      <div class="builder-wrap">
+        <div class="checklist-output" id="checklistOutput"></div>
+        <div class="print-footer">
+          Generated by TallyConnect.app &mdash; Automate this checklist with Tally
+        </div>
+        <div class="checklist-cta card no-print">
+          <h3>Running This Manually Every Sunday?</h3>
+          <p>Tally automates your entire pre-service check — verifying every device, stream, and connection 30 minutes before service. No clipboard required.</p>
+          <div class="btn-row">
+            <a href="/signup" class="btn btn-primary">Start Free Trial</a>
+            <button class="btn btn-ghost" id="pdfDarkBtn">Save PDF (Dark)</button>
+            <button class="btn btn-ghost" id="pdfLightBtn">Save PDF (Print)</button>
+            <button class="btn btn-ghost" id="copyMdBtn">Copy as Text</button>
+            <button class="btn btn-ghost" id="restartBtn">Start Over</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    <p>Free tool by <a href="/">TallyConnect.app</a> &mdash; Church production monitoring &amp; remote control</p>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="/tools/checklist/app.js"></script>
+</body>
+</html>

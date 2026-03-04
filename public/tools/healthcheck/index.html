@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Church Production Health Check — TallyConnect</title>
+  <meta name="description" content="Free 2-minute assessment. Find out how reliable your church production really is — and what to fix first." />
+  <meta property="og:title" content="Church Production Health Check" />
+  <meta property="og:description" content="Score your church's production reliability in 2 minutes. Free assessment from TallyConnect." />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="/tools/styles.css" />
+  <style>
+    /* ── Health Check specific styles ── */
+    .hero-section {
+      text-align: center;
+      padding: 80px 0 48px;
+    }
+    .hero-section h1 { margin-bottom: 16px; }
+    .hero-section p { max-width: 520px; margin: 0 auto 32px; font-size: 1.05rem; }
+
+    /* Progress */
+    .quiz-progress {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg);
+      padding: 16px 0 12px;
+    }
+    .progress-label {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    /* Question Card */
+    .quiz-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding-bottom: 80px;
+    }
+    .question-card {
+      animation: fadeUp 0.35s ease;
+    }
+    .question-card .category-badge {
+      margin-bottom: 16px;
+    }
+    .question-card h2 {
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
+      font-weight: 800;
+      margin-bottom: 24px;
+      line-height: 1.3;
+    }
+
+    /* Answer Options */
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .option-btn {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      width: 100%;
+      padding: 16px 20px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    .option-btn:hover {
+      border-color: var(--accent);
+      box-shadow: var(--glow-sm);
+    }
+    .option-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .option-btn .option-key {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .option-btn:hover .option-key {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .option-btn.selected {
+      border-color: var(--accent);
+      background: rgba(34,197,94,0.06);
+    }
+    .option-btn.selected .option-key {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--on-accent);
+    }
+
+    /* Back button */
+    .quiz-nav {
+      display: flex;
+      justify-content: flex-start;
+      margin-bottom: 20px;
+    }
+    .back-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font);
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 6px 0;
+      transition: color 0.2s;
+    }
+    .back-btn:hover { color: var(--text); }
+
+    /* ── Contact form (optional) ── */
+    .contact-card { animation: fadeUp 0.35s ease; }
+    .contact-card h2 { margin-bottom: 8px; }
+    .contact-card p { margin-bottom: 24px; font-size: 0.92rem; }
+    .contact-fields { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+    .contact-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    /* ── Results ── */
+    .results-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding-bottom: 80px;
+      animation: fadeUp 0.4s ease;
+    }
+
+    /* Score circle */
+    .score-hero {
+      text-align: center;
+      padding: 48px 0 40px;
+    }
+    .score-ring {
+      position: relative;
+      width: 180px; height: 180px;
+      margin: 0 auto 24px;
+    }
+    .score-ring svg {
+      width: 100%; height: 100%;
+      transform: rotate(-90deg);
+    }
+    .score-ring-bg { fill: none; stroke: var(--border); stroke-width: 8; }
+    .score-ring-fill {
+      fill: none;
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1.2s cubic-bezier(0.22, 1, 0.36, 1), stroke 0.3s;
+    }
+    .score-ring .score-value {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .score-number {
+      font-size: 3rem;
+      font-weight: 900;
+      line-height: 1;
+      color: var(--text);
+    }
+    .score-max {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .score-grade {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .score-label {
+      font-size: 0.95rem;
+      color: var(--text-dim);
+    }
+
+    /* Category bars */
+    .category-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .cat-row { display: flex; flex-direction: column; gap: 6px; }
+    .cat-row-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .cat-row-head span:first-child {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .cat-row-head span:last-child {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-dim);
+    }
+    .cat-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .cat-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Risk + fix cards */
+    .risks-section { margin-bottom: 32px; }
+    .risks-section h3 { margin-bottom: 16px; }
+    .risk-card {
+      display: flex;
+      gap: 14px;
+      padding: 16px 20px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      margin-bottom: 10px;
+    }
+    .risk-icon {
+      flex-shrink: 0;
+      font-size: 1.2rem;
+      line-height: 1.4;
+    }
+    .risk-card strong { display: block; color: var(--text); font-size: 0.92rem; margin-bottom: 2px; }
+    .risk-card p { font-size: 0.85rem; margin: 0; }
+
+    .fixes-section { margin-bottom: 40px; }
+    .fixes-section h3 { margin-bottom: 16px; }
+    .fix-card {
+      display: flex;
+      gap: 14px;
+      padding: 16px 20px;
+      background: rgba(34,197,94,0.04);
+      border: 1px solid rgba(34,197,94,0.15);
+      border-radius: var(--radius-md);
+      margin-bottom: 10px;
+    }
+    .fix-card strong { display: block; color: var(--accent); font-size: 0.92rem; margin-bottom: 2px; }
+    .fix-card p { font-size: 0.85rem; margin: 0; }
+
+    /* CTA */
+    .results-cta {
+      text-align: center;
+      padding: 40px 0;
+    }
+    .results-cta h3 { margin-bottom: 8px; }
+    .results-cta p { max-width: 440px; margin: 0 auto 24px; font-size: 0.92rem; }
+    .results-cta .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      padding: 12px 24px;
+      background: var(--accent);
+      color: var(--on-accent);
+      font-weight: 700;
+      font-size: 0.88rem;
+      border-radius: var(--radius-sm);
+      opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
+      z-index: 100;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Hidden */
+    .hidden { display: none !important; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <a href="/" class="logo">Tally<span>Connect</span></a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/tools/checklist/">Checklist</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <!-- ── Screen 1: Welcome ── -->
+    <section id="welcomeScreen" class="hero-section">
+      <p class="eyebrow">Free 2-Minute Assessment</p>
+      <h1>How Reliable Is Your Church Production?</h1>
+      <p>Answer 12 quick questions about your streaming, equipment, pre-service checks, and team readiness. Get a personalized reliability score and actionable recommendations.</p>
+      <button class="btn btn-primary" id="startBtn">Start Health Check</button>
+    </section>
+
+    <!-- ── Screen 2: Quiz ── -->
+    <section id="quizScreen" class="hidden">
+      <div class="quiz-progress">
+        <div class="progress-label" id="progressLabel">Question 1 of 12</div>
+        <div class="progress-bar"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+      <div class="quiz-wrap">
+        <div class="quiz-nav">
+          <button class="back-btn hidden" id="backBtn">&larr; Back</button>
+        </div>
+        <div id="questionCard" class="question-card card"></div>
+      </div>
+    </section>
+
+    <!-- ── Screen 3: Contact (optional) ── -->
+    <section id="contactScreen" class="hidden">
+      <div class="quiz-wrap">
+        <div class="contact-card card">
+          <p class="eyebrow">Almost Done</p>
+          <h2>Get Your Full Report</h2>
+          <p>Optional — add your info to save your results and get tips by email. Or skip straight to your score.</p>
+          <div class="contact-fields">
+            <div>
+              <label for="contactName">Your name</label>
+              <input type="text" id="contactName" placeholder="e.g. Mike Johnson" />
+            </div>
+            <div>
+              <label for="contactChurch">Church name</label>
+              <input type="text" id="contactChurch" placeholder="e.g. Grace Community Church" />
+            </div>
+            <div>
+              <label for="contactEmail">Email</label>
+              <input type="email" id="contactEmail" placeholder="e.g. mike@gracechurch.org" />
+            </div>
+            <div>
+              <label for="contactRole">Your role</label>
+              <select id="contactRole">
+                <option value="">Select...</option>
+                <option value="tech-director">Technical Director</option>
+                <option value="worship-leader">Worship Leader</option>
+                <option value="volunteer">Volunteer</option>
+                <option value="pastor">Pastor / Staff</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="contact-actions">
+            <button class="btn btn-primary" id="viewResultsBtn">View My Results</button>
+            <button class="btn btn-ghost" id="skipContactBtn">Skip &rarr;</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Screen 4: Results ── -->
+    <section id="resultsScreen" class="hidden">
+      <div class="results-wrap">
+        <div class="score-hero">
+          <p class="eyebrow">Your Results</p>
+          <div class="score-ring">
+            <svg viewBox="0 0 200 200">
+              <circle class="score-ring-bg" cx="100" cy="100" r="88" />
+              <circle class="score-ring-fill" id="scoreArc" cx="100" cy="100" r="88"
+                stroke-dasharray="553" stroke-dashoffset="553" />
+            </svg>
+            <div class="score-value">
+              <span class="score-number" id="scoreNumber">0</span>
+              <span class="score-max">/ 100</span>
+            </div>
+          </div>
+          <div class="score-grade" id="scoreGrade"></div>
+          <div class="score-label" id="scoreLabel"></div>
+        </div>
+
+        <div class="card" style="margin-bottom:24px">
+          <h3 style="margin-bottom:16px">Category Breakdown</h3>
+          <div class="category-breakdown" id="categoryBreakdown"></div>
+        </div>
+
+        <div class="risks-section card" id="risksCard">
+          <h3>Your Top Risks</h3>
+          <div id="risksList"></div>
+        </div>
+
+        <div class="fixes-section card" id="fixesCard">
+          <h3>How Tally Fixes This</h3>
+          <div id="fixesList"></div>
+        </div>
+
+        <div class="results-cta card">
+          <h3>Ready to Automate Your Production?</h3>
+          <p>Tally monitors every device, auto-recovers failures, and runs pre-service checks — so your team never flies blind again.</p>
+          <div class="btn-row">
+            <a href="/signup" class="btn btn-primary">Start Free Trial</a>
+            <button class="btn btn-ghost" id="pdfDarkBtn">Save PDF (Dark)</button>
+            <button class="btn btn-ghost" id="pdfLightBtn">Save PDF (Print)</button>
+            <button class="btn btn-ghost" id="copyResultsBtn">Copy Results</button>
+            <button class="btn btn-ghost" id="retakeBtn">Retake</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    <p>Free tool by <a href="/">TallyConnect.app</a> &mdash; Church production monitoring &amp; remote control</p>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="/tools/healthcheck/app.js"></script>
+</body>
+</html>

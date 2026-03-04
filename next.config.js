@@ -21,6 +21,26 @@ const nextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: '/tools/healthcheck',
+        destination: '/tools/healthcheck/index.html',
+      },
+      {
+        source: '/tools/healthcheck/',
+        destination: '/tools/healthcheck/index.html',
+      },
+      {
+        source: '/tools/checklist',
+        destination: '/tools/checklist/index.html',
+      },
+      {
+        source: '/tools/checklist/',
+        destination: '/tools/checklist/index.html',
+      },
+    ];
+  },
   async headers() {
     return [
       {

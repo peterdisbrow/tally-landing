@@ -13,6 +13,8 @@ export default function Footer() {
         <span style={{ color: WHITE, fontWeight: 800, fontSize: '0.95rem' }}>TALLY</span>
       </div>
       <div style={{ display: 'flex', gap: 20, fontSize: '0.82rem', flexWrap: 'wrap' }}>
+        <a href="/tools/healthcheck/" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>Health Check</a>
+        <a href="/tools/checklist/" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>Checklist Generator</a>
         <a href="/blog" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>Blog</a>
         <a href="https://api.tallyconnect.app/how-to" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>How-To Guides</a>
         <a href="/help" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>Help Center</a>
