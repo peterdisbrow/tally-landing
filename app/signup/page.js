@@ -3,16 +3,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BG, CARD_BG as CARD, BORDER, GREEN, GREEN_LT, WHITE, MUTED, DANGER } from '../../lib/tokens';
 
-const BILLING_INTERVALS = [
-  { value: 'monthly', label: 'Monthly' },
-  { value: 'annual', label: 'Annual' },
-];
-
 const TIERS = [
-  { value: 'connect', name: 'Connect', monthly: 49, annual: 490 },
-  { value: 'plus', name: 'Plus', monthly: 99, annual: 990 },
-  { value: 'pro', name: 'Pro', monthly: 149, annual: 1490 },
-  { value: 'managed', name: 'Enterprise', monthly: 499, annual: 4990 },
+  { value: 'connect', name: 'Connect' },
+  { value: 'plus', name: 'Plus' },
+  { value: 'pro', name: 'Pro' },
+  { value: 'managed', name: 'Enterprise' },
 ];
 
 export default function SignupPage() {
@@ -29,25 +24,12 @@ export default function SignupPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(null);
-  const selectedTier = TIERS.find((tier) => tier.value === form.tier) || TIERS[0];
-  const selectedAmount = form.billingInterval === 'annual' ? selectedTier.annual : selectedTier.monthly;
-
-  // Read plan + interval + referral from query params
+  // Read referral code from query params
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
-    const plan = params.get('plan');
-    const interval = params.get('interval');
     const ref = params.get('ref');
-    if (plan && TIERS.some(t => t.value === plan)) {
-      setForm(f => ({ ...f, tier: plan }));
-    }
-    if (interval === 'annual' || interval === 'monthly') {
-      setForm(f => ({ ...f, billingInterval: interval }));
-    }
-    if (ref) {
-      setReferralCode(ref);
-    }
+    if (ref) setReferralCode(ref);
   }, []);
 
   const statusMessage = useMemo(() => {
@@ -115,7 +97,7 @@ export default function SignupPage() {
         <div style={{ marginTop: 14, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
           <h1 style={{ fontSize: 28, marginBottom: 8 }}>Create Your Tally Account</h1>
           <p style={{ color: MUTED, lineHeight: 1.55, marginBottom: 18 }}>
-            Sign up, start billing checkout, then log into the desktop app with your email and password.
+            Start your free trial — no credit card required. Log into the desktop app with your email and password.
           </p>
 
           {referralCode && (
@@ -147,42 +129,6 @@ export default function SignupPage() {
             <label style={labelStyle}>Password</label>
             <input style={inputStyle} type="password" minLength={8} value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} required placeholder="Minimum 8 characters" />
 
-            <label style={labelStyle}>Plan</label>
-            <select style={inputStyle} value={form.tier} onChange={(e) => setForm((f) => ({ ...f, tier: e.target.value }))}>
-              {TIERS.map((tier) => (
-                <option key={tier.value} value={tier.value}>
-                  {tier.name} ({form.billingInterval === 'annual' ? `$${tier.annual}/yr` : `$${tier.monthly}/mo`})
-                </option>
-              ))}
-            </select>
-
-            <label style={labelStyle}>Billing Cycle</label>
-            <div style={intervalWrapStyle}>
-              {BILLING_INTERVALS.map((interval) => {
-                const active = form.billingInterval === interval.value;
-                return (
-                  <button
-                    key={interval.value}
-                    type="button"
-                    onClick={() => setForm((f) => ({ ...f, billingInterval: interval.value }))}
-                    style={{
-                      ...intervalButtonStyle,
-                      background: active ? 'rgba(34,197,94,0.18)' : 'transparent',
-                      borderColor: active ? GREEN : BORDER,
-                      color: active ? GREEN_LT : MUTED,
-                    }}
-                  >
-                    {interval.label}
-                  </button>
-                );
-              })}
-            </div>
-            <p style={{ margin: '8px 0 0', color: MUTED, fontSize: 12 }}>
-              {form.billingInterval === 'annual'
-                ? `${selectedTier.name} billed yearly at $${selectedAmount}/yr.`
-                : `${selectedTier.name} billed monthly at $${selectedAmount}/mo.`}
-            </p>
-
             <label style={checkboxRowStyle}>
               <input type="checkbox" checked={tosAccepted} onChange={(e) => setTosAccepted(e.target.checked)} style={{ marginTop: 3, accentColor: GREEN }} />
               <span>
@@ -212,7 +158,7 @@ export default function SignupPage() {
               cursor: canContinue ? 'pointer' : 'default',
               opacity: canContinue ? 1 : 0.6,
             }}>
-              {submitting ? 'Creating account…' : 'Create Account & Continue to Checkout'}
+              {submitting ? 'Creating account…' : 'Create Account & Start Free Trial'}
             </button>
           </form>
 
@@ -256,19 +202,3 @@ const inputStyle = {
   padding: '10px 12px',
 };
 
-const intervalWrapStyle = {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  gap: 8,
-};
-
-const intervalButtonStyle = {
-  border: `1px solid ${BORDER}`,
-  borderRadius: 8,
-  background: 'transparent',
-  color: MUTED,
-  fontSize: 13,
-  fontWeight: 700,
-  padding: '9px 10px',
-  cursor: 'pointer',
-};
