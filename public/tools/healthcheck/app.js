@@ -172,6 +172,7 @@ const GRADES = [
 /* ── State ── */
 let currentQ = 0;
 let answers = new Array(QUESTIONS.length).fill(-1);
+let isAnimating = false;
 
 /* ── DOM refs ── */
 const welcomeScreen = document.getElementById("welcomeScreen");
@@ -220,6 +221,9 @@ function renderQuestion() {
 }
 
 function selectAnswer(idx) {
+  if (isAnimating) return;
+  isAnimating = true;
+
   answers[currentQ] = idx;
 
   // Confirm the chosen answer and dim the rest
@@ -237,12 +241,17 @@ function selectAnswer(idx) {
       setTimeout(() => {
         currentQ++;
         renderQuestion();
+        document.activeElement?.blur();
         questionCard.classList.remove("slide-out");
         questionCard.classList.add("slide-in");
-        setTimeout(() => questionCard.classList.remove("slide-in"), 300);
+        setTimeout(() => {
+          questionCard.classList.remove("slide-in");
+          isAnimating = false;
+        }, 300);
       }, 250);
     } else {
       progressFill.style.width = "100%";
+      isAnimating = false;
       showScreen(contactScreen);
     }
   }, 400);
@@ -598,7 +607,7 @@ document.getElementById("startBtn").addEventListener("click", () => {
 });
 
 backBtn.addEventListener("click", () => {
-  if (currentQ > 0) {
+  if (currentQ > 0 && !isAnimating) {
     currentQ--;
     renderQuestion();
   }
@@ -616,6 +625,7 @@ document.getElementById("pdfLightBtn").addEventListener("click", () => generateP
 document.getElementById("retakeBtn").addEventListener("click", () => {
   currentQ = 0;
   answers = new Array(QUESTIONS.length).fill(-1);
+  isAnimating = false;
   // Reset arc
   document.getElementById("scoreArc").style.strokeDashoffset = 553;
   showScreen(welcomeScreen);
