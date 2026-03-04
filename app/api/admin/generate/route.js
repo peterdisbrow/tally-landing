@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
+import { RELAY_URL } from '../../../../lib/relay';
 
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
+const CHAT_PROXY_SECRET = process.env.CHAT_PROXY_SECRET || '';
 
 const SYSTEM_PROMPT = `You are a ghostwriter for Andrew, the founder of TallyConnect — a church production monitoring and remote control platform. You write outreach messages to church technical directors, worship leaders, and production volunteers.
 
@@ -52,8 +52,8 @@ function getToken(req) {
 }
 
 export async function POST(req) {
-  if (!ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: 'ANTHROPIC_API_KEY not configured' }, { status: 500 });
+  if (!RELAY_URL) {
+    return NextResponse.json({ error: 'Relay URL not configured' }, { status: 500 });
   }
 
   const token = getToken(req);
@@ -87,21 +87,55 @@ export async function POST(req) {
   userMsg += '\n\nWrite the message now. Output ONLY the message text — no subject lines, no labels, no explanation.';
 
   try {
-    const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
-    const response = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: userMsg }],
+    // Proxy through relay server's chat endpoint (uses relay's Anthropic API key)
+    const upstream = await fetch(`${RELAY_URL}/api/chat/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-chat-secret': CHAT_PROXY_SECRET,
+      },
+      body: JSON.stringify({
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userMsg }],
+        max_tokens: 1024,
+        temperature: 0.7,
+      }),
     });
 
-    const message = response.content?.[0]?.text || '';
+    if (!upstream.ok) {
+      const errBody = await upstream.text().catch(() => '');
+      console.error('Generate proxy error:', upstream.status, errBody.slice(0, 200));
+      return NextResponse.json({ error: 'Failed to generate message' }, { status: 500 });
+    }
+
+    // Collect SSE stream into full text
+    const reader = upstream.body.getReader();
+    const decoder = new TextDecoder();
+    let message = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      // Parse SSE lines: "data: {...}"
+      for (const line of chunk.split('\n')) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+        try {
+          const evt = JSON.parse(data);
+          if (evt.type === 'content_block_delta' && evt.delta?.text) {
+            message += evt.delta.text;
+          }
+        } catch {
+          // skip unparseable lines
+        }
+      }
+    }
+
     return NextResponse.json({ message });
   } catch (err) {
     console.error('Generate API error:', err.message);
-    return NextResponse.json(
-      { error: 'Failed to generate message' },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: 'Failed to generate message' }, { status: 500 });
   }
 }
