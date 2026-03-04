@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pre-Service Checklist Generator — TallyConnect</title>
-  <meta name="description" content="Generate a custom pre-service checklist based on your exact gear stack. Free tool from TallyConnect." />
+  <title>Pre-Service Checklist Generator — Tally</title>
+  <meta name="description" content="Generate a custom pre-service checklist based on your exact gear stack. Free tool from Tally." />
   <meta property="og:title" content="Pre-Service Checklist Generator" />
-  <meta property="og:description" content="Custom pre-service checklist for your church's exact gear stack. Free from TallyConnect." />
+  <meta property="og:description" content="Custom pre-service checklist for your church's exact gear stack. Free from Tally." />
   <meta property="og:type" content="website" />
   <link rel="stylesheet" href="/tools/styles.css" />
   <style>
@@ -264,6 +264,76 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    /* ── Contact form ── */
+    .contact-card { animation: fadeUp 0.35s ease; }
+    .contact-card h2 { margin-bottom: 8px; }
+    .contact-fields { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+    .contact-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    /* ── Other gear input ── */
+    .gear-other-wrap {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+    .gear-other-wrap input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 0.88rem;
+      padding: 4px 0;
+      outline: none;
+    }
+    .gear-other-wrap input:focus {
+      border-bottom-color: var(--accent);
+    }
+    .gear-other-wrap input::placeholder {
+      color: var(--text-muted);
+    }
+    .gear-other-btn {
+      background: var(--accent);
+      color: var(--on-accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+    .gear-other-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    .custom-gear-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(34,197,94,0.06);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+    .custom-gear-tag button {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0;
+      line-height: 1;
+    }
+
     .hidden { display: none !important; }
 
     @keyframes fadeUp {
@@ -285,7 +355,7 @@
 <body>
   <!-- Header -->
   <header class="site-header">
-    <a href="/" class="logo">Tally<span>Connect</span></a>
+    <a href="/" class="logo">Tally</a>
     <nav>
       <a href="/">Home</a>
       <a href="/tools/healthcheck/">Health Check</a>
@@ -307,12 +377,52 @@
       <div class="builder-wrap" id="builderContent"></div>
     </section>
 
+    <!-- ── Contact (optional) ── -->
+    <section id="contactScreen" class="hidden">
+      <div class="builder-wrap">
+        <div class="contact-card card">
+          <p class="eyebrow">Almost Done</p>
+          <h2>Get Your Checklist</h2>
+          <p style="margin-bottom:24px;font-size:0.92rem">Optional — add your info so we can send you tips on automating your setup. Or skip straight to your checklist.</p>
+          <div class="contact-fields">
+            <div>
+              <label for="contactName">Your name</label>
+              <input type="text" id="contactName" placeholder="e.g. Mike Johnson" />
+            </div>
+            <div>
+              <label for="contactChurch">Church name</label>
+              <input type="text" id="contactChurch" placeholder="e.g. Grace Community Church" />
+            </div>
+            <div>
+              <label for="contactEmail">Email</label>
+              <input type="email" id="contactEmail" placeholder="e.g. mike@gracechurch.org" />
+            </div>
+            <div>
+              <label for="contactRole">Your role</label>
+              <select id="contactRole">
+                <option value="">Select...</option>
+                <option value="tech-director">Technical Director</option>
+                <option value="worship-leader">Worship Leader</option>
+                <option value="volunteer">Volunteer</option>
+                <option value="pastor">Pastor / Staff</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="contact-actions">
+            <button class="btn btn-primary" id="viewChecklistBtn">View My Checklist</button>
+            <button class="btn btn-ghost" id="skipContactBtn">Skip &rarr;</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ── Generated Checklist ── -->
     <section id="checklistScreen" class="hidden">
       <div class="builder-wrap">
         <div class="checklist-output" id="checklistOutput"></div>
         <div class="print-footer">
-          Generated by TallyConnect.app &mdash; Automate this checklist with Tally
+          Generated by tallyconnect.app &mdash; Automate this checklist with Tally
         </div>
         <div class="checklist-cta card no-print">
           <h3>Running This Manually Every Sunday?</h3>
@@ -330,7 +440,7 @@
   </div>
 
   <footer class="site-footer">
-    <p>Free tool by <a href="/">TallyConnect.app</a> &mdash; Church production monitoring &amp; remote control</p>
+    <p>Free tool by <a href="/">tallyconnect.app</a> &mdash; Church production monitoring &amp; remote control</p>
   </footer>
 
   <div class="toast" id="toast"></div>

@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Church Production Health Check — TallyConnect</title>
+  <title>Church Production Health Check — Tally</title>
   <meta name="description" content="Free 2-minute assessment. Find out how reliable your church production really is — and what to fix first." />
   <meta property="og:title" content="Church Production Health Check" />
-  <meta property="og:description" content="Score your church's production reliability in 2 minutes. Free assessment from TallyConnect." />
+  <meta property="og:description" content="Score your church's production reliability in 2 minutes. Free assessment from Tally." />
   <meta property="og:type" content="website" />
   <link rel="stylesheet" href="/tools/styles.css" />
   <style>
@@ -44,6 +44,12 @@
     }
     .question-card {
       animation: fadeUp 0.35s ease;
+    }
+    .question-card.slide-out {
+      animation: slideOut 0.25s ease forwards;
+    }
+    .question-card.slide-in {
+      animation: slideIn 0.3s ease forwards;
     }
     .question-card .category-badge {
       margin-bottom: 16px;
@@ -106,6 +112,22 @@
       background: var(--accent);
       border-color: var(--accent);
       color: var(--on-accent);
+    }
+    .option-btn.confirmed {
+      border-color: var(--accent);
+      background: rgba(34,197,94,0.12);
+      pointer-events: none;
+    }
+    .option-btn.confirmed .option-key {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--on-accent);
+    }
+    .option-btn:not(.confirmed):not(.selected) {
+      transition: opacity 0.2s;
+    }
+    .options.answered .option-btn:not(.confirmed) {
+      opacity: 0.35;
     }
 
     /* Back button */
@@ -300,12 +322,20 @@
       from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+    @keyframes slideOut {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(-40px); }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(40px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
   </style>
 </head>
 <body>
   <!-- Header -->
   <header class="site-header">
-    <a href="/" class="logo">Tally<span>Connect</span></a>
+    <a href="/" class="logo">Tally</a>
     <nav>
       <a href="/">Home</a>
       <a href="/tools/checklist/">Checklist</a>
@@ -426,7 +456,7 @@
   </div>
 
   <footer class="site-footer">
-    <p>Free tool by <a href="/">TallyConnect.app</a> &mdash; Church production monitoring &amp; remote control</p>
+    <p>Free tool by <a href="/">tallyconnect.app</a> &mdash; Church production monitoring &amp; remote control</p>
   </footer>
 
   <div class="toast" id="toast"></div>
