@@ -19,7 +19,13 @@ async function backupToFile(entry) {
   } catch {}
 }
 
-async function addTagToMember(email) {
+const VALID_SOURCES = {
+  'early-access': 'tally-early-access',
+  'healthcheck': 'healthcheck-lead',
+  'checklist': 'checklist-lead',
+};
+
+async function addTagToMember(email, tag) {
   try {
     const md5 = (await import('crypto')).createHash('md5').update(email.toLowerCase()).digest('hex');
     await fetch(`https://${DC}.api.mailchimp.com/3.0/lists/${AUDIENCE_ID}/members/${md5}/tags`, {
@@ -28,7 +34,7 @@ async function addTagToMember(email) {
         'Authorization': `Basic ${Buffer.from(`anystring:${MAILCHIMP_API_KEY}`).toString('base64')}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ tags: [{ name: 'tally-early-access', status: 'active' }] }),
+      body: JSON.stringify({ tags: [{ name: tag, status: 'active' }] }),
     });
   } catch {}
 }
@@ -40,12 +46,13 @@ export async function POST(request) {
   }
 
   try {
-    const { name, church, email } = await request.json();
+    const { name, church, email, source, role, score } = await request.json();
     if (!name || !email) {
       return NextResponse.json({ success: false, error: 'Name and email required' }, { status: 400 });
     }
 
-    const entry = { name, church, email, date: new Date().toISOString() };
+    const tag = VALID_SOURCES[source] || VALID_SOURCES['early-access'];
+    const entry = { name, church, email, source: source || 'early-access', role, score, date: new Date().toISOString() };
     await backupToFile(entry);
 
     if (!MAILCHIMP_API_KEY) {
@@ -64,7 +71,7 @@ export async function POST(request) {
         email_address: email,
         status: 'subscribed',
         merge_fields: mergeFields,
-        tags: ['tally-early-access'],
+        tags: [tag],
       }),
     });
 
@@ -72,7 +79,7 @@ export async function POST(request) {
       const data = await res.json();
       // Already subscribed — just update tags
       if (data.title === 'Member Exists') {
-        await addTagToMember(email);
+        await addTagToMember(email, tag);
         return NextResponse.json({ success: true, message: "You're on the list!" });
       }
       // CHURCH merge field might not exist — retry without it
@@ -84,13 +91,13 @@ export async function POST(request) {
             email_address: email,
             status: 'subscribed',
             merge_fields: { FNAME: name },
-            tags: ['tally-early-access'],
+            tags: [tag],
           }),
         });
         if (res2.ok) return NextResponse.json({ success: true, message: "You're on the list!" });
         const d2 = await res2.json();
         if (d2.title === 'Member Exists') {
-          await addTagToMember(email);
+          await addTagToMember(email, tag);
           return NextResponse.json({ success: true, message: "You're on the list!" });
         }
       }

@@ -665,6 +665,24 @@ function showToast(msg) {
 }
 
 /* ──────────────────────────────────────
+   Lead Capture
+   ────────────────────────────────────── */
+function submitLead(source) {
+  const name = document.getElementById("contactName").value.trim();
+  const email = document.getElementById("contactEmail").value.trim();
+  const church = document.getElementById("contactChurch").value.trim();
+  const role = document.getElementById("contactRole").value;
+
+  if (!name || !email) return;
+
+  fetch("/api/early-access", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email, church, role, source }),
+  }).catch(() => {});
+}
+
+/* ──────────────────────────────────────
    Event Listeners
    ────────────────────────────────────── */
 document.getElementById("startBtn").addEventListener("click", () => {
@@ -672,7 +690,10 @@ document.getElementById("startBtn").addEventListener("click", () => {
   renderGearStep();
 });
 
-document.getElementById("viewChecklistBtn").addEventListener("click", generateChecklist);
+document.getElementById("viewChecklistBtn").addEventListener("click", () => {
+  submitLead("checklist");
+  generateChecklist();
+});
 document.getElementById("skipContactBtn").addEventListener("click", generateChecklist);
 
 document.getElementById("copyMdBtn").addEventListener("click", copyAsMarkdown);

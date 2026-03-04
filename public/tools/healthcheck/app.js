@@ -571,6 +571,24 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove("show"), 2500);
 }
 
+/* ── Lead capture ── */
+function submitLead(source) {
+  const name = document.getElementById("contactName").value.trim();
+  const email = document.getElementById("contactEmail").value.trim();
+  const church = document.getElementById("contactChurch").value.trim();
+  const role = document.getElementById("contactRole").value;
+
+  if (!name || !email) return; // silently skip if fields empty
+
+  const { total } = calcScores();
+
+  fetch("/api/early-access", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email, church, role, source, score: total }),
+  }).catch(() => {}); // fire-and-forget
+}
+
 /* ── Event listeners ── */
 document.getElementById("startBtn").addEventListener("click", () => {
   currentQ = 0;
@@ -586,7 +604,10 @@ backBtn.addEventListener("click", () => {
   }
 });
 
-document.getElementById("viewResultsBtn").addEventListener("click", showResults);
+document.getElementById("viewResultsBtn").addEventListener("click", () => {
+  submitLead("healthcheck");
+  showResults();
+});
 document.getElementById("skipContactBtn").addEventListener("click", showResults);
 document.getElementById("copyResultsBtn").addEventListener("click", copyResults);
 document.getElementById("pdfDarkBtn").addEventListener("click", () => generatePDF("dark"));
