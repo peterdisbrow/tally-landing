@@ -1,4 +1,6 @@
 import { BG, CARD_BG as CARD, BORDER, GREEN, WHITE, MUTED } from '../../lib/tokens';
+import Nav from '../components/Nav';
+import Footer from '../components/Footer';
 
 export const metadata = {
   title: 'Terms of Service — Tally',
@@ -6,21 +8,21 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        background: BG,
-        color: WHITE,
-        fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
-        padding: '48px 20px',
-      }}
-    >
-      <div style={{ maxWidth: 760, margin: '0 auto' }}>
-        <a href="/" style={{ color: MUTED, textDecoration: 'none', fontSize: 13 }}>
-          &larr; Back to Home
-        </a>
-
-        <div
+    <>
+      <Nav />
+      <main
+        style={{
+          minHeight: '100vh',
+          background: BG,
+          color: WHITE,
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+          paddingTop: 80,
+          paddingLeft: 20,
+          paddingRight: 20,
+        }}
+      >
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <div
           style={{
             marginTop: 14,
             background: CARD,
@@ -323,6 +325,8 @@ export default function TermsPage() {
         </div>
       </div>
     </main>
+    <Footer />
+    </>
   );
 }
 

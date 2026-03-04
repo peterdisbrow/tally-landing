@@ -1,6 +1,8 @@
 import { BG, CARD_BG, BORDER, GREEN, WHITE, MUTED } from '../../lib/tokens';
 import { BLOG_POSTS } from '../../lib/blog';
 import BlogCard from '../components/BlogCard';
+import Nav from '../components/Nav';
+import Footer from '../components/Footer';
 
 export const metadata = {
   title: 'Blog — Tally',
@@ -35,28 +37,28 @@ export default function BlogIndex() {
   };
 
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        background: BG,
-        color: WHITE,
-        fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
-        padding: '48px 20px 80px',
-      }}
-    >
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+    <>
+      <Nav />
+      <main
+        style={{
+          minHeight: '100vh',
+          background: BG,
+          color: WHITE,
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+          paddingTop: 80,
+          paddingLeft: 20,
+          paddingRight: 20,
+          paddingBottom: 80,
+        }}
+      >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
 
-      <div style={{ maxWidth: 900, margin: '0 auto' }}>
-        {/* Back link */}
-        <a href="/" style={{ color: MUTED, textDecoration: 'none', fontSize: 13 }}>
-          &larr; Back to Home
-        </a>
-
-        {/* Header */}
-        <div style={{ marginTop: 24, marginBottom: 40 }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          {/* Header */}
+          <div style={{ marginBottom: 40 }}>
           <span
             style={{
               display: 'inline-block',
@@ -93,5 +95,7 @@ export default function BlogIndex() {
         </div>
       </div>
     </main>
+    <Footer />
+    </>
   );
 }

@@ -3,6 +3,8 @@ import { BG, CARD_BG, BORDER, GREEN, WHITE, MUTED, DIM } from '../../../lib/toke
 import { BLOG_POSTS, getPostBySlug, getAllSlugs, getRelatedPosts } from '../../../lib/blog';
 import BlogCTA from '../../components/BlogCTA';
 import BlogCard from '../../components/BlogCard';
+import Nav from '../../components/Nav';
+import Footer from '../../components/Footer';
 
 export function generateStaticParams() {
   return getAllSlugs();
@@ -66,27 +68,27 @@ export default async function BlogPost({ params }) {
   };
 
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        background: BG,
-        color: WHITE,
-        fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
-        padding: '48px 20px 80px',
-      }}
-    >
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+    <>
+      <Nav />
+      <main
+        style={{
+          minHeight: '100vh',
+          background: BG,
+          color: WHITE,
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+          paddingTop: 80,
+          paddingLeft: 20,
+          paddingRight: 20,
+          paddingBottom: 80,
+        }}
+      >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
 
-      <div style={{ maxWidth: 720, margin: '0 auto' }}>
-        {/* Back link */}
-        <a href="/blog" style={{ color: MUTED, textDecoration: 'none', fontSize: 13 }}>
-          &larr; Back to Blog
-        </a>
-
-        {/* Article card */}
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          {/* Article card */}
         <div
           style={{
             marginTop: 14,
@@ -158,5 +160,7 @@ export default async function BlogPost({ params }) {
         )}
       </div>
     </main>
+    <Footer />
+    </>
   );
 }

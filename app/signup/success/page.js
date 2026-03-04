@@ -2,6 +2,8 @@
 
 import { useMemo } from 'react';
 import { BG, CARD_BG as CARD, BORDER, GREEN, WHITE, MUTED } from '../../../lib/tokens';
+import Nav from '../../components/Nav';
+import Footer from '../../components/Footer';
 
 // Page-specific tokens
 const DIM = '#64748B';
@@ -24,11 +26,11 @@ export default function SignupSuccessPage() {
   }, []);
 
   return (
-    <main style={{ minHeight: '100vh', background: BG, color: WHITE, fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif", padding: '48px 20px' }}>
+    <>
+    <Nav />
+    <main style={{ minHeight: '100vh', background: BG, color: WHITE, fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif", paddingTop: 80, paddingLeft: 20, paddingRight: 20 }}>
       <div style={{ maxWidth: 580, margin: '0 auto' }}>
-        <a href="/" style={{ color: MUTED, textDecoration: 'none', fontSize: 13 }}>&larr; Back to Home</a>
-
-        <div style={{ marginTop: 14, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '32px 28px' }}>
+        <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '32px 28px' }}>
 
           {/* Success Header */}
           <div style={{ textAlign: 'center', marginBottom: 32 }}>
@@ -129,6 +131,8 @@ export default function SignupSuccessPage() {
         </div>
       </div>
     </main>
+    <Footer />
+    </>
   );
 }
 

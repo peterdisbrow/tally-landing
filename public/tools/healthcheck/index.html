@@ -21,7 +21,7 @@
     /* Progress */
     .quiz-progress {
       position: sticky;
-      top: 0;
+      top: 64px;
       z-index: 10;
       background: var(--bg);
       padding: 16px 0 12px;
@@ -342,12 +342,27 @@
 <body>
   <!-- Header -->
   <header class="site-header">
-    <a href="/" class="logo">Tally</a>
-    <nav>
-      <a href="/">Home</a>
-      <a href="/tools/checklist/">Checklist</a>
-    </nav>
+    <a href="/" class="logo"><span class="dot"></span> Tally</a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#the-app">The App</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/tools/healthcheck/">Free Tools</a>
+      <a href="/blog">Blog</a>
+      <a href="/signin">Sign In</a>
+      <a href="/signup" class="nav-cta">Get Started Free</a>
+    </div>
+    <button class="menu-btn" aria-label="Open menu" onclick="document.getElementById('mobileMenu').classList.toggle('open'); this.textContent = this.textContent === '✕' ? '☰' : '✕';">☰</button>
   </header>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="/#features">Features</a>
+    <a href="/#the-app">The App</a>
+    <a href="/#pricing">Pricing</a>
+    <a href="/tools/healthcheck/">Free Tools</a>
+    <a href="/blog">Blog</a>
+    <a href="/signin">Sign In</a>
+    <a href="/signup">Get Started Free</a>
+  </div>
 
   <div class="container">
     <!-- ── Screen 1: Welcome ── -->
@@ -463,7 +478,17 @@
   </div>
 
   <footer class="site-footer">
-    <p>Free tool by <a href="/">tallyconnect.app</a> &mdash; Church production monitoring &amp; remote control</p>
+    <div class="footer-brand"><span class="dot"></span> <span>TALLY</span></div>
+    <div class="footer-links">
+      <a href="/tools/healthcheck/">Health Check</a>
+      <a href="/tools/checklist/">Checklist Generator</a>
+      <a href="/blog">Blog</a>
+      <a href="https://api.tallyconnect.app/how-to">How-To Guides</a>
+      <a href="/help">Help Center</a>
+      <a href="/terms">Terms of Service</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="https://tallyconnect.app">tallyconnect.app</a>
+    </div>
   </footer>
 
   <div class="toast" id="toast"></div>

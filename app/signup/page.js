@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { BG, CARD_BG as CARD, BORDER, GREEN, GREEN_LT, WHITE, MUTED, DANGER } from '../../lib/tokens';
+import Nav from '../components/Nav';
+import Footer from '../components/Footer';
 
 const TIERS = [
   { value: 'connect', name: 'Connect' },
@@ -90,11 +92,11 @@ export default function SignupPage() {
   }
 
   return (
-    <main style={{ minHeight: '100vh', background: BG, color: WHITE, fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif", padding: '48px 20px' }}>
+    <>
+    <Nav />
+    <main style={{ minHeight: '100vh', background: BG, color: WHITE, fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif", paddingTop: 80, paddingLeft: 20, paddingRight: 20 }}>
       <div style={{ maxWidth: 520, margin: '0 auto' }}>
-        <a href="/" style={{ color: MUTED, textDecoration: 'none', fontSize: 13 }}>← Back to Home</a>
-
-        <div style={{ marginTop: 14, background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
+        <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
           <h1 style={{ fontSize: 28, marginBottom: 8 }}>Create Your Tally Account</h1>
           <p style={{ color: MUTED, lineHeight: 1.55, marginBottom: 18 }}>
             Start your free trial — no credit card required. Log into the desktop app with your email and password.
@@ -170,6 +172,8 @@ export default function SignupPage() {
         </div>
       </div>
     </main>
+    <Footer />
+    </>
   );
 }
 
