@@ -58,7 +58,7 @@ export async function POST(request) {
       body: JSON.stringify({
         system: SYSTEM_PROMPT,
         messages,
-        max_tokens: 150,
+        max_tokens: 250,
         temperature: 0.7,
       }),
     });
