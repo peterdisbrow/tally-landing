@@ -38,7 +38,7 @@ export async function POST(request) {
   }
 
   /* ── Build messages array ── */
-  const turns = Array.isArray(history) ? history.slice(-20) : [];
+  const turns = Array.isArray(history) ? history.slice(-8) : [];
   const messages = [
     ...turns.map(m => ({
       role: m.role === 'user' ? 'user' : 'assistant',
@@ -58,7 +58,7 @@ export async function POST(request) {
       body: JSON.stringify({
         system: SYSTEM_PROMPT,
         messages,
-        max_tokens: 300,
+        max_tokens: 150,
         temperature: 0.7,
       }),
     });
