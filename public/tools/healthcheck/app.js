@@ -242,11 +242,20 @@ function selectAnswer(idx) {
         currentQ++;
         renderQuestion();
         document.activeElement?.blur();
+        // Suppress hover flash until the user actually moves their mouse
+        const opts = questionCard.querySelector(".options");
+        if (opts) opts.classList.add("no-hover");
         questionCard.classList.remove("slide-out");
         questionCard.classList.add("slide-in");
         setTimeout(() => {
           questionCard.classList.remove("slide-in");
           isAnimating = false;
+          // Listen for real mouse movement AFTER animation settles
+          if (opts) {
+            questionCard.addEventListener("pointermove", () => {
+              opts.classList.remove("no-hover");
+            }, { once: true });
+          }
         }, 300);
       }, 250);
     } else {
