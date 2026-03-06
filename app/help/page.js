@@ -1,11 +1,67 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { BG, CARD_BG as CARD, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens';
 import Nav from '../components/Nav';
 import Footer from '../components/Footer';
 
 export default function HelpPage() {
+  const [search, setSearch] = useState('');
+  const q = search.toLowerCase().trim();
+
+  const match = useCallback(
+    (title) => !q || title.toLowerCase().includes(q),
+    [q]
+  );
+
+  /* Check if any item in a category matches */
+  const catMatch = useCallback(
+    (titles) => !q || titles.some((t) => t.toLowerCase().includes(q)),
+    [q]
+  );
+
+  const gettingStartedTitles = [
+    'Your first 15 minutes with Tally',
+    'Connecting your equipment',
+    'Setting up your service schedule',
+    'System requirements',
+  ];
+  const featuresTitles = [
+    'Understanding alerts',
+    'Auto-recovery explained',
+    'On-call TD rotation',
+    'AI Autopilot rules',
+    'Pre-service checks',
+    'Session recaps',
+    'Remote control',
+    'Live video preview',
+  ];
+  const troubleshootingTitles = [
+    'Stream went down',
+    'ATEM disconnected',
+    'OBS not responding',
+    'Audio issues detected',
+    'Equipment offline between services',
+    'Tally app not connecting to relay',
+  ];
+  const billingTitles = [
+    'Managing your subscription',
+    'Trial information',
+    'Refund policy',
+    'Does Tally work without an ATEM?',
+    'Can I use Tally for a one-time event?',
+    'What happens if my internet goes down?',
+    'Is my video stream data stored?',
+    'Can multiple TDs use Tally?',
+    'What operating systems are supported?',
+  ];
+
+  const totalMatches = q
+    ? [...gettingStartedTitles, ...featuresTitles, ...troubleshootingTitles, ...billingTitles].filter(
+        (t) => t.toLowerCase().includes(q)
+      ).length
+    : 0;
+
   return (
     <>
       <Nav />
@@ -31,14 +87,51 @@ export default function HelpPage() {
           }}
         >
           <h1 style={{ fontSize: 28, marginBottom: 8 }}>Help &amp; Support</h1>
-          <p style={{ color: MUTED, fontSize: 13, marginBottom: 32 }}>
+          <p style={{ color: MUTED, fontSize: 13, marginBottom: 20 }}>
             Everything you need to get the most out of Tally.
           </p>
 
-          {/* ── Category 1: Getting Started ── */}
-          <CategoryHeading>Getting Started</CategoryHeading>
+          {/* ── Search bar ── */}
+          <div style={{ position: 'relative', marginBottom: 28 }}>
+            <svg
+              width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke={DIM} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search help articles..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '10px 12px 10px 36px',
+                background: BG,
+                border: `1px solid ${BORDER}`,
+                borderRadius: 8,
+                color: WHITE,
+                fontSize: 14,
+                fontFamily: 'inherit',
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+              onFocus={(e) => { e.target.style.borderColor = GREEN; }}
+              onBlur={(e) => { e.target.style.borderColor = BORDER; }}
+            />
+            {q && (
+              <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: MUTED }}>
+                {totalMatches} result{totalMatches !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
 
-          <AccordionItem title="Your first 15 minutes with Tally">
+          {/* ── Category 1: Getting Started ── */}
+          {catMatch(gettingStartedTitles) && <CategoryHeading>Getting Started</CategoryHeading>}
+
+          <AccordionItem title="Your first 15 minutes with Tally" hidden={!match('Your first 15 minutes with Tally')}>
             <ol style={olStyle}>
               <li>Create your account at <a href="https://tallyconnect.app/signup" style={linkStyle}>tallyconnect.app/signup</a></li>
               <li>Choose your plan (30-day free trial included)</li>
@@ -49,7 +142,7 @@ export default function HelpPage() {
             </ol>
           </AccordionItem>
 
-          <AccordionItem title="Connecting your equipment">
+          <AccordionItem title="Connecting your equipment" hidden={!match('Connecting your equipment')}>
             <ul style={ulStyle}>
               <li>
                 <strong style={{ color: WHITE }}>ATEM Switcher</strong> — Tally auto-discovers ATEM on your network. Ensure the booth computer and ATEM are on the same subnet.
@@ -72,7 +165,7 @@ export default function HelpPage() {
             </ul>
           </AccordionItem>
 
-          <AccordionItem title="Setting up your service schedule">
+          <AccordionItem title="Setting up your service schedule" hidden={!match('Setting up your service schedule')}>
             <p style={paraStyle}>
               Service windows tell Tally when your services happen. This affects:
             </p>
@@ -86,10 +179,30 @@ export default function HelpPage() {
             </p>
           </AccordionItem>
 
-          {/* ── Category 2: Features ── */}
-          <CategoryHeading>Features</CategoryHeading>
+          <AccordionItem title="System requirements" hidden={!match('System requirements')}>
+            <ul style={ulStyle}>
+              <li>
+                <strong style={{ color: WHITE }}>Operating system</strong> — Windows 10/11 or macOS 12+ (Monterey or later)
+              </li>
+              <li>
+                <strong style={{ color: WHITE }}>Network</strong> — The booth computer and all monitored devices must be on the same local network (same subnet recommended)
+              </li>
+              <li>
+                <strong style={{ color: WHITE }}>Internet</strong> — Stable broadband connection required for remote monitoring, alerts, and relay communication
+              </li>
+              <li>
+                <strong style={{ color: WHITE }}>Ports</strong> — Outbound HTTPS (443) and WSS (443) must not be blocked by firewall
+              </li>
+              <li>
+                <strong style={{ color: WHITE }}>CPU / RAM</strong> — Minimal footprint. Tally runs alongside OBS, vMix, or ProPresenter without noticeable impact
+              </li>
+            </ul>
+          </AccordionItem>
 
-          <AccordionItem title="Understanding alerts">
+          {/* ── Category 2: Features ── */}
+          {catMatch(featuresTitles) && <CategoryHeading>Features</CategoryHeading>}
+
+          <AccordionItem title="Understanding alerts" hidden={!match('Understanding alerts')}>
             <p style={paraStyle}>Tally classifies alerts by severity:</p>
             <ul style={ulStyle}>
               <li>
@@ -110,7 +223,7 @@ export default function HelpPage() {
             </p>
           </AccordionItem>
 
-          <AccordionItem title="Auto-recovery explained">
+          <AccordionItem title="Auto-recovery explained" hidden={!match('Auto-recovery explained')}>
             <p style={paraStyle}>
               When Tally detects certain failures, it attempts to fix them automatically before alerting you:
             </p>
@@ -130,7 +243,7 @@ export default function HelpPage() {
             </p>
           </AccordionItem>
 
-          <AccordionItem title="On-call TD rotation">
+          <AccordionItem title="On-call TD rotation" hidden={!match('On-call TD rotation')}>
             <p style={paraStyle}>On-call routing ensures alerts reach the right person:</p>
             <ol style={olStyle}>
               <li>Add your tech directors in the Portal (Tech Directors tab) with their Telegram accounts</li>
@@ -142,7 +255,7 @@ export default function HelpPage() {
             </ol>
           </AccordionItem>
 
-          <AccordionItem title="AI Autopilot rules">
+          <AccordionItem title="AI Autopilot rules" hidden={!match('AI Autopilot rules')}>
             <p style={paraStyle}>
               <span style={badgeStyleAlt}>Pro</span> <span style={badgeStyleAlt}>Enterprise</span> — Create automation rules that run during services. Three trigger types:
             </p>
@@ -162,7 +275,7 @@ export default function HelpPage() {
             </p>
           </AccordionItem>
 
-          <AccordionItem title="Pre-service checks">
+          <AccordionItem title="Pre-service checks" hidden={!match('Pre-service checks')}>
             <p style={paraStyle}>
               25-35 minutes before each scheduled service, Tally automatically checks:
             </p>
@@ -180,7 +293,7 @@ export default function HelpPage() {
             </p>
           </AccordionItem>
 
-          <AccordionItem title="Session recaps">
+          <AccordionItem title="Session recaps" hidden={!match('Session recaps')}>
             <p style={paraStyle}>After each service, Tally generates a recap including:</p>
             <ul style={ulStyle}>
               <li><strong style={{ color: WHITE }}>Grade</strong> — Clean (no issues), Minor (auto-resolved), or Intervention needed (required manual action)</li>
@@ -195,7 +308,7 @@ export default function HelpPage() {
             </p>
           </AccordionItem>
 
-          <AccordionItem title="Remote control">
+          <AccordionItem title="Remote control" hidden={!match('Remote control')}>
             <p style={paraStyle}>
               Send commands to your equipment from anywhere:
             </p>
@@ -216,10 +329,22 @@ export default function HelpPage() {
             </p>
           </AccordionItem>
 
-          {/* ── Category 3: Troubleshooting ── */}
-          <CategoryHeading>Troubleshooting</CategoryHeading>
+          <AccordionItem title="Live video preview" hidden={!match('Live video preview')}>
+            <p style={paraStyle}>
+              <span style={badgeStyleAlt}>Plus+</span> <span style={badgeStyleAlt}>Pro</span> <span style={badgeStyleAlt}>Enterprise</span> — See a live, low-latency preview of your stream output directly in the Tally dashboard or admin portal.
+            </p>
+            <ul style={ulStyle}>
+              <li>Requires a Tally Box or HDMI capture device connected to your ATEM aux output</li>
+              <li>Preview streams at approximately 3 Mbps H.264 over a secure relay connection</li>
+              <li>Accessible from any browser — no special software needed on the viewing end</li>
+              <li>Preview frames are transient and never stored on our servers</li>
+            </ul>
+          </AccordionItem>
 
-          <AccordionItem title="Stream went down">
+          {/* ── Category 3: Troubleshooting ── */}
+          {catMatch(troubleshootingTitles) && <CategoryHeading>Troubleshooting</CategoryHeading>}
+
+          <AccordionItem title="Stream went down" hidden={!match('Stream went down')}>
             <ol style={olStyle}>
               <li>Tally auto-recovery will attempt to restart the stream (waits 10s, then sends restart command)</li>
               <li>
@@ -236,7 +361,7 @@ export default function HelpPage() {
             </ol>
           </AccordionItem>
 
-          <AccordionItem title="ATEM disconnected">
+          <AccordionItem title="ATEM disconnected" hidden={!match('ATEM disconnected')}>
             <p style={paraStyle}>Common causes:</p>
             <ul style={ulStyle}>
               <li>ATEM IP address changed (check ATEM Setup utility)</li>
@@ -249,14 +374,14 @@ export default function HelpPage() {
             </p>
           </AccordionItem>
 
-          <AccordionItem title="OBS not responding">
+          <AccordionItem title="OBS not responding" hidden={!match('OBS not responding')}>
             <p style={paraStyle}>Causes: OBS crashed, WebSocket server disabled, port conflict.</p>
             <p style={{ ...paraStyle, marginTop: 8 }}>
               <strong style={{ color: WHITE }}>Fix:</strong> Check if OBS is running on the booth computer, verify WebSocket server is enabled (Tools &rarr; WebSocket Server Settings), restart OBS if needed, check that port 4455 is not blocked.
             </p>
           </AccordionItem>
 
-          <AccordionItem title="Audio issues detected">
+          <AccordionItem title="Audio issues detected" hidden={!match('Audio issues detected')}>
             <p style={paraStyle}>
               Tally can detect audio silence during streams. Causes: mixer master muted, audio routing misconfigured, cable disconnected.
             </p>
@@ -265,7 +390,7 @@ export default function HelpPage() {
             </p>
           </AccordionItem>
 
-          <AccordionItem title="Equipment offline between services">
+          <AccordionItem title="Equipment offline between services" hidden={!match('Equipment offline between services')}>
             <p style={paraStyle}>
               If Tally reports equipment offline outside service hours, common causes:
             </p>
@@ -280,10 +405,24 @@ export default function HelpPage() {
             </p>
           </AccordionItem>
 
-          {/* ── Category 4: Billing & Account ── */}
-          <CategoryHeading>Billing &amp; Account</CategoryHeading>
+          <AccordionItem title="Tally app not connecting to relay" hidden={!match('Tally app not connecting to relay')}>
+            <p style={paraStyle}>If the Tally desktop app shows &ldquo;Disconnected&rdquo; or &ldquo;Relay unreachable&rdquo;:</p>
+            <ol style={olStyle}>
+              <li>Check your internet connection — the app needs outbound HTTPS/WSS on port 443</li>
+              <li>Verify your registration code is correct in the app settings</li>
+              <li>Check if your firewall or corporate network blocks WebSocket connections</li>
+              <li>Try restarting the Tally app</li>
+              <li>If the issue persists, check <a href="https://status.tallyconnect.app" style={linkStyle}>status.tallyconnect.app</a> for any service disruptions</li>
+            </ol>
+            <p style={{ ...paraStyle, marginTop: 12 }}>
+              <strong style={{ color: WHITE }}>Note:</strong> Local monitoring and auto-recovery continue to work even while the relay is unreachable. Only remote access and alert delivery are affected.
+            </p>
+          </AccordionItem>
 
-          <AccordionItem title="Managing your subscription">
+          {/* ── Category 4: Billing & Account ── */}
+          {catMatch(billingTitles) && <CategoryHeading>Billing &amp; Account</CategoryHeading>}
+
+          <AccordionItem title="Managing your subscription" hidden={!match('Managing your subscription')}>
             <p style={paraStyle}>
               Manage your subscription from the Church Portal Billing tab. You can:
             </p>
@@ -299,7 +438,7 @@ export default function HelpPage() {
             </p>
           </AccordionItem>
 
-          <AccordionItem title="Trial information">
+          <AccordionItem title="Trial information" hidden={!match('Trial information')}>
             <p style={paraStyle}>
               Every new account starts with a 30-day free trial of your selected plan.
             </p>
@@ -311,7 +450,7 @@ export default function HelpPage() {
             </ul>
           </AccordionItem>
 
-          <AccordionItem title="Refund policy">
+          <AccordionItem title="Refund policy" hidden={!match('Refund policy')}>
             <p style={paraStyle}>
               Cancel anytime — your service continues through the end of the current billing period. We do not offer refunds for partial months. If you are unhappy with Tally, cancel before your next billing date.
             </p>
@@ -320,35 +459,65 @@ export default function HelpPage() {
             </p>
           </AccordionItem>
 
-          <AccordionItem title="Does Tally work without an ATEM?">
+          <AccordionItem title="Does Tally work without an ATEM?" hidden={!match('Does Tally work without an ATEM?')}>
             <p style={paraStyle}>
               Yes. Tally supports OBS-only and vMix-only setups. The ATEM integration provides the richest feature set (camera switching, recording control, HyperDeck), but OBS and vMix monitoring, auto-recovery, and remote control all work independently.
             </p>
           </AccordionItem>
 
-          <AccordionItem title="Can I use Tally for a one-time event?">
+          <AccordionItem title="Can I use Tally for a one-time event?" hidden={!match('Can I use Tally for a one-time event?')}>
             <p style={paraStyle}>
               Yes — the Event tier ($99 one-time) provides 72-hour monitoring for conferences, Easter services, weddings, or any special event. No subscription required.
             </p>
           </AccordionItem>
 
-          <AccordionItem title="What happens if my internet goes down?">
+          <AccordionItem title="What happens if my internet goes down?" hidden={!match('What happens if my internet goes down?')}>
             <p style={paraStyle}>
               The Tally desktop client stores status locally and reconnects automatically when internet is restored. Any queued commands from remote control will replay. Local monitoring and auto-recovery continue working even without internet.
             </p>
           </AccordionItem>
 
-          <AccordionItem title="Is my video stream data stored?">
+          <AccordionItem title="Is my video stream data stored?" hidden={!match('Is my video stream data stored?')}>
             <p style={paraStyle}>
               No. Tally monitors stream health metrics (bitrate, FPS, connection status) but does not record or store your video content. Preview frames are transient and not persisted.
             </p>
           </AccordionItem>
 
-          <AccordionItem title="Can multiple TDs use Tally?">
+          <AccordionItem title="Can multiple TDs use Tally?" hidden={!match('Can multiple TDs use Tally?')}>
             <p style={paraStyle}>
               Yes. Add multiple tech directors in the portal. Use guest tokens to give other TDs app access. On-call rotation ensures the right person gets alerts. The Telegram bot supports multiple users.
             </p>
           </AccordionItem>
+
+          <AccordionItem title="What operating systems are supported?" hidden={!match('What operating systems are supported?')}>
+            <p style={paraStyle}>
+              The Tally desktop app runs on Windows 10/11 and macOS 12+ (Monterey and later). The web dashboard and church portal work in any modern browser (Chrome, Firefox, Safari, Edge). The Telegram bot works on any platform that supports Telegram.
+            </p>
+          </AccordionItem>
+
+          {/* ── No results ── */}
+          {q && totalMatches === 0 && (
+            <div style={{ textAlign: 'center', padding: '40px 0' }}>
+              <p style={{ color: MUTED, fontSize: 15, marginBottom: 12 }}>
+                No results for &ldquo;{search}&rdquo;
+              </p>
+              <button
+                onClick={() => setSearch('')}
+                style={{
+                  background: 'none',
+                  border: `1px solid ${BORDER}`,
+                  borderRadius: 6,
+                  color: GREEN,
+                  padding: '8px 16px',
+                  fontSize: 13,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Clear search
+              </button>
+            </div>
+          )}
 
           {/* ── Still need help? ── */}
           <div
@@ -411,8 +580,9 @@ function CategoryHeading({ children }) {
   );
 }
 
-function AccordionItem({ title, children }) {
+function AccordionItem({ title, children, hidden }) {
   const [open, setOpen] = useState(false);
+  if (hidden) return null;
   return (
     <div
       style={{

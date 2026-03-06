@@ -4,6 +4,12 @@ import Footer from '../components/Footer';
 
 export const metadata = {
   title: 'Terms of Service — Tally',
+  description: 'Terms of Service for Tally, the church production monitoring and remote control platform. Covers billing, acceptable use, liability, and data privacy.',
+  openGraph: {
+    title: 'Terms of Service — Tally',
+    description: 'Terms of Service for Tally, the church production monitoring and remote control platform.',
+    url: 'https://tallyconnect.app/terms',
+  },
 };
 
 export default function TermsPage() {
@@ -33,7 +39,7 @@ export default function TermsPage() {
         >
           <h1 style={{ fontSize: 28, marginBottom: 8 }}>Terms of Service</h1>
           <p style={{ color: MUTED, fontSize: 13, marginBottom: 32 }}>
-            Last updated: February 2026
+            Last updated: March 2026
           </p>
 
           <Section title="1. Service Description">
@@ -169,7 +175,95 @@ export default function TermsPage() {
             </p>
           </Section>
 
-          <Section title="7. Service Commitment (Enterprise Tier) and All-Tier Baseline">
+          <Section title="7. Intellectual Property">
+            <ul style={ulStyle}>
+              <li>
+                Tally, the Tally logo, and all related trademarks, service marks, and trade names
+                are the property of ATEM School. You may not use our branding without prior written
+                permission.
+              </li>
+              <li>
+                All software, documentation, APIs, and visual interfaces are owned by or licensed to
+                ATEM School and are protected by copyright, trade secret, and other intellectual
+                property laws.
+              </li>
+              <li>
+                Your subscription grants a limited, non-exclusive, non-transferable, revocable license
+                to use the Tally platform solely for your organization&apos;s church production operations
+                during the subscription term.
+              </li>
+              <li>
+                Feedback, suggestions, or feature requests you submit may be used by ATEM School
+                without obligation or compensation.
+              </li>
+              <li>
+                Your content (configurations, schedules, device names) remains your property. We claim
+                no ownership over data you input into the platform.
+              </li>
+            </ul>
+          </Section>
+
+          <Section title="8. Warranty Disclaimer">
+            <p style={pStyle}>
+              TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, TALLY IS PROVIDED &ldquo;AS IS&rdquo;
+              AND &ldquo;AS AVAILABLE&rdquo; WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED,
+              STATUTORY, OR OTHERWISE, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
+              FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
+            </p>
+            <p style={pStyle}>
+              ATEM School does not warrant that the service will be uninterrupted, error-free, or
+              free of harmful components. We do not guarantee that auto-recovery actions will
+              succeed, that alerts will be delivered instantly, or that remote commands will execute
+              without delay.
+            </p>
+            <p style={pStyle}>
+              You acknowledge that church production environments involve complex hardware and
+              software configurations, and that Tally is a monitoring and automation aid — not a
+              replacement for trained operators, manual oversight, or local fallback procedures.
+            </p>
+          </Section>
+
+          <Section title="9. Third-Party Services & Integrations">
+            <p style={{ marginBottom: 8 }}>
+              Tally integrates with and relies on third-party products and services. Your use of
+              these integrations is subject to the respective third-party terms:
+            </p>
+            <ul style={ulStyle}>
+              <li>
+                <strong>Stripe</strong> — Payment processing. Subject to{' '}
+                <a href="https://stripe.com/legal" style={{ color: GREEN }}>Stripe&apos;s Terms of Service</a>.
+              </li>
+              <li>
+                <strong>Blackmagic Design</strong> — ATEM switcher communication via the ATEM protocol.
+                Blackmagic Design is not affiliated with ATEM School.
+              </li>
+              <li>
+                <strong>OBS Studio</strong> — Open-source software. Tally connects via the OBS
+                WebSocket protocol.
+              </li>
+              <li>
+                <strong>Telegram</strong> — Alert delivery and bot commands. Subject to{' '}
+                <a href="https://telegram.org/tos" style={{ color: GREEN }}>Telegram&apos;s Terms of Service</a>.
+              </li>
+              <li>
+                <strong>Vercel / Railway</strong> — Infrastructure hosting. See our{' '}
+                <a href="/privacy" style={{ color: GREEN }}>Privacy Policy</a> for details.
+              </li>
+              <li>
+                <strong>Anthropic (Claude AI)</strong> — Powers the AI chat assistant and natural
+                language commands. Subject to{' '}
+                <a href="https://www.anthropic.com/policies" style={{ color: GREEN }}>Anthropic&apos;s Usage Policy</a>.
+              </li>
+            </ul>
+            <p style={{ marginTop: 12 }}>
+              We are not responsible for the availability, accuracy, or conduct of third-party
+              services. If a third-party service changes its API, discontinues features, or
+              experiences downtime, Tally&apos;s functionality may be affected. We will make
+              commercially reasonable efforts to adapt to such changes.
+            </p>
+          </Section>
+
+          <Section title="10. Service Commitment (Enterprise Tier &amp; All-Tier Baseline)">
             <p style={{ marginBottom: 8 }}>
               Enterprise tier includes support commitments for response acknowledgment (not guaranteed
               issue resolution time):
@@ -194,7 +288,7 @@ export default function TermsPage() {
             </p>
           </Section>
 
-          <Section title="8. Incident Reporting and Escalation">
+          <Section title="11. Incident Reporting and Escalation">
             To help us support production issues quickly, service requests must include:
             <ul style={ulStyle}>
               <li>Church name and account email</li>
@@ -208,7 +302,7 @@ export default function TermsPage() {
             </p>
           </Section>
 
-          <Section title="9. Data & Privacy">
+          <Section title="12. Data & Privacy">
             Please review our{' '}
             <a href="/privacy" style={{ color: GREEN }}>
               Privacy Policy
@@ -235,7 +329,7 @@ export default function TermsPage() {
             </p>
           </Section>
 
-          <Section title="10. Security, Security Incidents, and Vendor Changes">
+          <Section title="13. Security, Security Incidents, and Vendor Changes">
             You agree to keep local machine credentials secure and rotate access whenever staff roles
             change.
             <ul style={ulStyle}>
@@ -248,12 +342,12 @@ export default function TermsPage() {
                 affected customers as reasonably as possible.
               </li>
               <li>
-                Material changes to these terms will be posted with notice as described in Section 12.
+                Material changes to these terms will be posted with notice as described in Section 16.
               </li>
             </ul>
           </Section>
 
-          <Section title="11. Limitation of Liability">
+          <Section title="14. Limitation of Liability">
             Tally is provided on an "as is" and "as available" basis.
             <ul style={ulStyle}>
               <li>
@@ -274,7 +368,7 @@ export default function TermsPage() {
             </p>
           </Section>
 
-          <Section title="12. Indemnity, Disputes, and Governing Law">
+          <Section title="15. Indemnity, Disputes, and Governing Law">
             You agree to indemnify ATEM School for misuse of the service or breach of these Terms.
             <ul style={ulStyle}>
               <li>
@@ -292,20 +386,20 @@ export default function TermsPage() {
             </ul>
           </Section>
 
-          <Section title="13. Modifications to Terms">
+          <Section title="16. Modifications to Terms">
             We may update these Terms at any time. Material changes receive at least 30 days&apos; notice via
             email. Continued use after the effective date means acceptance; otherwise cancel before that
             date.
           </Section>
 
-          <Section title="14. Termination">
+          <Section title="17. Termination">
             <ul style={ulStyle}>
               <li>
                 We may suspend or terminate your account immediately for violations or conduct that
                 creates platform risk.
               </li>
               <li>
-                You may terminate anytime by canceling your subscription; Section 4 and data handling
+                You may terminate anytime by canceling your subscription. Section 4 and data handling
                 provisions apply.
               </li>
               <li>
@@ -315,7 +409,39 @@ export default function TermsPage() {
             </ul>
           </Section>
 
-          <Section title="15. Contact">
+          <Section title="18. Force Majeure">
+            Neither party is liable for failure to perform obligations under these Terms due to
+            causes beyond their reasonable control, including but not limited to: natural disasters,
+            pandemics, acts of government, internet or power outages, third-party service failures,
+            cyberattacks, or labor disputes. The affected party must provide notice as soon as
+            reasonably practicable and make reasonable efforts to resume performance.
+          </Section>
+
+          <Section title="19. Entire Agreement & Severability">
+            <ul style={ulStyle}>
+              <li>
+                These Terms, together with the{' '}
+                <a href="/privacy" style={{ color: GREEN }}>Privacy Policy</a>, constitute the entire
+                agreement between you and ATEM School regarding Tally and supersede all prior or
+                contemporaneous agreements, communications, and proposals.
+              </li>
+              <li>
+                If any provision of these Terms is held to be invalid or unenforceable, the remaining
+                provisions remain in full force and effect. The invalid provision will be modified to
+                the minimum extent necessary to make it enforceable while preserving the original
+                intent.
+              </li>
+              <li>
+                Our failure to enforce any right or provision does not constitute a waiver of that
+                right or provision.
+              </li>
+              <li>
+                Headings are for convenience only and do not affect interpretation.
+              </li>
+            </ul>
+          </Section>
+
+          <Section title="20. Contact">
             If you have questions about these Terms, contact us at{' '}
             <a href="mailto:support@atemschool.com" style={{ color: GREEN }}>
               support@atemschool.com
@@ -338,6 +464,8 @@ function Section({ title, children }) {
     </div>
   );
 }
+
+const pStyle = { marginTop: 12, marginBottom: 0 };
 
 const ulStyle = {
   margin: '8px 0 0',

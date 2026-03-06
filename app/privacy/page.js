@@ -4,6 +4,12 @@ import Footer from '../components/Footer';
 
 export const metadata = {
   title: 'Privacy Policy — Tally',
+  description: 'How Tally collects, uses, and protects your data. Covers cookies, third-party services, GDPR, CCPA, and your data rights.',
+  openGraph: {
+    title: 'Privacy Policy — Tally',
+    description: 'How Tally collects, uses, and protects your church production data.',
+    url: 'https://tallyconnect.app/privacy',
+  },
 };
 
 export default function PrivacyPage() {
