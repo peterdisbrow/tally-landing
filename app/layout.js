@@ -27,6 +27,7 @@ export const metadata = {
 import Analytics from './analytics';
 import SkipNav from './components/SkipNav';
 import ChatWidget from './components/ChatWidget';
+import GlobalStyles from './components/GlobalStyles';
 
 export default function RootLayout({ children }) {
   return (
@@ -40,6 +41,7 @@ export default function RootLayout({ children }) {
           lineHeight: 1.6,
         }}
       >
+        <GlobalStyles />
         <SkipNav />
         {children}
         <Analytics />

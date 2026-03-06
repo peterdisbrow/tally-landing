@@ -1,5 +1,4 @@
 import { BG, WHITE } from '../lib/tokens';
-import GlobalStyles from './components/GlobalStyles';
 import Nav from './components/Nav';
 import Hero from './components/Hero';
 import Problem from './components/Problem';
@@ -49,7 +48,6 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <GlobalStyles />
       <Nav />
       <main id="main-content">
       <Hero />

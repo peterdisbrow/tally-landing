@@ -1,6 +1,6 @@
 import { BG, CARD_BG, BORDER, GREEN, WHITE, MUTED } from '../../lib/tokens';
-import { BLOG_POSTS } from '../../lib/blog';
-import BlogCard from '../components/BlogCard';
+import { BLOG_POSTS, getAllTags } from '../../lib/blog';
+import BlogFilter from '../components/BlogFilter';
 import Nav from '../components/Nav';
 import Footer from '../components/Footer';
 
@@ -16,6 +16,11 @@ export const metadata = {
 };
 
 export default function BlogIndex() {
+  const tags = getAllTags();
+
+  /* Strip non-serializable `content` function from posts for the client component */
+  const serializablePosts = BLOG_POSTS.map(({ content, ...rest }) => rest);
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Blog',
@@ -58,7 +63,7 @@ export default function BlogIndex() {
 
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
           {/* Header */}
-          <div style={{ marginBottom: 40 }}>
+          <div style={{ marginBottom: 28 }}>
           <span
             style={{
               display: 'inline-block',
@@ -81,18 +86,8 @@ export default function BlogIndex() {
           </p>
         </div>
 
-        {/* Post grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-            gap: 16,
-          }}
-        >
-          {BLOG_POSTS.map(post => (
-            <BlogCard key={post.slug} post={post} />
-          ))}
-        </div>
+        {/* Filter + Post grid */}
+        <BlogFilter posts={serializablePosts} tags={tags} />
       </div>
     </main>
     <Footer />
