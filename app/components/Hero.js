@@ -22,7 +22,7 @@ export default function Hero() {
         fontWeight: 700, letterSpacing: '0.12em', color: GREEN,
       }}>
         <span style={{ width: 6, height: 6, borderRadius: '50%', background: GREEN, display: 'inline-block', boxShadow: `0 0 6px ${GREEN}` }} />
-        TALLY &mdash; CHURCH PRODUCTION MONITORING
+        TALLY &mdash; CHURCH PRODUCTION AUTO-RECOVERY
       </div>
 
       {/* headline */}
@@ -31,8 +31,8 @@ export default function Hero() {
         lineHeight: 1.05, margin: '0 auto 28px', letterSpacing: '-0.03em',
         color: WHITE, maxWidth: 960,
       }}>
-        YOUR CHURCH PRODUCTION SYSTEM.<br />
-        <span style={{ color: GREEN }}>IN YOUR POCKET.</span>
+        YOUR STREAM JUST CRASHED.<br />
+        <span style={{ color: GREEN }}>TALLY ALREADY FIXED IT.</span>
       </h1>
 
       {/* subtext */}
@@ -40,7 +40,7 @@ export default function Hero() {
         fontSize: 'clamp(1rem, 2.2vw, 1.25rem)', color: MUTED,
         maxWidth: 660, margin: '0 auto 20px', lineHeight: 1.7,
       }}>
-        Tally monitors every device in your booth &mdash; ATEM, OBS, audio consoles, encoders, and presentations &mdash; fixes problems before the congregation notices, and gives your team AI-powered control from anywhere.
+        Tally watches your entire production &mdash; ATEM, OBS, audio, encoders, ProPresenter &mdash; and auto-recovers failures in under 10 seconds. Your TD gets a Telegram alert. Your congregation never knows.
       </p>
 
       {/* social proof line */}
@@ -48,7 +48,7 @@ export default function Hero() {
         color: DIM, fontSize: '0.9rem', margin: '0 auto 52px',
         fontFamily: 'ui-monospace, monospace', letterSpacing: '0.04em',
       }}>
-        26 integrations &middot; AI autopilot &middot; AI setup assistant &middot; 15 how-to guides.
+        26 integrations &middot; Auto-recovery in &lt; 10s &middot; AI natural language control &middot; Self-service church portal
       </p>
 
       {/* CTAs */}
