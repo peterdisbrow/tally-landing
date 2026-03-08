@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { RELAY_URL } from '../../lib/relay';
 
 export const metadata = {
   title: 'Reseller Program — Tally',
@@ -11,7 +12,7 @@ export const metadata = {
 };
 
 export default function ResellerPage() {
-  const relayUrl = process.env.NEXT_PUBLIC_RELAY_URL || process.env.RELAY_URL || '';
+  const relayUrl = RELAY_URL;
   if (!relayUrl) redirect('/');
   redirect(`${relayUrl}/reseller`);
 }
