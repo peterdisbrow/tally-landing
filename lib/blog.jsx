@@ -406,6 +406,243 @@ function NetworkSetupGuide() {
   );
 }
 
+/* ── Post 7 ── */
+function PTZCameraBuyingGuide() {
+  return (
+    <>
+      <p style={p}>PTZ cameras are the workhorse of church production. One operator can control multiple angles, zoom into the pastor, and frame a wide worship shot — all without leaving the booth. But with dozens of models on the market, picking the right one matters. This guide breaks down what to look for, what to avoid, and which cameras actually hold up on Sunday morning.</p>
+
+      <h2 style={h2}>Why PTZ Cameras Are Perfect for Churches</h2>
+      <p style={p}>A traditional camcorder needs a dedicated operator behind it. A PTZ (pan-tilt-zoom) camera sits on a mount and moves remotely — via a joystick controller, software, or even your phone. That means:</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Fewer volunteers needed</strong> — One person in the booth can operate 2-4 PTZ cameras using presets. No need to recruit a camera operator for each angle.</li>
+        <li><strong style={strong}>Consistent framing</strong> — Save preset positions for your pastor close-up, wide shot, and baptistry angle. Hit a button and the camera snaps to that exact position every time.</li>
+        <li><strong style={strong}>Clean install</strong> — Mount them on walls or ceilings. No tripods in the aisle. No cables running across walkways.</li>
+        <li><strong style={strong}>Remote operation</strong> — Adjust framing from the booth, from the lobby, or from home if your production system supports remote control.</li>
+      </ul>
+
+      <h2 style={h2}>Key Specs That Actually Matter</h2>
+      <p style={p}>Camera spec sheets are full of numbers. Here are the ones that make a real difference in a church environment:</p>
+
+      <h3 style={h3}>Optical Zoom</h3>
+      <p style={p}>This is how far the camera can zoom without losing quality. Digital zoom crops the image and looks terrible on stream. For most sanctuaries, <strong style={strong}>20x optical zoom</strong> is the sweet spot. If your camera is mounted at the back of a large auditorium (100+ feet from the stage), look for 30x.</p>
+
+      <h3 style={h3}>Sensor Size</h3>
+      <p style={p}>Bigger sensors capture more light, which means better image quality in dim worship environments. A <strong style={strong}>1/2.8" sensor</strong> is standard at the mid-range. Budget cameras with 1/4" sensors will look noisy (grainy) during dimly-lit worship sets.</p>
+
+      <h3 style={h3}>Output Connections</h3>
+      <ul style={ul}>
+        <li><strong style={strong}>HDMI</strong> — Standard on every PTZ camera. Works with ATEM Mini and most switchers. Cable runs limited to about 25-50 feet without a signal booster.</li>
+        <li><strong style={strong}>SDI</strong> — Professional standard. Supports cable runs up to 300 feet without signal loss. Required for larger sanctuaries. Look for 3G-SDI for 1080p.</li>
+        <li><strong style={strong}>NDI</strong> — Sends video over ethernet. No HDMI/SDI cable needed — just a network drop. Great for flexible installations, but requires a solid gigabit network and NDI-compatible software.</li>
+        <li><strong style={strong}>USB</strong> — Useful as a webcam fallback or for connecting directly to a laptop running Zoom. Not a primary production output.</li>
+      </ul>
+
+      <h3 style={h3}>Low-Light Performance</h3>
+      <p style={p}>This is where church use gets tricky. Worship lighting is often dramatic — dark audience, bright stage, moving colors. Cheap cameras lose detail in shadows and blow out highlights. Look for cameras with at least <strong style={strong}>0.5 lux minimum illumination</strong> and manual exposure controls so you can lock settings during service.</p>
+
+      <h2 style={h2}>Budget Tiers: What You Get at Each Price Point</h2>
+
+      <h3 style={h3}>Under $500 — Entry Level</h3>
+      <p style={p}>Cameras in this range (like budget offerings from Zowietek or generic Amazon PTZ units) get you started but come with trade-offs: noisy low-light performance, slower pan/tilt motors, and limited color accuracy. Fine for a single-camera setup streaming to YouTube at 720p. Not great for multi-camera switching.</p>
+
+      <h3 style={h3}>$800–$1,500 — Mid-Range (Best Value for Most Churches)</h3>
+      <p style={p}>This is where most churches should land. Cameras from <strong style={strong}>PTZOptics, BirdDog, and HuddleCamHD</strong> in this range offer 20-30x zoom, SDI + HDMI + NDI outputs, solid low-light performance, and reliable preset recall. The PTZOptics Move 4K and BirdDog P200 are popular choices in this tier.</p>
+
+      <h3 style={h3}>$2,000+ — Broadcast Quality</h3>
+      <p style={p}>Panasonic AW series, Sony SRG series, and BirdDog P400 live here. Larger sensors, better color science, true 4K output, and rock-solid reliability. Worth it for large churches with IMAG (image magnification) screens or broadcast-quality stream requirements.</p>
+
+      <h2 style={h2}>How Many Cameras Do You Need?</h2>
+      <ul style={ul}>
+        <li><strong style={strong}>1 camera</strong> — Minimum viable production. A single PTZ at the back on a wide-to-medium shot. Works for streaming, but feels static to viewers.</li>
+        <li><strong style={strong}>2 cameras</strong> — The sweet spot for most churches. Wide shot + close-up of the speaker. Cut between them for visual variety. Dramatic improvement over single-camera.</li>
+        <li><strong style={strong}>3 cameras</strong> — Wide + pastor close-up + worship/stage angle. Covers 95% of service moments. This is what most mid-size churches run.</li>
+        <li><strong style={strong}>4+ cameras</strong> — Multi-campus, IMAG, or broadcast-level production. You probably need a dedicated video director at this point.</li>
+      </ul>
+
+      <h2 style={h2}>Mounting and Placement Tips</h2>
+      <ul style={ul}>
+        <li><strong style={strong}>Mount high, aim down slightly</strong> — Ceiling or high wall mounts give the cleanest sight lines. Mounting at eye level means every person who walks in front of the camera blocks the shot.</li>
+        <li><strong style={strong}>Avoid backlighting</strong> — Don't mount a camera facing a window or bright wall. The camera will expose for the bright background and your speaker will be a silhouette.</li>
+        <li><strong style={strong}>Run cables before you mount</strong> — HDMI, SDI, ethernet, and power. Route them through conduit if possible. A cable that runs across a ceiling tile and disappears into a wall looks professional and avoids accidental disconnects.</li>
+        <li><strong style={strong}>Label your presets</strong> — Most PTZ cameras support 8-255 preset positions. Name them something your volunteers understand: "Pastor Close," "Wide Worship," "Baptistry," "Offering." Not "Preset 1, 2, 3."</li>
+      </ul>
+
+      <h2 style={h2}>Controlling PTZ Cameras with Tally</h2>
+      <p style={p}><a href="/signup" style={a}>Tally integrates with PTZ cameras</a> alongside your ATEM, OBS, and audio gear — giving your team a single control surface for the entire production:</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Recall presets from Telegram</strong> — Type "camera 1 preset 3" and Tally moves the camera. No joystick controller needed.</li>
+        <li><strong style={strong}>Camera status monitoring</strong> — See which cameras are online, which preset they're on, and whether any input has gone black — from your phone or the church portal.</li>
+        <li><strong style={strong}>Autopilot rules</strong> — Set rules like "when worship slides start, switch to camera 1 wide shot." Tally moves the camera and cuts the switcher automatically.</li>
+        <li><strong style={strong}>Pre-service camera check</strong> — 30 minutes before service, Tally verifies every camera is responding and connected. If a camera has lost power or network, your TD gets an alert before volunteers arrive.</li>
+      </ul>
+      <p style={p}><a href="/signup" style={a}>Start a free trial</a> and connect your PTZ cameras alongside your ATEM in under 10 minutes.</p>
+
+      <h2 style={h2}>Quick Decision Guide</h2>
+      <ul style={ul}>
+        <li><strong style={strong}>Small church, tight budget</strong> — 1 PTZ camera (20x, HDMI) + ATEM Mini. Budget: $700–$1,000 total.</li>
+        <li><strong style={strong}>Mid-size church, 2-3 cameras</strong> — PTZOptics or BirdDog (20-30x, SDI + NDI) + ATEM Mini Extreme. Budget: $3,000–$5,000 total.</li>
+        <li><strong style={strong}>Large church, IMAG</strong> — Panasonic or Sony PTZ (30x, SDI) + Blackmagic ATEM Constellation. Budget: $10,000+ for cameras alone.</li>
+      </ul>
+      <p style={p}>Start with two cameras if you can afford it. The visual variety of cutting between a wide shot and a close-up is the single biggest upgrade most church streams can make.</p>
+    </>
+  );
+}
+
+/* ── Post 8 ── */
+function ProPresenterATEMGuide() {
+  return (
+    <>
+      <p style={p}>ProPresenter is the presentation software most churches rely on for lyrics, sermon slides, and announcements. The ATEM Mini is the most popular video switcher in church production. Connecting them properly transforms your production from "a volunteer clicking two things at once" to a seamless, automated workflow. Here's how to set it up.</p>
+
+      <h2 style={h2}>How ProPresenter Connects to the ATEM</h2>
+      <p style={p}>ProPresenter sends its output as a video signal — just like a camera. You connect the computer running ProPresenter to one of the ATEM's HDMI inputs. The ATEM treats it like any other video source. When you want to show lyrics or slides on stream, you cut to that input.</p>
+      <p style={p}>The basic connection chain:</p>
+      <ol style={ol}>
+        <li><strong style={strong}>ProPresenter computer</strong> → HDMI cable → <strong style={strong}>ATEM HDMI input</strong> (usually Input 3 or 4)</li>
+        <li>ProPresenter sends its "Output" screen to that HDMI — configure this in ProPresenter's Screens settings</li>
+        <li>In the ATEM, label that input "ProPresenter" or "Lyrics" so your volunteers know what it is</li>
+      </ol>
+
+      <h2 style={h2}>ProPresenter Screen Configuration</h2>
+      <p style={p}>ProPresenter supports multiple outputs. For church production, you typically use:</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Audience screen</strong> — The main display facing the congregation (projector or TV). Shows lyrics, sermon slides, announcements.</li>
+        <li><strong style={strong}>Stage display</strong> — A confidence monitor facing the worship leader or pastor. Shows current/next slides, notes, timers.</li>
+        <li><strong style={strong}>Stream output</strong> — The HDMI feed going to your ATEM. This can be identical to the audience screen, or a separate "stream-friendly" layout with different formatting.</li>
+      </ul>
+      <p style={p}>Many churches send the same output to both the audience screen and the ATEM. This works, but you lose flexibility. A dedicated stream output lets you adjust text size, add lower thirds, or show different backgrounds optimized for the stream.</p>
+
+      <h2 style={h2}>Resolution and Frame Rate — Get These Right</h2>
+      <p style={p}>The ATEM Mini requires all inputs to be the same resolution and frame rate. If your cameras are sending 1080p at 59.94fps, ProPresenter must output the same. A mismatch causes the ATEM to show a black screen on that input.</p>
+      <ul style={ul}>
+        <li>Set ProPresenter's output resolution to <strong style={strong}>1920x1080</strong></li>
+        <li>Set the refresh rate to match your cameras — usually <strong style={strong}>59.94 Hz</strong> (NTSC) or <strong style={strong}>50 Hz</strong> (PAL)</li>
+        <li>On Mac, check System Settings → Displays for the HDMI output going to the ATEM</li>
+        <li>On Windows, right-click the desktop → Display Settings → Advanced Display Settings for the output going to the ATEM</li>
+      </ul>
+      <blockquote style={bq}>If the ATEM shows a black screen on your ProPresenter input but other inputs work fine, the resolution or frame rate is almost certainly wrong. This is the #1 troubleshooting issue with ATEM + ProPresenter.</blockquote>
+
+      <h2 style={h2}>Using the ATEM's Upstream Keyer for Overlays</h2>
+      <p style={p}>Instead of cutting fully to ProPresenter, you can <strong style={strong}>overlay</strong> lyrics on top of a camera feed using the ATEM's upstream keyer. This gives you a professional look — camera footage of worship with lyrics floating at the bottom.</p>
+      <ol style={ol}>
+        <li>In ProPresenter, use a <strong style={strong}>black background</strong> for your lyrics slides</li>
+        <li>In ATEM Software Control, go to the <strong style={strong}>Upstream Key</strong> section</li>
+        <li>Set the key type to <strong style={strong}>Luma Key</strong></li>
+        <li>Set the fill source to your ProPresenter HDMI input</li>
+        <li>Adjust the clip and gain until the black background disappears and only the white text remains</li>
+        <li>Toggle the key ON during worship — lyrics appear over your camera feed</li>
+      </ol>
+      <p style={p}>This is a huge visual upgrade over cutting back and forth between cameras and a full-screen lyrics slide. Most viewers won't even notice you're using a keyer — it just looks like a professional broadcast.</p>
+
+      <h2 style={h2}>ATEM Macros for ProPresenter Workflows</h2>
+      <p style={p}>ATEM macros let you record sequences of actions and replay them with one button press. Combined with ProPresenter, this eliminates multi-step operations during service:</p>
+      <ul style={ul}>
+        <li><strong style={strong}>"Worship" macro</strong> — Switch to Camera 1 wide + enable luma key overlay from ProPresenter. One button for the entire worship look.</li>
+        <li><strong style={strong}>"Sermon" macro</strong> — Switch to Camera 2 close-up + disable keyer + set a transition to a 1-second mix. Clean transition into sermon.</li>
+        <li><strong style={strong}>"Announcements" macro</strong> — Cut to ProPresenter full screen + disable keyer. ProPresenter fills the stream with announcement slides.</li>
+        <li><strong style={strong}>"Offering" macro</strong> — Switch to Camera 1 + enable downstream keyer with a giving URL lower third.</li>
+      </ul>
+      <p style={p}>Train volunteers to press macro buttons instead of making multiple switcher changes. Fewer steps means fewer mistakes during a live service.</p>
+
+      <h2 style={h2}>Common Integration Problems</h2>
+      <ul style={ul}>
+        <li><strong style={strong}>Black screen on ATEM input</strong> — Resolution/frame rate mismatch. Check ProPresenter output settings match the ATEM's video standard.</li>
+        <li><strong style={strong}>Lyrics look blurry on stream</strong> — ProPresenter is outputting at a lower resolution than 1080p, or the ATEM is scaling it. Match resolutions exactly.</li>
+        <li><strong style={strong}>Keyer shows a green/gray border around text</strong> — The clip/gain settings on the luma key need adjustment. Increase the clip value until the background is completely clean.</li>
+        <li><strong style={strong}>ProPresenter freezes but the ATEM still shows the last frame</strong> — This is a ProPresenter crash or the computer went to sleep. Set the computer to "never sleep" and check ProPresenter for updates.</li>
+        <li><strong style={strong}>Audio from ProPresenter leaks into the stream</strong> — The ATEM is picking up audio from the ProPresenter HDMI input. In ATEM's audio mixer, mute the ProPresenter input channel.</li>
+      </ul>
+
+      <h2 style={h2}>Taking It Further with Tally</h2>
+      <p style={p}><a href="/signup" style={a}>Tally integrates deeply with both ProPresenter and your ATEM</a> — connecting them through a single control layer:</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Advance slides from Telegram</strong> — Type "next slide" or "go to slide 5" and Tally sends the command to ProPresenter. No need to be at the computer.</li>
+        <li><strong style={strong}>Trigger looks remotely</strong> — Activate ProPresenter looks (screen layouts) from your phone. Switch between "worship mode" and "sermon mode" without touching ProPresenter.</li>
+        <li><strong style={strong}>Send stage messages</strong> — Type a message in Telegram and it appears on the stage display for your pastor. "2 minutes left" or "communion after this song."</li>
+        <li><strong style={strong}>Start and control timers</strong> — Launch countdown timers on the stage display from your phone. Great for keeping the service on schedule.</li>
+        <li><strong style={strong}>Autopilot rules</strong> — Set up automations like "when ProPresenter triggers a worship look, switch ATEM to Camera 1 and enable keyer." Your production runs itself during predictable moments.</li>
+        <li><strong style={strong}>Crash detection</strong> — If ProPresenter crashes or becomes unresponsive, Tally detects it and alerts your TD immediately. No more finding out when the lyrics don't appear on screen.</li>
+      </ul>
+      <p style={p}><a href="/signup" style={a}>Start a free trial</a> and connect ProPresenter + ATEM in a single unified dashboard.</p>
+    </>
+  );
+}
+
+/* ── Post 9 ── */
+function ChurchAudioStreaming() {
+  return (
+    <>
+      <p style={p}>Viewers will tolerate a shaky camera. They will not tolerate bad audio. If your church live stream sounds hollow, distorted, or silent — people leave within seconds. Getting your audio mix right for streaming is the single most impactful upgrade most churches can make. Here's how to do it.</p>
+
+      <h2 style={h2}>Why Stream Audio Is Different from Room Audio</h2>
+      <p style={p}>Your front-of-house (FOH) mix is designed for a room full of people sitting 20-100 feet from the speakers. The stream mix is heard through earbuds, phone speakers, and laptop speakers — inches from the listener's ears. These are fundamentally different listening environments.</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Room mix is reinforcement</strong> — It supplements what the congregation already hears acoustically. Vocals are loud, instruments are lower because the acoustic sound fills the room.</li>
+        <li><strong style={strong}>Stream mix needs everything</strong> — Online listeners hear only what's in the mix. If the acoustic guitar isn't in the stream feed, they don't hear it at all.</li>
+        <li><strong style={strong}>Room mix tolerates dynamics</strong> — A loud moment in the room is exciting. The same dynamic spike on earbuds is painful.</li>
+      </ul>
+      <p style={p}>This is why sending a direct copy of your FOH mix to the stream often sounds bad. It's mixed for a different context.</p>
+
+      <h2 style={h2}>The Ideal Setup: A Dedicated Stream Mix</h2>
+      <p style={p}>If your console supports it, create a separate aux mix or bus for the stream. Most modern digital consoles can do this:</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Behringer X32 / Midas M32</strong> — Use a mix bus (e.g., Bus 15-16 as a stereo pair) routed to an XLR or 1/4" output</li>
+        <li><strong style={strong}>Allen & Heath dLive / SQ</strong> — Assign a mix send for stream output</li>
+        <li><strong style={strong}>Yamaha CL/QL/TF</strong> — Use a matrix or mix bus with dedicated output</li>
+      </ul>
+      <p style={p}>The stream mix should include every instrument and voice at a balanced level. Think of it like mixing for a studio recording — everything present, nothing overpowering.</p>
+
+      <h3 style={h3}>If You Can't Do a Separate Mix</h3>
+      <p style={p}>Many smaller churches have a board with limited outputs. In that case, use a <strong style={strong}>post-fader aux send</strong> from the main mix. This follows your FOH fader movements (so mutes and level changes carry over) but lets you adjust the overall send level independently. It's not ideal, but it's better than a direct tap off the main output.</p>
+
+      <h2 style={h2}>Getting Audio Into Your Stream</h2>
+      <p style={p}>Your audio has to get from the soundboard to wherever it enters the stream. Here are the common paths:</p>
+
+      <h3 style={h3}>Option 1: Audio Embedder → ATEM</h3>
+      <p style={p}>An HDMI audio embedder takes your board's analog output (XLR or 1/4") and mixes it into an HDMI signal. Connect the embedder to an ATEM input, and the audio rides with the HDMI signal. This is the cleanest approach if you're using an ATEM — one cable, no sync issues.</p>
+
+      <h3 style={h3}>Option 2: USB Audio Interface → OBS</h3>
+      <p style={p}>Run an XLR or 1/4" cable from your board's stream output to a USB audio interface (like a Focusrite Scarlett Solo — about $80). The interface connects to your streaming computer via USB. In OBS, select the interface as your audio input. This gives you level meters and per-source control in OBS.</p>
+
+      <h3 style={h3}>Option 3: ATEM 3.5mm Mic Input</h3>
+      <p style={p}>The ATEM Mini has a 3.5mm mic input. You can run a cable from your board's headphone or aux out to this input with an adapter. It works, but the 3.5mm input is noisy and doesn't give you much level control. Use this as a last resort.</p>
+
+      <h3 style={h3}>Option 4: Digital Direct (Dante, AES67, USB)</h3>
+      <p style={p}>If your console supports Dante or USB direct out, you can send a digital stream directly to your encoder computer. Zero analog conversion, zero noise. Dante requires a Dante Virtual Soundcard license or a Dante-to-USB adapter. This is the highest quality option for churches with digital consoles.</p>
+
+      <h2 style={h2}>Mixing Tips for Church Streaming</h2>
+      <ul style={ul}>
+        <li><strong style={strong}>Compress more than you think</strong> — Stream audio benefits from heavier compression than room audio. A 3:1 ratio on vocals and 4:1 on drums keeps the dynamic range manageable for earbuds. Your FOH engineer might wince, but online listeners will thank you.</li>
+        <li><strong style={strong}>Roll off the lows</strong> — Cut everything below 80 Hz on vocals, 60 Hz on guitars. Low-frequency rumble that's barely audible in the room is boomy and muddy on earbuds. Use a high-pass filter on every channel in your stream mix.</li>
+        <li><strong style={strong}>Check on earbuds</strong> — Mix on studio monitors if you have them, but always check on consumer earbuds before Sunday. AirPods, cheap wired earbuds — these are what your viewers use. If it sounds good on those, it'll sound good everywhere.</li>
+        <li><strong style={strong}>The pastor's mic is king</strong> — During the sermon, the pastor's voice should be crystal clear with nothing competing. If viewers can't understand the sermon, nothing else matters. Aim for -12 to -6 dBFS on the pastor's voice in your stream output.</li>
+        <li><strong style={strong}>Watch your meters</strong> — Stream audio should peak around -6 dBFS and average around -18 to -12 dBFS. If you're hitting 0 dBFS, your stream is clipping and viewers hear digital distortion. If you're averaging -30 dBFS, viewers are cranking their volume and hearing all the noise floor.</li>
+        <li><strong style={strong}>Mute the ambient mics during speaking</strong> — Room mics or choir mics that are great during worship add noise and echo during the sermon. Mute them or pull them down significantly when the pastor is speaking.</li>
+      </ul>
+
+      <h2 style={h2}>The Biggest Audio Mistakes We See</h2>
+      <ol style={ol}>
+        <li><strong style={strong}>No audio on stream at all</strong> — The aux send is off, the cable is disconnected, or the ATEM/OBS has the wrong input selected. This happens more often than anyone admits. Test audio before every service.</li>
+        <li><strong style={strong}>Double audio (echo)</strong> — Two audio sources active: board feed AND a camera mic. Mute camera mics in the ATEM audio mixer. Always.</li>
+        <li><strong style={strong}>Clipping/distortion</strong> — Levels are too hot somewhere in the chain. Turn down the aux send or reduce the output gain until peaks stay below -6 dBFS.</li>
+        <li><strong style={strong}>Background hum</strong> — Ground loop between the soundboard and the streaming computer. Use a ground loop isolator ($15 on Amazon) or go fully digital with USB/Dante.</li>
+        <li><strong style={strong}>Inconsistent volume between songs and sermon</strong> — The worship team plays at -6 dBFS but the pastor speaks at -24 dBFS. Use compression on the stream bus or ride the master fader. Better yet, use a limiter on the stream output to catch peaks.</li>
+      </ol>
+
+      <h2 style={h2}>Monitoring Stream Audio with Tally</h2>
+      <p style={p}><a href="/signup" style={a}>Tally monitors your audio console</a> alongside your video gear — so audio problems don't go unnoticed:</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Audio level monitoring</strong> — Tally tracks whether audio is present in your stream. If the stream goes silent (muted channel, disconnected cable, crashed software), you get an instant alert on Telegram.</li>
+        <li><strong style={strong}>Full mixer control from your phone</strong> — Adjust faders, EQ, compression, gates, and mute/solo on every channel from Telegram. Works with Allen & Heath, Behringer X32, Midas M32, and Yamaha consoles.</li>
+        <li><strong style={strong}>Preset recall</strong> — Save your stream mix as a preset and recall it with one command. "Load stream preset" brings every fader, EQ setting, and bus level back to your proven configuration.</li>
+        <li><strong style={strong}>Pre-service audio check</strong> — Tally verifies your audio console is online and responding 30 minutes before service. If the console lost power or the network cable came loose, you know before the worship team starts playing.</li>
+      </ul>
+      <p style={p}>Audio is the foundation of a good stream. Get the mix right, monitor it actively, and your online congregation hears every word. <a href="/signup" style={a}>Start a free trial</a> and connect your audio console to Tally in under 10 minutes.</p>
+    </>
+  );
+}
+
 /* ─── All posts ─── */
 export const BLOG_POSTS = [
   {
@@ -491,6 +728,48 @@ export const BLOG_POSTS = [
     tags: ['Networking', 'Setup Guide'],
     keywords: ['church AV network setup', 'static IP church production', 'church network switch', 'ATEM network configuration', 'church production network guide'],
     content: NetworkSetupGuide,
+  },
+  {
+    slug: 'best-ptz-cameras-for-church',
+    title: 'Best PTZ Cameras for Church Live Streaming in 2026',
+    metaTitle: 'Best PTZ Cameras for Church (2026 Buying Guide) — Tally',
+    metaDescription: 'The best PTZ cameras for church production at every budget. Covers optical zoom, low-light performance, SDI vs NDI, mounting tips, and how many cameras your church actually needs.',
+    excerpt: 'PTZ cameras are the workhorse of church production. This guide breaks down which cameras to buy at every budget, how many you need, and how to get the most out of them.',
+    date: '2026-03-06',
+    author: 'Andrew Disbrow',
+    authorRole: 'Founder, Tally',
+    readTime: '9 min read',
+    tags: ['Cameras', 'Setup Guide'],
+    keywords: ['best PTZ cameras for church', 'church PTZ camera 2026', 'PTZ camera buying guide church', 'PTZOptics church', 'church camera setup', 'how many cameras church streaming'],
+    content: PTZCameraBuyingGuide,
+  },
+  {
+    slug: 'propresenter-atem-integration-guide',
+    title: 'ProPresenter + ATEM: Complete Integration Guide for Churches',
+    metaTitle: 'ProPresenter ATEM Integration Guide for Churches — Tally',
+    metaDescription: 'How to connect ProPresenter to your Blackmagic ATEM for church production. Covers HDMI setup, luma keying lyrics over cameras, macros, and troubleshooting.',
+    excerpt: 'Connect ProPresenter to your ATEM Mini for seamless lyrics, overlays, and automated production workflows. Step-by-step integration guide for churches.',
+    date: '2026-03-04',
+    author: 'Andrew Disbrow',
+    authorRole: 'Founder, Tally',
+    readTime: '10 min read',
+    tags: ['ProPresenter', 'ATEM'],
+    keywords: ['ProPresenter ATEM setup', 'ProPresenter ATEM Mini', 'church ProPresenter integration', 'ATEM luma key ProPresenter', 'ProPresenter church production'],
+    content: ProPresenterATEMGuide,
+  },
+  {
+    slug: 'church-audio-live-streaming-guide',
+    title: 'Church Audio for Live Streaming: Getting Your Mix Right',
+    metaTitle: 'Church Audio for Live Streaming — Mix Guide (2026) — Tally',
+    metaDescription: 'How to get great audio on your church live stream. Covers stream mix vs FOH, audio routing to OBS and ATEM, EQ tips, and the most common audio mistakes churches make.',
+    excerpt: 'Viewers will tolerate shaky video but leave immediately for bad audio. Here\'s how to get your church stream mix right — from soundboard routing to final output levels.',
+    date: '2026-03-02',
+    author: 'Andrew Disbrow',
+    authorRole: 'Founder, Tally',
+    readTime: '11 min read',
+    tags: ['Audio', 'Live Streaming'],
+    keywords: ['church audio live stream', 'church streaming audio setup', 'stream mix vs FOH', 'church audio interface streaming', 'live stream audio church', 'church soundboard to OBS'],
+    content: ChurchAudioStreaming,
   },
 ];
 
