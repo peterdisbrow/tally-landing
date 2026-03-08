@@ -172,7 +172,7 @@ export default function ResellersTab({ relay, role }) {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
         <div style={{ fontSize: 15, fontWeight: 700 }}>Resellers ({resellers.length})</div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button style={s.btn('secondary')} onClick={load}>{'\u21BB'} Refresh</button>

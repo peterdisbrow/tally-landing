@@ -51,7 +51,7 @@ export default function OverviewPanel({ churchId, relay }) {
         {Object.keys(eq).length === 0 ? (
           <div style={{ color: C.muted, fontSize: 12 }}>No equipment data available.</div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 8, fontSize: 12 }}>
             {eq.atem && <div><span style={{ color: C.muted }}>ATEM:</span> <span style={{ color: C.white }}>{eq.atem.model || 'Connected'}</span></div>}
             <div><span style={{ color: C.muted }}>{encoderName}:</span> <span style={{ color: encoderConnected ? C.green : C.muted }}>{encoderConnected ? 'Connected' : 'Not connected'}</span></div>
             <div><span style={{ color: C.muted }}>Stream:</span> <span style={{ color: encoderLive ? C.red : C.muted }}>{encoderLive ? 'Live' : 'Off-air'}</span></div>

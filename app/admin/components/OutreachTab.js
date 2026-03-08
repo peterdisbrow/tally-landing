@@ -92,7 +92,7 @@ export default function OutreachTab() {
         <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 16 }}>
           Who are you reaching out to?
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 14 }}>
           <div>
             <label style={s.label}>Their name</label>
             <input

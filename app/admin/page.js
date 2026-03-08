@@ -20,6 +20,8 @@ export default function AdminPage() {
   const [token, setToken]   = useState(null);
   const [user, setUser]     = useState(null);
   const [tab, setTab]       = useState('churches');
+  const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [relayOk, setRelayOk] = useState(null);
   const [relayErr, setRelayErr] = useState('');
   const [relayMeta, setRelayMeta] = useState('');
@@ -39,6 +41,20 @@ export default function AdminPage() {
     if (savedUser) {
       try { setUser(JSON.parse(savedUser)); } catch {}
     }
+  }, []);
+
+  // Mobile breakpoint tracking
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(max-width: 960px)');
+    const apply = () => setIsMobile(mq.matches);
+    apply();
+    if (mq.addEventListener) {
+      mq.addEventListener('change', apply);
+      return () => mq.removeEventListener('change', apply);
+    }
+    window.addEventListener('resize', apply);
+    return () => window.removeEventListener('resize', apply);
   }, []);
 
   function handleLogin(newToken, newUser) {
@@ -126,6 +142,15 @@ export default function AdminPage() {
     }
   }, [role, tab, availTabs]);
 
+  // Close the mobile drawer when switching tabs.
+  useEffect(() => {
+    if (isMobile) setSidebarOpen(false);
+  }, [tab, isMobile]);
+
+  useEffect(() => {
+    if (!isMobile) setSidebarOpen(false);
+  }, [isMobile]);
+
   if (!token) return <LoginScreen onLogin={handleLogin} />;
 
   return (
@@ -140,25 +165,56 @@ export default function AdminPage() {
         relayErr={relayErr}
         relayMeta={relayMeta}
         onSignOut={signOut}
+        mobile={isMobile}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
 
       {/* ── Top bar ── */}
-      <div style={s.topBar}>
-        <div style={{ fontSize: 16, fontWeight: 700 }}>
-          {TAB_LABELS[tab] || 'Churches'}
+      <div
+        style={{
+          ...s.topBar,
+          marginLeft: isMobile ? 0 : s.topBar.marginLeft,
+          padding: isMobile ? '12px 12px' : s.topBar.padding,
+          gap: 10,
+          flexWrap: isMobile ? 'wrap' : 'nowrap',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+          {isMobile && (
+            <button
+              type="button"
+              onClick={() => setSidebarOpen((v) => !v)}
+              aria-label={sidebarOpen ? 'Close navigation' : 'Open navigation'}
+              style={{
+                ...s.btn('secondary'),
+                padding: '6px 10px',
+                fontSize: 14,
+                lineHeight: 1,
+                flexShrink: 0,
+              }}
+            >
+              {sidebarOpen ? '×' : '☰'}
+            </button>
+          )}
+          <div style={{ fontSize: isMobile ? 15 : 16, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {TAB_LABELS[tab] || 'Churches'}
+          </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: C.muted }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: C.muted, minWidth: 0 }}>
             <div style={{
               width: 8, height: 8, borderRadius: '50%',
               background: relayOk === null ? C.muted : relayOk ? C.green : C.red,
               boxShadow: relayOk ? `0 0 6px ${C.green}` : 'none',
             }} />
-            {relayOk === null
-              ? 'Connecting\u2026'
-              : relayOk
-                ? `Relay Live${relayMeta ? ` \u2022 ${relayMeta}` : ''}`
-                : `Relay Offline${relayErr ? ' \u2014 ' + relayErr : ''}`}
+            <span style={{ whiteSpace: isMobile ? 'normal' : 'nowrap' }}>
+              {relayOk === null
+                ? 'Connecting\u2026'
+                : relayOk
+                  ? `Relay Live${relayMeta ? ` \u2022 ${relayMeta}` : ''}`
+                  : `Relay Offline${relayErr ? ' \u2014 ' + relayErr : ''}`}
+            </span>
           </div>
           {((!relayOk && relayErr) || showDiag) && (
             <button
@@ -172,7 +228,14 @@ export default function AdminPage() {
       </div>
 
       {/* ── Content area ── */}
-      <div style={s.contentArea}>
+      <div
+        style={{
+          ...s.contentArea,
+          marginLeft: isMobile ? 0 : s.contentArea.marginLeft,
+          padding: isMobile ? '12px 12px 90px' : s.contentArea.padding,
+          maxWidth: isMobile ? '100%' : s.contentArea.maxWidth,
+        }}
+      >
         <div style={{ ...s.card, marginBottom: 16, background: '#0d1017', borderColor: '#1d2e24' }}>
           <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Tally operations dashboard</div>
           <div style={{ color: C.muted, fontSize: 12 }}>

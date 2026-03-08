@@ -56,7 +56,7 @@ export default function AIUsageTab({ relay }) {
         <StatCard label="Cache Hits" value={(totals.cache_hits || 0).toLocaleString()} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
         {/* By Church */}
         <div style={s.card}>
           <div style={{ fontSize: 11, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 14 }}>

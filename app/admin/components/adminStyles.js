@@ -76,7 +76,7 @@ export const TAB_LABELS = Object.fromEntries(
 export const SIDEBAR_W = 240;
 
 export const s = {
-  page:    { minHeight: '100vh', background: C.bg, color: C.white, fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif", fontSize: 14 },
+  page:    { minHeight: '100vh', background: C.bg, color: C.white, fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif", fontSize: 14, overflowX: 'hidden' },
   header:  { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 28px', borderBottom: `1px solid ${C.border}`, background: C.surface, position: 'sticky', top: 0, zIndex: 10 },
   logo:    { fontSize: 18, fontWeight: 700, letterSpacing: '-0.3px', color: C.white },
   logoGreen: { color: C.green },
@@ -87,7 +87,7 @@ export const s = {
     position: 'fixed', top: 0, left: 0, bottom: 0, width: SIDEBAR_W,
     background: C.surface, borderRight: `1px solid ${C.border}`,
     display: 'flex', flexDirection: 'column', zIndex: 20,
-    overflowY: 'auto',
+    overflowY: 'auto', overflowX: 'hidden',
   },
   sidebarLogo: {
     padding: '20px 20px 16px', fontSize: 18, fontWeight: 700,
@@ -121,7 +121,7 @@ export const s = {
   contentArea: {
     marginLeft: SIDEBAR_W, padding: '28px', maxWidth: 1200,
   },
-  card:    { background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 16 },
+  card:    { background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 16, overflowX: 'auto' },
   tabBar:  { display: 'flex', gap: 2, borderBottom: `1px solid ${C.border}`, marginBottom: 24 },
   tab:     (active) => ({ background: 'none', border: 'none', color: active ? C.green : C.muted, fontSize: 13, fontWeight: 600, padding: '10px 16px', cursor: 'pointer', borderBottom: `2px solid ${active ? C.green : 'transparent'}`, marginBottom: -1, transition: 'all 0.15s', whiteSpace: 'nowrap' }),
   btn:     (variant = 'primary') => ({
@@ -132,7 +132,7 @@ export const s = {
   }),
   input:   { width: '100%', background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`, borderRadius: 8, color: C.white, fontSize: 13, padding: '9px 12px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' },
   label:   { display: 'block', fontSize: 11, color: C.muted, marginBottom: 5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' },
-  table:   { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
+  table:   { width: '100%', minWidth: 760, borderCollapse: 'collapse', fontSize: 13 },
   th:      { textAlign: 'left', padding: '8px 12px', color: C.muted, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: `1px solid ${C.border}` },
   td:      { padding: '10px 12px', borderBottom: `1px solid rgba(26,46,31,0.5)`, verticalAlign: 'middle' },
   badge:   (color) => ({ display: 'inline-block', padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 600, background: `${color}20`, color }),

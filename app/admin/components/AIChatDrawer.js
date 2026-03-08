@@ -4,6 +4,7 @@ import { C } from './adminStyles';
 
 export default function AIChatDrawer({ relay }) {
   const [open, setOpen]         = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput]       = useState('');
   const [sending, setSending]   = useState(false);
@@ -23,6 +24,19 @@ export default function AIChatDrawer({ relay }) {
       }
     }).catch(() => setChurchStates({}));
   }, [open, churchStates, relay]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(max-width: 700px)');
+    const apply = () => setIsMobile(mq.matches);
+    apply();
+    if (mq.addEventListener) {
+      mq.addEventListener('change', apply);
+      return () => mq.removeEventListener('change', apply);
+    }
+    window.addEventListener('resize', apply);
+    return () => window.removeEventListener('resize', apply);
+  }, []);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -67,7 +81,7 @@ export default function AIChatDrawer({ relay }) {
       <button
         onClick={() => setOpen(prev => !prev)}
         style={{
-          position: 'fixed', bottom: 24, right: 28, width: 52, height: 52,
+          position: 'fixed', bottom: isMobile ? 12 : 24, right: isMobile ? 12 : 28, width: 52, height: 52,
           borderRadius: '50%', background: open ? C.muted : C.green, color: open ? C.white : '#000',
           border: 'none', fontSize: 22, cursor: 'pointer', zIndex: 101,
           boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
@@ -82,7 +96,12 @@ export default function AIChatDrawer({ relay }) {
       {/* Chat drawer */}
       {open && (
         <div style={{
-          position: 'fixed', bottom: 86, right: 28, width: 380, maxHeight: '60vh',
+          position: 'fixed',
+          bottom: isMobile ? 72 : 86,
+          right: isMobile ? 8 : 28,
+          width: isMobile ? 'calc(100vw - 16px)' : 380,
+          maxWidth: isMobile ? 'none' : 420,
+          maxHeight: isMobile ? '70vh' : '60vh',
           background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14,
           boxShadow: '0 8px 32px rgba(0,0,0,0.4)', zIndex: 100,
           display: 'flex', flexDirection: 'column', overflow: 'hidden',
@@ -103,7 +122,7 @@ export default function AIChatDrawer({ relay }) {
           <div style={{
             flex: 1, overflow: 'auto', padding: '12px 14px',
             display: 'flex', flexDirection: 'column', gap: 10,
-            minHeight: 200, maxHeight: 'calc(60vh - 130px)',
+            minHeight: 200, maxHeight: isMobile ? 'calc(70vh - 130px)' : 'calc(60vh - 130px)',
           }}>
             {messages.length === 0 && (
               <div style={{ color: C.muted, fontSize: 13, textAlign: 'center', padding: '24px 0' }}>
