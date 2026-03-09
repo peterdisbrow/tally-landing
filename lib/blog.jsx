@@ -14,6 +14,111 @@ const bq = { borderLeft: `3px solid ${GREEN}`, paddingLeft: 16, marginLeft: 0, m
 const code = { background: '#1a2e1f', padding: '2px 6px', borderRadius: 4, fontSize: 13, fontFamily: 'ui-monospace, monospace', color: GREEN };
 const hr = { border: 'none', borderTop: `1px solid ${BORDER}`, margin: '32px 0' };
 
+/* ── Post 10 ── */
+function MultisiteChurchAV() {
+  return (
+    <>
+      <p style={p}>You built a solid production workflow at your main campus. The ATEM is dialed in, volunteers know the routine, and Sundays run smooth. Then leadership tells you to replicate it at a second location — with half the budget and zero additional staff. Sound familiar?</p>
+      <p style={p}>Managing AV across multiple church campuses is one of the hardest scaling problems in church tech. This guide covers how to standardize your gear, train remote volunteers, and keep every campus running reliably — even when you can{"'"}t physically be there.</p>
+
+      <h2 style={h2}>The Quick Win: Standardize Your Equipment</h2>
+      <p style={p}>The single highest-leverage thing you can do for multisite AV is use <strong style={strong}>the same gear at every campus.</strong> Not similar gear. The same gear.</p>
+      <p style={p}>When your main campus runs an ATEM Mini Pro and your second campus has a Roland V-1HD, every troubleshooting call becomes a translation exercise. Your volunteer at campus B says {"\""}the effects button isn{"'"}t working{"\""} and you{"'"}re Googling a switcher you{"'"}ve never touched while simultaneously running your own service.</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Same video switcher</strong> — If ATEM Mini Pro works at your main campus, buy another one. Don{"'"}t {"\""}save money{"\""} with a different brand. The money you save on gear you{"'"}ll spend ten times over in training and troubleshooting.</li>
+        <li><strong style={strong}>Same streaming software</strong> — If main campus uses OBS, every campus uses OBS. Same scenes, same profiles. Export your OBS profile and import it at the new site.</li>
+        <li><strong style={strong}>Same network layout</strong> — Use the same IP scheme at every campus. ATEM is always <code style={code}>192.168.1.10</code>. Encoder is always <code style={code}>192.168.1.30</code>. A volunteer who knows campus A{"'"}s network already knows campus B{"'"}s.</li>
+        <li><strong style={strong}>Same cable labels</strong> — Use the same naming convention. {"\""}CAM1-HDMI{"\""} is {"\""}CAM1-HDMI{"\""} everywhere. When a volunteer texts you {"\""}CAM1 is down,{"\""} you know exactly which cable to check regardless of location.</li>
+      </ul>
+
+      <blockquote style={bq}>The goal isn{"'"}t identical rooms — it{"'"}s interchangeable knowledge. A volunteer trained at one campus should be able to walk into any other campus and operate without retraining.</blockquote>
+
+      <h2 style={h2}>Build a Gear Standard Document</h2>
+      <p style={p}>Before you buy a single piece of equipment for a new campus, write down your standard. This document becomes the blueprint for every future expansion:</p>
+      <ol style={ol}>
+        <li><strong style={strong}>Video switcher</strong> — Model, firmware version, saved settings</li>
+        <li><strong style={strong}>Camera(s)</strong> — Model, mount type, preset positions</li>
+        <li><strong style={strong}>Streaming software</strong> — Application, version, exportable profile</li>
+        <li><strong style={strong}>Audio interface</strong> — Model, routing from soundboard</li>
+        <li><strong style={strong}>Network switch</strong> — Model, port assignments, IP plan</li>
+        <li><strong style={strong}>Computer specs</strong> — Minimum CPU, RAM, GPU for your streaming workload</li>
+        <li><strong style={strong}>Cable inventory</strong> — Types, lengths, labeling convention</li>
+      </ol>
+      <p style={p}>Keep this in a shared Google Doc or Notion page. When you open a third campus, you hand this document to whoever is setting up the room and they order the exact same list. No guessing, no {"\""}creative substitutions.{"\""}</p>
+
+      <h2 style={h2}>Training Volunteers You Can{"'"}t Stand Next To</h2>
+      <p style={p}>At your main campus, you trained volunteers by standing behind them during service. At a second campus 20 minutes away, that{"'"}s not an option. You need a training system that works without you in the room.</p>
+
+      <h3 style={h3}>Create a Runbook, Not a Manual</h3>
+      <p style={p}>A manual explains how things work. A runbook tells someone exactly what to do, step by step, in order. Write your runbook as a checklist:</p>
+      <ul style={ul}>
+        <li><strong style={strong}>30 minutes before service</strong> — Power on switcher, boot streaming computer, open OBS, verify stream key, test audio input</li>
+        <li><strong style={strong}>15 minutes before</strong> — Frame cameras on presets, check audio levels, start a test stream for 30 seconds</li>
+        <li><strong style={strong}>Service start</strong> — Go live, monitor audio levels, switch cameras per the shot list</li>
+        <li><strong style={strong}>Service end</strong> — Stop stream, stop recording, save files, power down in order</li>
+        <li><strong style={strong}>If something breaks</strong> — Decision tree: {"\""}Is it audio? Go to page 3. Is the stream down? Go to page 4.{"\""}</li>
+      </ul>
+      <p style={p}>Post the laminated runbook next to the console. Every campus gets the same runbook because every campus has the same gear.</p>
+
+      <h3 style={h3}>Video Walkthroughs Over Written Docs</h3>
+      <p style={p}>Record a 10-minute screen share of yourself running through the Sunday workflow. Volunteers will watch a video five times before they read a document once. Host it on a private YouTube playlist or Google Drive folder your team can access.</p>
+
+      <h3 style={h3}>Shadow Shifts Still Work — Cross-Campus</h3>
+      <p style={p}>Send new campus B volunteers to shadow at campus A for two Sundays before their campus goes live. They learn the workflow in person, then execute it on identical equipment at their own location. This builds confidence and creates a personal connection between the teams.</p>
+
+      <h2 style={h2}>The Real Problem: You Can{"'"}t Be Everywhere on Sunday</h2>
+      <p style={p}>This is the part nobody talks about in the multisite playbook. You{"'"}re one person. Service starts at the same time at both campuses. When something goes wrong at the campus you{"'"}re not at, your options are:</p>
+      <ol style={ol}>
+        <li>Hope the volunteer can figure it out from the runbook</li>
+        <li>Take a panicked phone call while you{"'"}re running your own service</li>
+        <li>Find out after service that the stream was down for 40 minutes</li>
+      </ol>
+      <p style={p}>None of these are acceptable — but they{"'"}re what most multisite churches live with until they solve the monitoring problem.</p>
+
+      <h2 style={h2}>Remote Monitoring for Multisite Church AV</h2>
+      <p style={p}><a href="/signup" style={a}>Tally</a> was built for exactly this scenario. Every campus runs the Tally app on its streaming computer. You see every campus on one dashboard — from your phone, from the booth, from wherever you are:</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Per-campus status</strong> — See if each campus{"'"}s ATEM, encoder, audio, and stream are healthy. Green means good. Red means something needs attention right now.</li>
+        <li><strong style={strong}>Instant alerts</strong> — If campus B{"'"}s stream drops, you get a Telegram notification within seconds — even while you{"'"}re running production at campus A.</li>
+        <li><strong style={strong}>Auto-recovery</strong> — If the stream drops, Tally restarts it automatically. Most of the time the problem is resolved before the volunteer even realizes it happened.</li>
+        <li><strong style={strong}>Pre-service checks</strong> — 30 minutes before every service, Tally verifies every device at every campus. You get one summary: {"\""}Campus A: all green. Campus B: ATEM offline.{"\""} Now you have time to call someone.</li>
+        <li><strong style={strong}>Remote control</strong> — Switch cameras, start/stop streams, and trigger macros at any campus from Telegram. You don{"'"}t need to be physically present to fix things.</li>
+      </ul>
+
+      <p style={p}>Think about what this means for your Sunday: instead of hoping both campuses are fine, you <em>know</em> both campuses are fine. And when something goes wrong, you know about it in seconds — not after the service when a volunteer apologetically mentions the stream was down.</p>
+
+      <h2 style={h2}>Campus Launch Checklist</h2>
+      <p style={p}>When you{"'"}re ready to bring a new campus online, here{"'"}s the order of operations:</p>
+      <ol style={ol}>
+        <li><strong style={strong}>Order standard gear</strong> — Use your gear standard document. Identical equipment, no substitutions.</li>
+        <li><strong style={strong}>Set up the network first</strong> — Install the AV switch, assign static IPs matching your standard scheme. See our <a href="/blog/church-av-network-setup-guide" style={a}>network setup guide</a> for details.</li>
+        <li><strong style={strong}>Clone your streaming config</strong> — Export OBS profiles, ATEM macros, and camera presets from your main campus. Import at the new site.</li>
+        <li><strong style={strong}>Install Tally</strong> — Connect the new campus to <a href="/signup" style={a}>Tally</a> so it shows up on your dashboard alongside your other locations.</li>
+        <li><strong style={strong}>Send volunteers to shadow</strong> — Two Sundays at the main campus before the new campus goes live.</li>
+        <li><strong style={strong}>Soft launch</strong> — Run one or two services as a test. Stream to an unlisted YouTube link. Fix issues before you{"'"}re live to the congregation.</li>
+        <li><strong style={strong}>Go live with monitoring</strong> — First real Sunday. You watch both campuses from one dashboard. Breathe.</li>
+      </ol>
+
+      <hr style={hr} />
+
+      <h2 style={h2}>FAQ</h2>
+
+      <h3 style={h3}>Do I need a tech director at every campus?</h3>
+      <p style={p}>Not necessarily. What you need is at least one trained volunteer per campus who can follow the runbook and escalate problems. With remote monitoring and auto-recovery handling the most common failures, a well-trained volunteer can run production without a dedicated TD on-site. The TD{"'"}s role shifts from hands-on operator to remote overseer across all locations.</p>
+
+      <h3 style={h3}>Should each campus stream independently or simulcast?</h3>
+      <p style={p}>It depends on your model. If each campus has its own worship and preaching, they stream independently. If you simulcast the sermon from your main campus, the satellite campuses receive the feed and may only need a simpler production setup (one camera, simpler switching). Either way, standardize the gear that each campus operates.</p>
+
+      <h3 style={h3}>How much does it cost to set up a second campus for streaming?</h3>
+      <p style={p}>A solid multisite streaming kit — ATEM Mini Pro, one PTZ camera, a streaming computer, audio interface, network switch, and cabling — runs roughly $2,000–$3,500 depending on camera choice. Add <a href="/#pricing" style={a}>Tally monitoring</a> for visibility across all your campuses. The biggest hidden cost isn{"'"}t gear — it{"'"}s the time you{"'"}ll spend troubleshooting remote problems without proper monitoring.</p>
+
+      <h2 style={h2}>Start Building Your Multisite Playbook</h2>
+      <p style={p}>Multisite AV doesn{"'"}t have to be chaos. Standardize the gear, document the workflow, train volunteers with repeatable systems, and monitor everything from one place. The churches that do this well aren{"'"}t the ones with the biggest budgets — they{"'"}re the ones with the best systems.</p>
+      <p style={p}><a href="/signup" style={a}>Start a free trial of Tally</a> and see every campus on one dashboard. Setup takes about 10 minutes per location.</p>
+    </>
+  );
+}
+
 /* ── Post 1 ── */
 function ChurchLiveStreamGuide() {
   return (
@@ -645,6 +750,20 @@ function ChurchAudioStreaming() {
 
 /* ─── All posts ─── */
 export const BLOG_POSTS = [
+  {
+    slug: 'multisite-church-av-multiple-campuses',
+    title: 'Multisite Church AV: How to Run Production Across Campuses Without Losing Your Mind',
+    metaTitle: 'Multisite Church AV Guide: Multiple Campuses — Tally',
+    metaDescription: 'How to manage church AV production across multiple campuses. Covers gear standardization, volunteer training, remote monitoring, and campus launch checklists.',
+    excerpt: 'How to standardize gear, train remote volunteers, and monitor every campus from one dashboard — without being everywhere on Sunday morning.',
+    date: '2026-03-09',
+    author: 'Andrew Disbrow',
+    authorRole: 'Founder, Tally',
+    readTime: '10 min read',
+    tags: ['Multisite', 'Setup Guide'],
+    keywords: ['multisite church AV', 'church AV multiple campuses', 'multisite church production', 'church campus AV setup', 'multisite church streaming'],
+    content: MultisiteChurchAV,
+  },
   {
     slug: 'church-live-stream-setup-guide',
     title: 'Complete Guide to Church Live Streaming in 2026',
