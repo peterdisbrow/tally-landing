@@ -28,6 +28,7 @@ export default function HelpPage() {
   ];
   const featuresTitles = [
     'Understanding alerts',
+    'Signal failover explained',
     'Auto-recovery explained',
     'On-call TD rotation',
     'AI Autopilot rules',
@@ -223,8 +224,34 @@ export default function HelpPage() {
             </p>
           </AccordionItem>
 
+          <AccordionItem title="Signal failover explained" hidden={!match('Signal failover explained')}>
+            <p style={paraStyle}>
+              Signal failover detects when a video source dies and automatically switches to a safe backup source — like a trained AV engineer sitting at the booth.
+            </p>
+            <p style={{ ...paraStyle, marginTop: 12 }}><strong style={{ color: WHITE }}>How it works:</strong></p>
+            <ol style={olStyle}>
+              <li>Tally correlates multiple signals (encoder bitrate, ATEM connection, audio levels) to diagnose the problem</li>
+              <li>If video loss is confirmed, your TD gets a Telegram alert with a diagnosis and an ack window</li>
+              <li>If no one acknowledges in time, Tally switches to your configured safe source (e.g., a wide shot or holding slide)</li>
+              <li>When the original source recovers, Tally watches it for 10 seconds to verify stability before switching back</li>
+            </ol>
+            <p style={{ ...paraStyle, marginTop: 12 }}><strong style={{ color: WHITE }}>Diagnosis types:</strong></p>
+            <ul style={ulStyle}>
+              <li><strong style={{ color: WHITE }}>Source dead</strong> — Camera or feed failed, ATEM still connected. Auto-switch to safe source.</li>
+              <li><strong style={{ color: WHITE }}>Network outage</strong> — Both ATEM and encoder down. Switching won{"'"}t help — alerts TD instead.</li>
+              <li><strong style={{ color: WHITE }}>Cascading failure</strong> — Video and audio both dead. Skips the wait timer and escalates immediately.</li>
+              <li><strong style={{ color: WHITE }}>Audio only</strong> — Sustained silence detected. Alerts TD without auto-switching (could be a quiet moment).</li>
+            </ul>
+            <p style={{ ...paraStyle, marginTop: 12 }}>
+              Configure failover in the Equipment tab of the desktop app. Available on Plus, Pro, and Enterprise plans.
+            </p>
+          </AccordionItem>
+
           <AccordionItem title="Auto-recovery explained" hidden={!match('Auto-recovery explained')}>
             <p style={paraStyle}>
+              Auto-recovery handles software and stream failures — things that can be fixed by restarting or adjusting settings. This is different from <strong style={{ color: WHITE }}>Signal Failover</strong>, which handles hardware/source failures by switching to a safe input.
+            </p>
+            <p style={{ ...paraStyle, marginTop: 8 }}>
               When Tally detects certain failures, it attempts to fix them automatically before alerting you:
             </p>
             <ul style={ulStyle}>
@@ -240,6 +267,9 @@ export default function HelpPage() {
             </ul>
             <p style={{ ...paraStyle, marginTop: 12 }}>
               If auto-recovery succeeds, you will see a green note in your session recap. If it fails, Tally sends an alert with diagnosis steps.
+            </p>
+            <p style={{ ...paraStyle, marginTop: 12, fontSize: 13, color: '#9ca3af' }}>
+              <strong style={{ color: WHITE }}>Auto-recovery vs Signal Failover:</strong> Auto-recovery restarts streams, adjusts bitrate, and starts recordings — fixing software-level issues. Signal Failover detects when a video source itself has died (black screen, camera offline) and switches your ATEM, VideoHub, or OBS to a safe backup input. Both can work together.
             </p>
           </AccordionItem>
 

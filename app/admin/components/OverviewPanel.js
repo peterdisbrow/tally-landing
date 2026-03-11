@@ -61,6 +61,40 @@ export default function OverviewPanel({ churchId, relay }) {
         )}
       </div>
 
+      {/* Signal Failover */}
+      {st.status?.failover && (
+        <div style={s.section}>
+          <div style={s.sectionTitle}>Signal Failover</div>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', fontSize: 12 }}>
+            <span style={s.badge(
+              st.status.failover.state === 'HEALTHY' ? C.green :
+              st.status.failover.state === 'FAILOVER_ACTIVE' ? '#f97316' : C.red
+            )}>
+              {st.status.failover.state === 'HEALTHY' ? 'Healthy' :
+               st.status.failover.state === 'SUSPECTED_BLACK' ? 'Suspected' :
+               st.status.failover.state === 'CONFIRMED_OUTAGE' ? 'Outage Confirmed' :
+               st.status.failover.state === 'FAILOVER_ACTIVE' ? 'Failover Active' :
+               st.status.failover.state === 'ATEM_LOST' ? 'ATEM Lost' :
+               st.status.failover.state}
+            </span>
+            {st.status.failover.diagnosisType && st.status.failover.state !== 'HEALTHY' && (
+              <span style={{ color: C.dim }}>Diagnosis: {st.status.failover.diagnosisType}</span>
+            )}
+          </div>
+          {st.status.failover.transitions && st.status.failover.transitions.length > 0 && (
+            <div style={{ marginTop: 8, fontSize: 11, color: C.muted }}>
+              {st.status.failover.transitions.slice(0, 3).map((t, i) => (
+                <div key={i}>
+                  <span style={{ color: C.dim }}>{new Date(t.ts).toLocaleTimeString()}</span>{' '}
+                  {t.from} → <span style={{ color: C.white }}>{t.to}</span>{' '}
+                  <span style={{ color: C.dim }}>({t.trigger})</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Service Window */}
       <div style={s.section}>
         <div style={s.sectionTitle}>Service Window</div>

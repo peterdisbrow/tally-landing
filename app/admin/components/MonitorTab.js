@@ -107,6 +107,24 @@ function ChurchCard({ church }) {
         )}
       </div>
 
+      {/* Failover state badge */}
+      {status?.failover && status.failover.state !== 'HEALTHY' && (
+        <div style={{
+          fontSize: 10, fontWeight: 700, fontFamily: 'var(--mono, monospace)',
+          padding: '3px 8px', borderRadius: 999, marginBottom: 6, display: 'inline-block',
+          textTransform: 'uppercase', letterSpacing: '0.05em',
+          background: status.failover.state === 'FAILOVER_ACTIVE' ? 'rgba(249,115,22,0.14)' : 'rgba(239,68,68,0.12)',
+          color: status.failover.state === 'FAILOVER_ACTIVE' ? '#fed7aa' : '#fca5a5',
+          border: `1px solid ${status.failover.state === 'FAILOVER_ACTIVE' ? 'rgba(249,115,22,0.45)' : 'rgba(239,68,68,0.45)'}`,
+        }}>
+          {status.failover.state === 'SUSPECTED_BLACK' ? 'Suspected' :
+           status.failover.state === 'CONFIRMED_OUTAGE' ? 'Outage Confirmed' :
+           status.failover.state === 'FAILOVER_ACTIVE' ? 'Failover Active' :
+           status.failover.state === 'ATEM_LOST' ? 'ATEM Lost' :
+           status.failover.state}
+        </div>
+      )}
+
       {/* Equipment rows */}
       {equipment.length > 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 8 }}>
