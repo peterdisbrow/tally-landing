@@ -27,6 +27,7 @@ export const metadata = {
 import Analytics from './analytics';
 import SkipNav from './components/SkipNav';
 import ChatWidget from './components/ChatWidget';
+import CookieConsent from './components/CookieConsent';
 import GlobalStyles from './components/GlobalStyles';
 
 export default function RootLayout({ children }) {
@@ -46,6 +47,7 @@ export default function RootLayout({ children }) {
         {children}
         <Analytics />
         <ChatWidget />
+        <CookieConsent />
       </body>
     </html>
   );

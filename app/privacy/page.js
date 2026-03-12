@@ -113,9 +113,10 @@ export default function PrivacyPage() {
                 any time by signing out or clearing your browser data.
               </li>
               <li>
-                <strong>No cookie banners needed:</strong> because we do not use tracking cookies
-                or third-party advertising cookies, we do not display cookie consent banners. Our
-                analytics solution (Plausible) is cookieless.
+                <strong>Third-party cookies:</strong> Stripe may set functional cookies during
+                checkout to prevent fraud. These are strictly necessary for payment processing
+                and are not used for tracking or advertising. Our analytics solution (Plausible)
+                is cookieless.
               </li>
             </ul>
           </Section>
@@ -152,6 +153,25 @@ export default function PrivacyPage() {
                 messages are sent to Anthropic&apos;s Claude API for processing. Anthropic does not
                 use your data to train models. Their privacy policy:{' '}
                 <a href="https://www.anthropic.com/privacy" style={{ color: GREEN }}>anthropic.com/privacy</a>.
+              </li>
+              <li>
+                <strong>Telegram</strong> (alerts & commands) — if your church configures Telegram
+                alerts, Tally sends alert messages and receives commands via the Telegram Bot API.
+                Your Telegram chat ID and messages exchanged with the Tally bot are processed by
+                Telegram. Their privacy policy:{' '}
+                <a href="https://telegram.org/privacy" style={{ color: GREEN }}>telegram.org/privacy</a>.
+              </li>
+              <li>
+                <strong>Upstash</strong> (rate limiting) — we use Upstash Redis to enforce API
+                rate limits. Only anonymized request counters are stored; no personal data is sent
+                to Upstash. Their privacy policy:{' '}
+                <a href="https://upstash.com/trust/privacy.pdf" style={{ color: GREEN }}>upstash.com/trust/privacy</a>.
+              </li>
+              <li>
+                <strong>Resend</strong> (transactional email) — we use Resend to send account
+                onboarding, alert, and service emails. Your email address is shared with Resend
+                solely for email delivery. Their privacy policy:{' '}
+                <a href="https://resend.com/legal/privacy-policy" style={{ color: GREEN }}>resend.com/legal/privacy-policy</a>.
               </li>
               <li>
                 <strong>Vercel</strong> (hosting) — hosts the Tally website. Vercel may collect
