@@ -23,6 +23,7 @@ const VALID_SOURCES = {
   'early-access': 'tally-early-access',
   'healthcheck': 'healthcheck-lead',
   'checklist': 'checklist-lead',
+  'chat-widget': 'chat-widget-lead',
 };
 
 async function addTagToMember(email, tag) {

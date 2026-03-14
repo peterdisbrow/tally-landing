@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { BG, CARD_BG as CARD, BORDER, GREEN, WHITE, MUTED } from '../../../lib/tokens';
 import Nav from '../../components/Nav';
 import Footer from '../../components/Footer';
@@ -11,18 +11,17 @@ const AMBER = '#f59e0b';
 const AMBER_BG = 'rgba(245,158,11,0.08)';
 const AMBER_BORDER = 'rgba(245,158,11,0.3)';
 
-const GITHUB_RELEASES_URL = 'https://github.com/atemschool/tally/releases/latest';
+const GITHUB_RELEASES_URL = 'https://github.com/peterdisbrow/tally/releases/latest';
 const PORTAL_URL = '/portal';
 const HELP_URL = '/help';
 
 export default function SignupSuccessPage() {
-  const { churchName, registrationCode } = useMemo(() => {
-    if (typeof window === 'undefined') return { churchName: '', registrationCode: '' };
+  const [churchName, setChurchName] = useState('');
+  const [registrationCode, setRegistrationCode] = useState('');
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    return {
-      churchName: params.get('church') || 'Your Church',
-      registrationCode: params.get('code') || '',
-    };
+    setChurchName(params.get('church') || 'Your Church');
+    setRegistrationCode(params.get('code') || '');
   }, []);
 
   return (

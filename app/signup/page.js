@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BG, CARD_BG as CARD, BORDER, GREEN, GREEN_LT, WHITE, MUTED, DANGER } from '../../lib/tokens';
 import Nav from '../components/Nav';
 import Footer from '../components/Footer';
@@ -39,12 +39,11 @@ export default function SignupPage() {
     if (ref) setReferralCode(ref);
   }, []);
 
-  const statusMessage = useMemo(() => {
-    if (typeof window === 'undefined') return '';
+  const [statusMessage, setStatusMessage] = useState('');
+  useEffect(() => {
     const status = new URLSearchParams(window.location.search).get('status');
-    if (status === 'paid') return 'Payment completed. You can now sign in from the Tally desktop app.';
-    if (status === 'cancelled') return 'Checkout was canceled. You can resume it by creating the account again.';
-    return '';
+    if (status === 'paid') setStatusMessage('Payment completed. You can now sign in from the Tally desktop app.');
+    else if (status === 'cancelled') setStatusMessage('Checkout was canceled. You can resume it by creating the account again.');
   }, []);
 
   /* Validation helpers */

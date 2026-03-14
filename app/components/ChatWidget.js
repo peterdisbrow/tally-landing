@@ -264,7 +264,7 @@ function fireLeadCapture(email) {
   fetch('/api/early-access', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: 'Chat Lead', church: '', email, source: 'chatbot' }),
+    body: JSON.stringify({ name: 'Chat Lead', church: '', email, source: 'chat-widget' }),
   }).catch(() => {});
 }
 

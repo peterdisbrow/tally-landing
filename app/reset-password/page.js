@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { BG, CARD_BG as CARD, BORDER, GREEN, WHITE, MUTED, DANGER } from '../../lib/tokens';
 import Nav from '../components/Nav';
+import Footer from '../components/Footer';
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');
@@ -11,9 +12,12 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
 
-  const token = useMemo(() => {
-    if (typeof window === 'undefined') return '';
-    return new URLSearchParams(window.location.search).get('token') || '';
+  const [token, setToken] = useState('');
+  const [tokenLoaded, setTokenLoaded] = useState(false);
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get('token') || '';
+    setToken(t);
+    setTokenLoaded(true);
   }, []);
 
   async function handleSubmit(e) {
@@ -49,7 +53,7 @@ export default function ResetPasswordPage() {
     }
   }
 
-  const noToken = typeof window !== 'undefined' && !token;
+  const noToken = tokenLoaded && !token;
 
   return (
     <>
@@ -65,7 +69,9 @@ export default function ResetPasswordPage() {
         </div>
 
         <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '32px 28px' }}>
-          {noToken ? (
+          {!tokenLoaded ? (
+            <p style={{ color: MUTED, fontSize: 14, textAlign: 'center' }}>Loading&hellip;</p>
+          ) : noToken ? (
             <>
               <h1 style={{ fontSize: 24, marginBottom: 10, fontWeight: 800 }}>Invalid link</h1>
               <p style={{ color: MUTED, fontSize: 14, lineHeight: 1.6 }}>
@@ -142,6 +148,7 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </main>
+    <Footer />
     </>
   );
 }
