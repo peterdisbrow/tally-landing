@@ -21,10 +21,10 @@ export default function StickyCTA() {
         className="sticky-cta-bar"
         style={{
           position: 'fixed',
-          top: 0,
+          top: 64,
           left: 0,
           right: 0,
-          zIndex: 9999,
+          zIndex: 50,
           background: 'rgba(9,9,11,0.92)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',

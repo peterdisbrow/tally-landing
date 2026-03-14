@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react';
 import { BG, CARD_BG, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens';
 import Nav from '../components/Nav';
 import Footer from '../components/Footer';
+import StickyCTA from '../components/StickyCTA';
 
 const CATEGORIES = [
   {
@@ -99,6 +100,7 @@ export default function HardwareCompatibility() {
   return (
     <div style={{ background: BG, color: WHITE, fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif", minHeight: '100vh' }}>
       <Nav />
+      <StickyCTA />
       <main style={{ paddingTop: 80 }}>
         <section style={{ padding: '96px 5% 128px' }}>
           <div style={{ maxWidth: 1100, margin: '0 auto' }}>
@@ -265,7 +267,7 @@ export default function HardwareCompatibility() {
                   borderRadius: 8, textDecoration: 'none',
                   background: GREEN, color: '#000',
                 }}>Start Free Trial &rarr;</a>
-                <a href="mailto:support@atemschool.com" style={{
+                <a href="mailto:support@tallyconnect.app" style={{
                   display: 'inline-block', padding: '13px 28px', fontSize: '0.95rem', fontWeight: 700,
                   borderRadius: 8, textDecoration: 'none',
                   background: 'transparent', color: WHITE,

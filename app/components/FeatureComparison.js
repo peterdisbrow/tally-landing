@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { BG, CARD_BG, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens';
 
 const TIERS = ['Connect', 'Plus', 'Pro', 'Enterprise'];
@@ -41,7 +42,12 @@ function CellValue({ value }) {
   return <span style={{ color: WHITE, fontWeight: 700, fontSize: '0.85rem', fontFamily: 'ui-monospace, monospace' }}>{value}</span>;
 }
 
+const INITIAL_COUNT = 12;
+
 export default function FeatureComparison() {
+  const [showAll, setShowAll] = useState(false);
+  const visibleRows = showAll ? ROWS : ROWS.slice(0, INITIAL_COUNT);
+
   return (
     <div style={{ maxWidth: 1100, margin: '48px auto 0' }}>
       <h3 style={{
@@ -83,7 +89,7 @@ export default function FeatureComparison() {
             </tr>
           </thead>
           <tbody>
-            {ROWS.map((row, i) => (
+            {visibleRows.map((row, i) => (
               <tr key={i} style={{
                 background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)',
               }}>
@@ -104,6 +110,21 @@ export default function FeatureComparison() {
           </tbody>
         </table>
       </div>
+
+      {ROWS.length > INITIAL_COUNT && (
+        <div style={{ textAlign: 'center', marginTop: 24 }}>
+          <button
+            onClick={() => setShowAll(prev => !prev)}
+            style={{
+              padding: '10px 28px', fontSize: '0.88rem', fontWeight: 700,
+              borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent',
+              color: WHITE, cursor: 'pointer', transition: 'border-color .2s',
+            }}
+          >
+            {showAll ? 'Show fewer features' : `Show all ${ROWS.length} features`}
+          </button>
+        </div>
+      )}
 
       {/* Mobile card view */}
       <style>{`

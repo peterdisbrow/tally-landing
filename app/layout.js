@@ -1,7 +1,7 @@
 export const metadata = {
   title: 'Tally | Church Streaming Auto-Recovery & Production Monitoring',
   description:
-    'Automatic stream recovery, production monitoring, and remote control for church tech teams. Monitor ATEM, OBS, vMix, audio consoles, and encoders — auto-recover failures in under 10 seconds. 26 integrations, AI control, pre-service checks, and Telegram alerts. Free 30-day trial.',
+    'Your stream crashed. Tally already fixed it. Auto-recovery monitoring for church production teams. 26 integrations. Free trial.',
   metadataBase: new URL('https://tallyconnect.app'),
   keywords: [
     'church streaming software',

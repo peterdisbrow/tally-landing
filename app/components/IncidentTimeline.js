@@ -1,4 +1,5 @@
 'use client';
+import { useState, useEffect, useRef } from 'react';
 import { BG, CARD_BG, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens';
 
 const STEPS = [
@@ -9,8 +10,19 @@ const STEPS = [
 ];
 
 export default function IncidentTimeline() {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setIsVisible(true);
+    }, { threshold: 0.2 });
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section style={{
+    <section ref={ref} style={{
       padding: '128px 5%',
       borderTop: `1px solid ${BORDER}`,
     }}>
@@ -33,7 +45,7 @@ export default function IncidentTimeline() {
         </p>
 
         {/* Timeline */}
-        <div className="incident-timeline" style={{ position: 'relative' }}>
+        <div className={`incident-timeline${isVisible ? ' timeline-visible' : ''}`} style={{ position: 'relative' }}>
           {/* connecting line */}
           <div className="timeline-line" style={{
             position: 'absolute',
@@ -125,19 +137,19 @@ export default function IncidentTimeline() {
             100% { transform: scale(2.2); opacity: 0; }
           }
 
-          .timeline-step-0 { animation: timeline-fade-in 0.5s ease-out 0.3s forwards; }
-          .timeline-step-1 { animation: timeline-fade-in 0.5s ease-out 0.8s forwards; }
-          .timeline-step-2 { animation: timeline-fade-in 0.5s ease-out 1.3s forwards; }
-          .timeline-step-3 { animation: timeline-fade-in 0.5s ease-out 1.8s forwards; }
+          .timeline-visible .timeline-step-0 { animation: timeline-fade-in 0.5s ease-out 0.3s forwards; }
+          .timeline-visible .timeline-step-1 { animation: timeline-fade-in 0.5s ease-out 0.8s forwards; }
+          .timeline-visible .timeline-step-2 { animation: timeline-fade-in 0.5s ease-out 1.3s forwards; }
+          .timeline-visible .timeline-step-3 { animation: timeline-fade-in 0.5s ease-out 1.8s forwards; }
 
-          .timeline-progress {
+          .timeline-visible .timeline-progress {
             animation: timeline-progress-fill 2.0s ease-out 0.3s forwards;
           }
 
-          .dot-ping-0 { animation: dot-ping-anim 1s ease-out 0.5s; }
-          .dot-ping-1 { animation: dot-ping-anim 1s ease-out 1.0s; }
-          .dot-ping-2 { animation: dot-ping-anim 1s ease-out 1.5s; }
-          .dot-ping-3 { animation: dot-ping-anim 1s ease-out 2.0s; }
+          .timeline-visible .dot-ping-0 { animation: dot-ping-anim 1s ease-out 0.5s; }
+          .timeline-visible .dot-ping-1 { animation: dot-ping-anim 1s ease-out 1.0s; }
+          .timeline-visible .dot-ping-2 { animation: dot-ping-anim 1s ease-out 1.5s; }
+          .timeline-visible .dot-ping-3 { animation: dot-ping-anim 1s ease-out 2.0s; }
 
           @media (max-width: 640px) {
             .incident-timeline > div:last-child {

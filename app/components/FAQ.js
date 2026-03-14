@@ -5,7 +5,7 @@ import { CARD_BG, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens';
 const FAQ_ITEMS = [
   {
     q: 'What equipment does Tally work with?',
-    a: 'ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen & Heath, Yamaha CL/QL), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Dante audio, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, Telegram, YouTube Live, Facebook Live, and Vimeo Live. 26 integrations and counting.',
+    a: <>ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen &amp; Heath, Yamaha CL/QL), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Dante audio, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, Telegram, YouTube Live, Facebook Live, and Vimeo Live. 26 integrations and counting. <a href="/hardware" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 600 }}>See the full compatibility list &rarr;</a></>,
   },
   {
     q: 'What happens if our internet goes down?',
@@ -49,7 +49,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'How do we justify this cost to leadership?',
-    a: 'One prevented streaming outage during a Sunday service pays for Tally for an entire year. Consider this: a single visible stream failure can mean lost online viewers, frustrated members, and hours of troubleshooting. Many churches also spend $200-500 per service paying experienced techs to be on-call "just in case." Tally replaces that safety net at a fraction of the cost — 24/7 monitoring, automatic recovery, and instant alerts so volunteers can run production confidently without an expensive specialist standing by. Most churches see ROI within the first month.',
+    a: <>One prevented streaming outage during a Sunday service pays for Tally for an entire year. Consider this: a single visible stream failure can mean lost online viewers, frustrated members, and hours of troubleshooting. Many churches also spend $200-500 per service paying experienced techs to be on-call &ldquo;just in case.&rdquo; Tally replaces that safety net at a fraction of the cost &mdash; 24/7 monitoring, automatic recovery, and instant alerts so volunteers can run production confidently without an expensive specialist standing by. Most churches see ROI within the first month. <a href="#pricing" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 600 }}>Compare plans &rarr;</a></>,
   },
 ];
 

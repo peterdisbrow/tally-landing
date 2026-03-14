@@ -148,7 +148,7 @@ export default function Pricing() {
 
         <p style={{ color: DIM, textAlign: 'center', fontSize: '0.82rem', marginBottom: 12 }}>
           All plans include email support at{' '}
-          <a href="mailto:support@atemschool.com" style={{ color: GREEN, textDecoration: 'none' }}>support@atemschool.com</a>
+          <a href="mailto:support@tallyconnect.app" style={{ color: GREEN, textDecoration: 'none' }}>support@tallyconnect.app</a>
         </p>
         <p style={{ textAlign: 'center', marginBottom: 24 }}>
           <a href="/hardware" style={{ color: GREEN, textDecoration: 'none', fontSize: '0.82rem', fontWeight: 600 }}>
@@ -172,7 +172,7 @@ export default function Pricing() {
             <span style={{ fontWeight: 800, color: WHITE, fontSize: '1rem' }}>Event &mdash; $99</span>
             <span style={{ color: DIM, fontSize: '0.88rem', marginLeft: 12 }}>72-hour monitoring for conferences, Easter, weddings. No subscription.</span>
           </div>
-          <a href="mailto:sales@atemschool.com" style={{
+          <a href="mailto:sales@tallyconnect.app" style={{
             padding: '10px 22px', fontSize: '0.88rem', fontWeight: 700,
             borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent',
             color: WHITE, textDecoration: 'none', whiteSpace: 'nowrap',

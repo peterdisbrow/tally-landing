@@ -54,15 +54,15 @@ export default function Home() {
       <StickyCTA />
       <main id="main-content">
       <Hero />
-      <Problem />
-      <Features />
-      <IncidentTimeline />
+      <div id="problem"><Problem /></div>
+      <div id="features"><Features /></div>
+      <div id="timeline"><IncidentTimeline /></div>
       <AppShowcase />
       <BoldStatement />
       <Integrations />
       <HowItWorks />
       <Pricing />
-      <Hardware />
+      <div id="hardware"><Hardware /></div>
       <FounderQuote />
       <Testimonials />
       <FAQ />
