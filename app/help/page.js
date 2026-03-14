@@ -141,6 +141,9 @@ export default function HelpPage() {
               <li>The app auto-discovers your ATEM switcher, OBS, and other equipment</li>
               <li>Your church appears live on the dashboard within minutes</li>
             </ol>
+            <p style={{ ...paraStyle, marginTop: 12 }}>
+              <a href="/tools/healthcheck/" style={linkStyle}>Run a free Production Health Check</a>
+            </p>
           </AccordionItem>
 
           <AccordionItem title="Connecting your equipment" hidden={!match('Connecting your equipment')}>
@@ -158,7 +161,7 @@ export default function HelpPage() {
                 <strong style={{ color: WHITE }}>ProPresenter</strong> <span style={badgeStyle}>Plus+</span> — Enable Network API in ProPresenter preferences. Tally connects on port 1025.
               </li>
               <li>
-                <strong style={{ color: WHITE }}>Companion</strong> <span style={badgeStyle}>Plus+</span> — Tally uses the Companion HTTP API on port 8000.
+                <strong style={{ color: WHITE }}>Companion</strong> <span style={badgeStyle}>Plus+</span> — Companion web UI runs on port 8000 by default. Tally connects via the Companion HTTP API.
               </li>
               <li>
                 <strong style={{ color: WHITE }}>Audio Consoles</strong> <span style={badgeStyle}>Plus+</span> — X32/M32 via network OSC. Allen &amp; Heath/Yamaha via MIDI or network.
@@ -213,7 +216,7 @@ export default function HelpPage() {
                 <strong style={{ color: '#eab308' }}>WARNING</strong> <span style={{ color: DIM }}>(yellow)</span> — Low FPS, low bitrate, single device disconnect. Sent to on-call TD.
               </li>
               <li>
-                <strong style={{ color: '#ef4444' }}>CRITICAL</strong> <span style={{ color: DIM }}>(red)</span> — Stream stopped, ATEM disconnected, recording failed. Sent to on-call TD, escalates after 90 seconds if unacknowledged.
+                <strong style={{ color: '#ef4444' }}>CRITICAL</strong> <span style={{ color: DIM }}>(red)</span> — Stream stopped, ATEM disconnected, recording failed. Sent to on-call TD, escalates after 5 minutes if unacknowledged.
               </li>
               <li>
                 <strong style={{ color: '#ef4444' }}>EMERGENCY</strong> <span style={{ color: DIM }}>(red flash)</span> — Multiple systems down, no TD response. Immediately escalated.
@@ -280,7 +283,7 @@ export default function HelpPage() {
               <li>Set a primary TD — they are the default contact</li>
               <li>Assign weekly on-call via Telegram or the portal</li>
               <li>During services, alerts route to whoever is on-call that week</li>
-              <li>If no response in 90 seconds, Tally escalates to the primary TD</li>
+              <li>If no response in 5 minutes, Tally escalates to the primary TD</li>
               <li>TDs can swap duty via Telegram: send <code style={codeStyle}>/swap [name]</code>, the other TD confirms with <code style={codeStyle}>/confirmswap</code></li>
             </ol>
           </AccordionItem>
@@ -320,6 +323,9 @@ export default function HelpPage() {
             </ul>
             <p style={{ ...paraStyle, marginTop: 12 }}>
               Results are sent to the on-call TD with a green-light or issues list.
+            </p>
+            <p style={{ ...paraStyle, marginTop: 12 }}>
+              <a href="/tools/checklist/" style={linkStyle}>Try our free Pre-Service Checklist tool</a>
             </p>
           </AccordionItem>
 
@@ -442,7 +448,7 @@ export default function HelpPage() {
               <li>Verify your registration code is correct in the app settings</li>
               <li>Check if your firewall or corporate network blocks WebSocket connections</li>
               <li>Try restarting the Tally app</li>
-              <li>If the issue persists, check <a href="https://status.tallyconnect.app" style={linkStyle}>status.tallyconnect.app</a> for any service disruptions</li>
+              <li>If the issue persists, check our status page for any service disruptions</li>
             </ol>
             <p style={{ ...paraStyle, marginTop: 12 }}>
               <strong style={{ color: WHITE }}>Note:</strong> Local monitoring and auto-recovery continue to work even while the relay is unreachable. Only remote access and alert delivery are affected.

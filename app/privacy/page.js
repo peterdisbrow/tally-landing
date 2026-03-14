@@ -56,7 +56,7 @@ export default function PrivacyPage() {
           <Section title="What data we collect">
             <ul style={ulStyle}>
               <li>
-                <strong>Early access form:</strong> name, church name, and email address. Stored in
+                <strong>Signup form:</strong> name, church name, and email address. Stored in
                 Mailchimp for email communications.
               </li>
               <li>
@@ -140,7 +140,7 @@ export default function PrivacyPage() {
               </li>
               <li>
                 <strong>Mailchimp</strong> (email) — stores your name and email if you sign up for
-                early access or marketing emails. Their privacy policy:{' '}
+                marketing emails. Their privacy policy:{' '}
                 <a href="https://mailchimp.com/legal/privacy/" style={{ color: GREEN }}>mailchimp.com/legal/privacy</a>.
               </li>
               <li>
@@ -318,7 +318,7 @@ export default function PrivacyPage() {
             <ul style={ulStyle}>
               <li>
                 <strong>Legal basis for processing:</strong> we process your personal data based on
-                (a) your consent (e.g., signing up for early access), (b) performance of a contract
+                (a) your consent (e.g., creating an account), (b) performance of a contract
                 (e.g., providing the Tally service you subscribed to), and (c) our legitimate
                 interests (e.g., improving the product, preventing abuse).
               </li>

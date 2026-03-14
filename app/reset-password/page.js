@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { BG, CARD_BG as CARD, BORDER, GREEN, WHITE, MUTED, DANGER } from '../../lib/tokens';
+import Nav from '../components/Nav';
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');
@@ -51,7 +52,9 @@ export default function ResetPasswordPage() {
   const noToken = typeof window !== 'undefined' && !token;
 
   return (
-    <main style={{ minHeight: '100vh', background: BG, color: WHITE, fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif", padding: '48px 20px' }}>
+    <>
+    <Nav />
+    <main style={{ minHeight: '100vh', background: BG, color: WHITE, fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif", paddingTop: 80, padding: '80px 20px 48px' }}>
       <div style={{ maxWidth: 440, margin: '0 auto' }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
@@ -139,6 +142,7 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </main>
+    </>
   );
 }
 

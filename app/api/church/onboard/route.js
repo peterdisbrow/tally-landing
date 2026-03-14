@@ -3,8 +3,8 @@ import { RELAY_URL } from '../../../../lib/relay';
 import { checkRateLimit } from '../../../../lib/rate-limit';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://tallyconnect.app';
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = process.env.FROM_EMAIL || 'Tally <noreply@atemschool.com>';
-const GITHUB_RELEASES_URL = 'https://github.com/atemschool/tally/releases/latest';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'Tally <noreply@tallyconnect.app>';
+const GITHUB_RELEASES_URL = 'https://github.com/peterdisbrow/tally/releases/latest';
 
 const ALLOWED_TIERS = new Set(['connect', 'plus', 'pro', 'managed', 'event']);
 const ALLOWED_BILLING_INTERVALS = new Set(['monthly', 'annual']);
@@ -46,7 +46,7 @@ function buildWelcomeEmailHtml({ churchName, email, registrationCode }) {
 
       <h1 style="font-size: 22px; color: #111; margin: 0 0 8px;">Welcome to Tally, ${churchName}!</h1>
       <p style="font-size: 15px; color: #333; line-height: 1.6; margin: 0 0 24px;">
-        Your account is ready. Here's how to get your production system monitored in under 10 minutes.
+        Your account is ready. Here's how to get started.
       </p>
 
       <!-- Step 1 -->

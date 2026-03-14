@@ -50,7 +50,7 @@ const DEMO_STAGES = [
     messages: [
       { content: '```tally-output\nOBS > Recording started \u2192 /recordings/2026-03-02_sunday.mkv\nHyperDeck > Recording started \u2192 Slot 1, SSD 847 GB free\nStatus: LIVE \u25CF Recording \u25CF 1080p30 \u00B7 6.0 Mbps\n```\n\nStream and recording both running. Service is underway...' },
       { content: '15 minutes in \u2014 the stream just dropped. This is where Tally shines.\n\nWatch what happens...' },
-      { content: '```tally-output\n\u26A0 ALERT: Stream dropped \u2014 encoder offline\n  Detecting... YouTube RTMP connection lost\n\nVerifying — is this a real outage?\n  \u2713 OBS encoder: responding (not crashed)\n  \u2713 Network: upstream OK, 48 Mbps\n  \u2713 YouTube ingest: reachable\n  \u2717 RTMP session: timed out (confirmed)\n  Verdict: connection drop, not a device failure\n\nAuto-Recovery activated (rule: restart on RTMP timeout):\n  Step 1: Closing stale RTMP session...\n  Step 2: Re-authenticating stream key...\n  Step 3: Opening new connection...\n  Step 4: Confirming upstream healthy...\n\n\u2713 Stream restored in 8.2 seconds\n\u2713 Slack alert: "#production \u2014 Stream auto-recovered (RTMP timeout)"\n\u2713 Recording continued uninterrupted\n\u2713 Viewers saw a 3-second buffer\n```\n\n**Tally verified the failure before acting** \u2014 no false restarts. The recovery rule is configurable: auto-recover, notify-only, or ask-first. Recording never stopped.' },
+      { content: '```tally-output\n\u26A0 ALERT: Stream dropped \u2014 encoder offline\n  Detecting... YouTube RTMP connection lost\n\nVerifying — is this a real outage?\n  \u2713 OBS encoder: responding (not crashed)\n  \u2713 Network: upstream OK, 48 Mbps\n  \u2713 YouTube ingest: reachable\n  \u2717 RTMP session: timed out (confirmed)\n  Verdict: connection drop, not a device failure\n\nAuto-Recovery activated (rule: restart on RTMP timeout):\n  Step 1: Closing stale RTMP session...\n  Step 2: Re-authenticating stream key...\n  Step 3: Opening new connection...\n  Step 4: Confirming upstream healthy...\n\n\u2713 Stream restored\n\u2713 Slack alert: "#production \u2014 Stream auto-recovered (RTMP timeout)"\n\u2713 Recording continued uninterrupted\n\u2713 Viewers saw a 3-second buffer\n```\n\n**Tally verified the failure before acting** \u2014 no false restarts. The recovery rule is configurable: auto-recover, notify-only, or ask-first. Recording never stopped.' },
     ],
     waitForInput: false,
     nextLabel: 'See the debrief \u2192',
@@ -59,7 +59,7 @@ const DEMO_STAGES = [
   {
     messages: [
       { content: 'Service complete! Here\'s your automatic debrief:' },
-      { content: '```tally-output\nSESSION DEBRIEF \u2014 Sunday Morning\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\nDuration: 1h 23m\nDevices: 6/6 healthy\nStream: 1h 22m uptime (99.8%)\nRecording: 1h 23m (local + HyperDeck)\nIncidents: 1 (RTMP timeout \u2192 auto-recovered in 8.2s)\nFalse alarms suppressed: 2 (brief packet loss, ignored)\nPeak viewers: 847\n\n\u2192 Full report pushed to Planning Center\n```' },
+      { content: '```tally-output\nSESSION DEBRIEF \u2014 Sunday Morning\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\nDuration: 1h 23m\nDevices: 6/6 healthy\nStream: 1h 22m uptime (99.8%)\nRecording: 1h 23m (local + HyperDeck)\nIncidents: 1 (RTMP timeout \u2192 auto-recovered)\nFalse alarms suppressed: 2 (brief packet loss, ignored)\nPeak viewers: 847\n\n\u2192 Full report pushed to Planning Center\n```' },
       { content: 'That\'s Tally \u2014 one command to go live, smart recovery that verifies before it acts, and a full debrief after every service. No false restarts.\n\n**Ready to try it with your gear?**\n\n[CTA:Get Started Free:/signup]\n[CTA:See Pricing:#pricing]' },
     ],
     waitForInput: false,
@@ -106,7 +106,7 @@ function buildWhatIsTallyResponse() {
 }
 
 function buildAutoRecoveryResponse() {
-  return `**Auto-Recovery** detects a dropped stream and restarts it in under **10 seconds** — usually before anyone notices.\n\nTally **verifies before it acts** — checks your encoder, network, and platform ingest to confirm it's a real outage, not a brief blip. No false restarts.\n\nRecovery is configurable per church: auto-recover, notify-only, or ask-first. Max retry limits prevent loops.\n\nWorks with OBS, vMix, Ecamm, and hardware encoders. Included on all plans.\n\nWant to see it in action? Try the live demo!`;
+  return `**Auto-Recovery** detects a dropped stream and restarts it automatically — usually before anyone notices.\n\nTally **verifies before it acts** — checks your encoder, network, and platform ingest to confirm it's a real outage, not a brief blip. No false restarts.\n\nRecovery is configurable per church: auto-recover, notify-only, or ask-first. Max retry limits prevent loops.\n\nWorks with OBS, vMix, Ecamm, and hardware encoders. Included on all plans.\n\nWant to see it in action? Try the live demo!`;
 }
 
 function buildFalseTriggersResponse() {
@@ -114,7 +114,7 @@ function buildFalseTriggersResponse() {
 }
 
 function buildAlertsResponse() {
-  return `Tally sends **Slack + Telegram alerts** with diagnosis steps — not just "something broke" but what to do.\n\n• One-tap acknowledge from your phone\n• 90-second escalation if nobody responds\n• Customizable per event type\n\nIncluded on all plans. Want to hear about on-call TD rotation?`;
+  return `Tally sends **Slack + Telegram alerts** with diagnosis steps — not just "something broke" but what to do.\n\n• One-tap acknowledge from your phone\n• 5-minute escalation if nobody responds\n• Customizable per event type\n\nIncluded on all plans. Want to hear about on-call TD rotation?`;
 }
 
 function buildAtemResponse() {
@@ -134,7 +134,7 @@ function buildInternetResponse() {
 }
 
 function buildSystemRequirementsResponse() {
-  return `Runs on your **existing booth computer** — no dedicated hardware needed.\n\n• macOS 11+ or Windows 10+\n• Uses ~200MB RAM\n• Same network as your devices\n\nLightweight monitoring — won't affect OBS or vMix performance.\n\n[CTA:Get Started Free:/signup]`;
+  return `Runs on your **existing booth computer** — no dedicated hardware needed.\n\n• macOS 12+ or Windows 10+\n• Uses ~200MB RAM\n• Same network as your devices\n\nLightweight monitoring — won't affect OBS or vMix performance.\n\n[CTA:Get Started Free:/signup]`;
 }
 
 function buildVolunteerResponse() {

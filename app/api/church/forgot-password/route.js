@@ -8,7 +8,7 @@ if (!SECRET && process.env.NODE_ENV === 'production') {
 }
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://tallyconnect.app';
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = process.env.FROM_EMAIL || 'Tally <noreply@atemschool.com>';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'Tally <noreply@tallyconnect.app>';
 
 const TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
