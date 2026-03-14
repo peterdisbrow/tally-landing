@@ -68,8 +68,8 @@ export default function TermsPage() {
               <li>
                 You are responsible for all activity on your account, authorized or not. Notify us
                 immediately at{' '}
-                <a href="mailto:support@atemschool.com" style={{ color: GREEN }}>
-                  support@atemschool.com
+                <a href="mailto:support@tallyconnect.app" style={{ color: GREEN }}>
+                  support@tallyconnect.app
                 </a>{' '}
                 if you suspect unauthorized activity.
               </li>
@@ -443,8 +443,8 @@ export default function TermsPage() {
 
           <Section title="20. Contact">
             If you have questions about these Terms, contact us at{' '}
-            <a href="mailto:support@atemschool.com" style={{ color: GREEN }}>
-              support@atemschool.com
+            <a href="mailto:support@tallyconnect.app" style={{ color: GREEN }}>
+              support@tallyconnect.app
             </a>
             .
           </Section>

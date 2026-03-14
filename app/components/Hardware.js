@@ -143,7 +143,7 @@ export default function Hardware() {
             <span style={{ fontWeight: 800, color: WHITE, fontSize: '1rem' }}>Blackmagic Design</span>
             <span style={{ color: DIM, fontSize: '0.88rem', marginLeft: 12 }}>Tally members get exclusive pricing on ATEM switchers, HyperDecks, and cameras.</span>
           </div>
-          <a href="mailto:sales@atemschool.com?subject=Blackmagic%20Member%20Pricing" style={{
+          <a href="mailto:sales@tallyconnect.app?subject=Blackmagic%20Member%20Pricing" style={{
             padding: '10px 22px', fontSize: '0.88rem', fontWeight: 700,
             borderRadius: 8, border: `1px solid ${BORDER}`, background: 'transparent',
             color: WHITE, textDecoration: 'none', whiteSpace: 'nowrap',

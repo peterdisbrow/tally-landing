@@ -269,8 +269,8 @@ export default function PrivacyPage() {
               </li>
             </ul>
             You can request immediate deletion by emailing{' '}
-            <a href="mailto:support@atemschool.com" style={{ color: GREEN }}>
-              support@atemschool.com
+            <a href="mailto:support@tallyconnect.app" style={{ color: GREEN }}>
+              support@tallyconnect.app
             </a>
             .
           </Section>
@@ -303,8 +303,8 @@ export default function PrivacyPage() {
             </ul>
             <p style={pStyle}>
               To exercise any of these rights, contact us at{' '}
-              <a href="mailto:support@atemschool.com" style={{ color: GREEN }}>
-                support@atemschool.com
+              <a href="mailto:support@tallyconnect.app" style={{ color: GREEN }}>
+                support@tallyconnect.app
               </a>
               . We will respond within 30 days.
             </p>
@@ -368,8 +368,8 @@ export default function PrivacyPage() {
             Tally is not intended for use by children under the age of 18. We do not knowingly
             collect personal information from children. If you believe a child has provided us with
             personal data, please contact us at{' '}
-            <a href="mailto:support@atemschool.com" style={{ color: GREEN }}>
-              support@atemschool.com
+            <a href="mailto:support@tallyconnect.app" style={{ color: GREEN }}>
+              support@tallyconnect.app
             </a>{' '}
             and we will delete it promptly.
           </Section>
@@ -383,8 +383,8 @@ export default function PrivacyPage() {
 
           <Section title="Contact">
             For privacy questions, data requests, or concerns, email{' '}
-            <a href="mailto:support@atemschool.com" style={{ color: GREEN }}>
-              support@atemschool.com
+            <a href="mailto:support@tallyconnect.app" style={{ color: GREEN }}>
+              support@tallyconnect.app
             </a>
             .
           </Section>

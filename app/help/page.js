@@ -485,7 +485,7 @@ export default function HelpPage() {
               Cancel anytime — your service continues through the end of the current billing period. We do not offer refunds for partial months. If you are unhappy with Tally, cancel before your next billing date.
             </p>
             <p style={{ ...paraStyle, marginTop: 8 }}>
-              Contact <a href="mailto:support@atemschool.com" style={linkStyle}>support@atemschool.com</a> with any billing questions.
+              Contact <a href="mailto:support@tallyconnect.app" style={linkStyle}>support@tallyconnect.app</a> with any billing questions.
             </p>
           </AccordionItem>
 
@@ -563,8 +563,8 @@ export default function HelpPage() {
             <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Still need help?</h2>
             <p style={{ color: MUTED, fontSize: 14, lineHeight: 1.7, marginBottom: 16 }}>
               Reach us at{' '}
-              <a href="mailto:support@atemschool.com" style={linkStyle}>
-                support@atemschool.com
+              <a href="mailto:support@tallyconnect.app" style={linkStyle}>
+                support@tallyconnect.app
               </a>
             </p>
             <div

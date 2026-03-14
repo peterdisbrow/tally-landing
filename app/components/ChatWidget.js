@@ -98,7 +98,7 @@ function buildTrialResponse() {
 }
 
 function buildSupportResponse() {
-  return `• **Support**: support@atemschool.com\n• **Sales**: sales@atemschool.com\n• **Guides**: tallyconnect.app → Guides\n\nOr just ask me here — I can help with most questions!`;
+  return `• **Support**: support@tallyconnect.app\n• **Sales**: sales@tallyconnect.app\n• **Guides**: tallyconnect.app → Guides\n\nOr just ask me here — I can help with most questions!`;
 }
 
 function buildWhatIsTallyResponse() {
