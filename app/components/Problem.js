@@ -1,9 +1,9 @@
 import { BG, CARD_BG, BORDER, GREEN, WHITE, MUTED } from '../../lib/tokens';
 
 const STATS = [
-  { stat: '3+ min', label: 'typical delay before someone notices a stream failure' },
-  { stat: '87%', label: 'of stream failures happen during the first 5 minutes of service' },
-  { stat: '< 10s', label: 'Tally auto-recovery \u2014 stream back before anyone notices' },
+  { stat: '24/7', label: 'Tally watches your stream, encoder, and equipment — even when nobody\u2019s in the booth' },
+  { stat: 'Auto', label: 'Detects failures and kicks off recovery automatically — no human required' },
+  { stat: 'Alert', label: 'Your TD gets a Telegram or Slack message with exactly what happened and what Tally did' },
 ];
 
 export default function Problem() {

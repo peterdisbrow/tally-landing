@@ -3,6 +3,7 @@ import Nav from './components/Nav';
 import Hero from './components/Hero';
 import Problem from './components/Problem';
 import Features from './components/Features';
+import IncidentTimeline from './components/IncidentTimeline';
 import AppShowcase from './components/AppShowcase';
 import BoldStatement from './components/BoldStatement';
 import Integrations from './components/Integrations';
@@ -13,6 +14,7 @@ import FounderQuote from './components/FounderQuote';
 import Testimonials from './components/Testimonials';
 import FAQ from './components/FAQ';
 import Footer from './components/Footer';
+import StickyCTA from './components/StickyCTA';
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -49,10 +51,12 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Nav />
+      <StickyCTA />
       <main id="main-content">
       <Hero />
       <Problem />
       <Features />
+      <IncidentTimeline />
       <AppShowcase />
       <BoldStatement />
       <Integrations />

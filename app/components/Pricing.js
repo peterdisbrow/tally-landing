@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { BG, CARD_BG, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens';
 import { PRICING } from '../../lib/data';
+import FeatureComparison from './FeatureComparison';
+import TrialBadges from './TrialBadges';
 
 export default function Pricing() {
   const [annual, setAnnual] = useState(false);
@@ -144,9 +146,14 @@ export default function Pricing() {
           })}
         </div>
 
-        <p style={{ color: DIM, textAlign: 'center', fontSize: '0.82rem', marginBottom: 24 }}>
+        <p style={{ color: DIM, textAlign: 'center', fontSize: '0.82rem', marginBottom: 12 }}>
           All plans include email support at{' '}
           <a href="mailto:support@atemschool.com" style={{ color: GREEN, textDecoration: 'none' }}>support@atemschool.com</a>
+        </p>
+        <p style={{ textAlign: 'center', marginBottom: 24 }}>
+          <a href="/hardware" style={{ color: GREEN, textDecoration: 'none', fontSize: '0.82rem', fontWeight: 600 }}>
+            Check hardware compatibility &rarr;
+          </a>
         </p>
 
         {/* Event add-on */}
@@ -171,6 +178,9 @@ export default function Pricing() {
             color: WHITE, textDecoration: 'none', whiteSpace: 'nowrap',
           }}>Book an Event &rarr;</a>
         </div>
+
+        <TrialBadges />
+        <FeatureComparison />
       </div>
     </section>
   );

@@ -47,6 +47,10 @@ const FAQ_ITEMS = [
     q: 'Can I cancel anytime?',
     a: 'Yes. No contracts, no cancellation fees. Cancel from your Church Portal whenever you want. Your gear keeps working exactly as it did before Tally.',
   },
+  {
+    q: 'How do we justify this cost to leadership?',
+    a: 'One prevented streaming outage during a Sunday service pays for Tally for an entire year. Consider this: a single visible stream failure can mean lost online viewers, frustrated members, and hours of troubleshooting. Many churches also spend $200-500 per service paying experienced techs to be on-call "just in case." Tally replaces that safety net at a fraction of the cost — 24/7 monitoring, automatic recovery, and instant alerts so volunteers can run production confidently without an expensive specialist standing by. Most churches see ROI within the first month.',
+  },
 ];
 
 function FAQItem({ item, index }) {

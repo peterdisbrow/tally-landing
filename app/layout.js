@@ -1,26 +1,51 @@
 export const metadata = {
-  title: 'Tally — Church Production Monitoring & Remote Control',
+  title: 'Tally | Church Streaming Auto-Recovery & Production Monitoring',
   description:
-    'Monitor your ATEM, OBS, vMix, audio consoles, and stream health from anywhere. Real-time alerts, pre-service auto-check, and full remote control via Telegram.',
+    'Automatic stream recovery, production monitoring, and remote control for church tech teams. Monitor ATEM, OBS, vMix, audio consoles, and encoders — auto-recover failures in under 10 seconds. 26 integrations, AI control, pre-service checks, and Telegram alerts. Free 30-day trial.',
   metadataBase: new URL('https://tallyconnect.app'),
+  keywords: [
+    'church streaming software',
+    'church production monitoring',
+    'ATEM monitoring',
+    'OBS auto recovery',
+    'church livestream',
+    'church tech automation',
+    'worship stream recovery',
+    'church AV monitoring',
+    'ProPresenter remote control',
+    'church volunteer tech tools',
+  ],
   openGraph: {
-    title: 'Tally — Church Production Monitoring',
+    title: 'Tally | Church Streaming Auto-Recovery & Production Monitoring',
     description:
-      'Monitor your church production system from anywhere. ATEM, OBS, Audio Consoles, and Presentations — Tally watches everything and fixes problems before anyone notices.',
+      'Your stream crashed. Tally already fixed it. Automatic stream recovery, production monitoring, and AI-powered control for church tech teams. 26 integrations. Free 30-day trial.',
     url: 'https://tallyconnect.app',
     siteName: 'Tally',
     locale: 'en_US',
     type: 'website',
+    images: [
+      {
+        url: 'https://tallyconnect.app/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Tally — Church Streaming Auto-Recovery & Production Monitoring',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Tally — Church Production Monitoring',
+    site: '@tallyconnect',
+    title: 'Tally | Church Streaming Auto-Recovery & Production Monitoring',
     description:
-      'Church production monitoring & remote control. ATEM, OBS, Audio Consoles, and Presentations — all in your pocket.',
+      'Your stream crashed. Tally already fixed it. Auto-recovery in under 10 seconds. 26 integrations for ATEM, OBS, audio consoles, and more. Free 30-day trial.',
+    images: ['https://tallyconnect.app/og-image.png'],
   },
   robots: {
     index: true,
     follow: true,
+  },
+  alternates: {
+    canonical: 'https://tallyconnect.app',
   },
 };
 

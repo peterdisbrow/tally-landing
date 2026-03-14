@@ -1,4 +1,4 @@
-import { CARD_BG, BORDER, GREEN, WHITE, MUTED } from '../../lib/tokens';
+import { CARD_BG, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens';
 import { FEATURES } from '../../lib/data';
 
 export default function Features() {
@@ -41,6 +41,18 @@ export default function Features() {
               <p style={{ color: MUTED, margin: 0, fontSize: '0.9rem', lineHeight: 1.65 }}>{f.desc}</p>
             </div>
           ))}
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: 48 }}>
+          <p style={{ color: DIM, fontSize: '0.9rem', marginBottom: 14 }}>
+            Works with 26+ integrations across switchers, encoders, audio, and presentation software.
+          </p>
+          <a href="/hardware" style={{
+            display: 'inline-block', padding: '12px 28px', fontSize: '0.9rem', fontWeight: 700,
+            borderRadius: 8, textDecoration: 'none',
+            border: `1px solid ${BORDER}`, background: 'transparent', color: WHITE,
+            transition: 'border-color .2s',
+          }}>View Compatible Hardware &rarr;</a>
         </div>
       </div>
     </section>
