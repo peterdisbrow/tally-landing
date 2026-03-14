@@ -37,7 +37,7 @@ export const metadata = {
     site: '@tallyconnect',
     title: 'Tally | Church Streaming Auto-Recovery & Production Monitoring',
     description:
-      'Your stream crashed. Tally already fixed it. Auto-recovery in under 10 seconds. 26 integrations for ATEM, OBS, audio consoles, and more. Free 30-day trial.',
+      'Your stream crashed. Tally already fixed it. Auto-recovery monitoring for church production teams. 26 integrations. Free trial.',
     images: ['https://tallyconnect.app/og-image.png'],
   },
   robots: {

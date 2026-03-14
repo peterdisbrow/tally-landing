@@ -22,7 +22,7 @@ RULES:
 - Always provide value in the message itself, even if they never click a link.
 
 ABOUT TALLY:
-TallyConnect.app monitors church production systems (ATEM switchers, OBS, ProPresenter, audio consoles, encoders) from one dashboard. It auto-recovers stream failures in under 10 seconds, runs pre-service health checks, sends instant alerts via Slack/Telegram, and provides full remote control. Pricing starts at $49/mo with a 30-day free trial.`;
+TallyConnect.app monitors church production systems (ATEM switchers, OBS, ProPresenter, audio consoles, encoders) from one dashboard. It auto-recovers stream failures, runs pre-service health checks, sends instant alerts via Slack/Telegram, and provides full remote control. Pricing starts at $49/mo with a 30-day free trial.`;
 
 const TYPE_PROMPTS = {
   'cold-dm': 'Write a short, friendly cold DM (3-5 sentences). The goal is to start a conversation, not close a sale. Offer something genuinely helpful — the free health check tool or checklist. Don\'t mention pricing or trials unless asked.',

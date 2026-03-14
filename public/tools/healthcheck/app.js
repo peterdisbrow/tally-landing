@@ -12,7 +12,7 @@ const QUESTIONS = [
       { text: "Almost never — we can't remember the last time", score: 3 },
     ],
     riskText: "Frequent stream drops during services",
-    fixText: "Tally monitors your stream in real-time and auto-restarts it in under 10 seconds — before most viewers notice.",
+    fixText: "Tally monitors your stream in real-time and auto-restarts it automatically — before most viewers notice.",
   },
   {
     category: "Streaming & Recording",

@@ -102,7 +102,7 @@ function buildSupportResponse() {
 }
 
 function buildWhatIsTallyResponse() {
-  return `**Tally** monitors every device in your church booth — ATEM, OBS, audio, encoders, ProPresenter — and fixes problems before anyone notices.\n\n• **Auto-recovery** — restarts your stream in under 10 seconds\n• **AI commands** — type "cut to camera 2" in plain English\n• **Remote control** — from your phone or Telegram\n\n10-minute setup. Runs on your existing computer.\n\n[CTA:Get Started Free:/signup]\n\nWant to see pricing or try a live demo?`;
+  return `**Tally** monitors every device in your church booth — ATEM, OBS, audio, encoders, ProPresenter — and fixes problems before anyone notices.\n\n• **Auto-recovery** — restarts your stream automatically\n• **AI commands** — type "cut to camera 2" in plain English\n• **Remote control** — from your phone or Telegram\n\n10-minute setup. Runs on your existing computer.\n\n[CTA:Get Started Free:/signup]\n\nWant to see pricing or try a live demo?`;
 }
 
 function buildAutoRecoveryResponse() {

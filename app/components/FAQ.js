@@ -17,7 +17,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What if our stream drops during service?',
-    a: 'Tally detects it in seconds, verifies it\u2019s a real outage (not a momentary blip), and auto-restarts your stream. Most recoveries happen in under 10 seconds \u2014 before anyone in the congregation notices. You get a Telegram or Slack alert that says "handled." If nobody acknowledges within 90 seconds, Tally escalates to your backup TD.',
+    a: 'Tally detects it in seconds, verifies it\u2019s a real outage (not a momentary blip), and auto-restarts your stream. Most recoveries happen before anyone in the congregation notices. You get a Telegram or Slack alert that says "handled." If nobody acknowledges within 5 minutes, Tally escalates to your backup TD.',
   },
   {
     q: 'What about false triggers or accidental restarts?',

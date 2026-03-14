@@ -22,7 +22,7 @@ export default function Hero() {
         fontWeight: 700, letterSpacing: '0.12em', color: GREEN,
       }}>
         <span style={{ width: 6, height: 6, borderRadius: '50%', background: GREEN, display: 'inline-block', boxShadow: `0 0 6px ${GREEN}` }} />
-        TALLY &mdash; CHURCH PRODUCTION AUTO-RECOVERY
+        TALLY &mdash; AI BROADCAST ENGINEER
       </div>
 
       {/* headline */}
@@ -40,7 +40,7 @@ export default function Hero() {
         fontSize: 'clamp(1rem, 2.2vw, 1.25rem)', color: MUTED,
         maxWidth: 660, margin: '0 auto 20px', lineHeight: 1.7,
       }}>
-        Tally watches your entire production &mdash; ATEM, OBS, audio, encoders, ProPresenter &mdash; and auto-recovers failures in under 10 seconds. Your TD gets a Telegram alert. Your congregation never knows.
+        Tally watches your entire production &mdash; ATEM, OBS, audio, encoders, ProPresenter &mdash; and auto-recovers failures before anyone notices. Your TD gets an alert. Your congregation never knows.
       </p>
 
       {/* social proof line */}
@@ -48,7 +48,7 @@ export default function Hero() {
         color: DIM, fontSize: '0.9rem', margin: '0 auto 52px',
         fontFamily: 'ui-monospace, monospace', letterSpacing: '0.04em',
       }}>
-        26 integrations &middot; Auto-recovery in &lt; 10s &middot; AI natural language control &middot; Self-service church portal
+        26 integrations &middot; Automatic recovery &middot; AI natural language control &middot; Self-service church portal
       </p>
 
       {/* CTAs */}
