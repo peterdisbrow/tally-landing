@@ -367,13 +367,13 @@ export default function HelpPage() {
 
           <AccordionItem title="Live video preview" hidden={!match('Live video preview')}>
             <p style={paraStyle}>
-              <span style={badgeStyleAlt}>Plus+</span> <span style={badgeStyleAlt}>Pro</span> <span style={badgeStyleAlt}>Enterprise</span> — See a live, low-latency preview of your stream output directly in the Tally dashboard or admin portal.
+              <span style={{ ...badgeStyleAlt, background: 'rgba(234,179,8,0.12)', borderColor: 'rgba(234,179,8,0.3)', color: '#eab308' }}>COMING SOON</span> — Live video preview requires a Tally Box hardware encoder connected to your ATEM aux output. The Tally Box hardware is currently in development.
             </p>
             <ul style={ulStyle}>
-              <li>Requires a Tally Box or HDMI capture device connected to your ATEM aux output</li>
-              <li>Preview streams at approximately 3 Mbps H.264 over a secure relay connection</li>
+              <li>Will stream approximately 3 Mbps H.264 over a secure relay connection</li>
               <li>Accessible from any browser — no special software needed on the viewing end</li>
-              <li>Preview frames are transient and never stored on our servers</li>
+              <li>Preview frames will be transient and never stored on our servers</li>
+              <li>Sign up to be notified when Tally Box hardware is available</li>
             </ul>
           </AccordionItem>
 

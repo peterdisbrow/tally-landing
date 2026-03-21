@@ -17,7 +17,6 @@ const ROWS = [
   { feature: 'Signal Failover', values: [false, true, true, true] },
   { feature: 'All 26 Integrations', values: [false, true, true, true] },
   { feature: 'Deep ProPresenter Control', values: [false, true, true, true] },
-  { feature: 'Live Video Preview', values: [false, true, true, true] },
   { feature: 'On-Call TD Rotation', values: [false, true, true, true] },
   { feature: 'Guest TD Tokens', values: [false, true, true, true] },
   { feature: 'AI Natural Language Commands', values: [false, true, true, true] },
