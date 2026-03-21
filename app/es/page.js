@@ -619,8 +619,10 @@ const PRICING_ES = [
   {
     name: 'Connect',
     plan: 'connect',
-    monthlyPrice: 49,
-    annualPrice: 490,
+    monthlyPrice: 79,
+    annualPrice: 711,
+    foundingMonthlyPrice: 49,
+    foundingAnnualPrice: 441,
     desc: 'Monitoreo, alertas y control remoto para una sola sala.',
     featured: false,
     cta: 'Iniciar Prueba Gratuita \u2192',
@@ -641,7 +643,7 @@ const PRICING_ES = [
     name: 'Plus',
     plan: 'plus',
     monthlyPrice: 99,
-    annualPrice: 990,
+    annualPrice: 891,
     desc: 'Integraciones completas, comandos de IA y soporte multi-sala para equipos en crecimiento.',
     featured: false,
     cta: 'Iniciar Prueba Gratuita \u2192',
@@ -663,7 +665,7 @@ const PRICING_ES = [
     name: 'Pro',
     plan: 'pro',
     monthlyPrice: 149,
-    annualPrice: 1490,
+    annualPrice: 1341,
     desc: 'Piloto automático con IA, sincronización con Planning Center e informes mensuales para operaciones multi-sala.',
     featured: true,
     cta: 'Iniciar Prueba Gratuita \u2192',
@@ -682,7 +684,7 @@ const PRICING_ES = [
     name: 'Enterprise',
     plan: 'managed',
     monthlyPrice: 499,
-    annualPrice: 4990,
+    annualPrice: 4491,
     desc: 'Salas ilimitadas, incorporación personalizada y soporte dedicado.',
     featured: false,
     cta: 'Contactar Ventas \u2192',
@@ -702,7 +704,7 @@ const PRICING_ES = [
 ];
 
 const FC_TIERS = ['Connect', 'Plus', 'Pro', 'Enterprise'];
-const FC_TIER_PRICES = ['$49', '$99', '$149', '$499'];
+const FC_TIER_PRICES = ['$79', '$99', '$149', '$499'];
 
 const FC_ROWS_ES = [
   { feature: 'Salas', values: ['1', '3', '5', 'Ilimitadas'] },
@@ -946,7 +948,7 @@ function PricingEs() {
               background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
               borderRadius: 20, padding: '5px 14px', whiteSpace: 'nowrap',
             }}>
-              AHORRA 2 MESES
+              AHORRA 3 MESES
             </span>
           )}
         </div>
@@ -957,9 +959,13 @@ function PricingEs() {
           gap: 16, marginBottom: 32,
         }}>
           {PRICING_ES.map((plan, i) => {
+            const isFounding = plan.plan === 'connect' && plan.foundingMonthlyPrice;
             const displayPrice = annual
               ? `$${Math.round(plan.annualPrice / 12)}`
               : `$${plan.monthlyPrice}`;
+            const foundingDisplayPrice = isFounding
+              ? (annual ? `$${Math.round(plan.foundingAnnualPrice / 12)}` : `$${plan.foundingMonthlyPrice}`)
+              : null;
             const ctaHref = plan.plan === 'managed'
               ? plan.ctaHref
               : `${plan.ctaHref}${annual ? '&interval=annual' : ''}`;
@@ -987,12 +993,38 @@ function PricingEs() {
                 <p style={{ color: DIM, fontSize: '0.82rem', margin: '0 0 24px', lineHeight: 1.5 }}>{plan.desc}</p>
 
                 <div style={{ marginBottom: 28 }}>
-                  <span style={{ fontSize: '3rem', fontWeight: 900, color: WHITE, letterSpacing: '-0.03em' }}>{displayPrice}</span>
-                  <span style={{ fontSize: '0.95rem', color: DIM }}>/mes</span>
-                  {annual && (
-                    <div style={{ fontSize: '0.78rem', color: MUTED, marginTop: 4 }}>
-                      ${plan.annualPrice}/año &mdash; facturado anualmente
-                    </div>
+                  {isFounding ? (
+                    <>
+                      <div style={{ marginBottom: 6 }}>
+                        <span style={{ fontSize: '3rem', fontWeight: 900, color: GREEN, letterSpacing: '-0.03em' }}>{foundingDisplayPrice}</span>
+                        <span style={{ fontSize: '0.95rem', color: DIM }}>/mes</span>
+                        <span style={{ fontSize: '0.82rem', color: DIM, marginLeft: 10, textDecoration: 'line-through' }}>{displayPrice}</span>
+                      </div>
+                      <div style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 6,
+                        background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)',
+                        borderRadius: 20, padding: '4px 12px', marginBottom: 4,
+                        fontFamily: 'ui-monospace, monospace', fontSize: '0.68rem',
+                        fontWeight: 700, letterSpacing: '0.08em', color: GREEN,
+                      }}>
+                        PRECIO IGLESIA FUNDADORA — CUPOS LIMITADOS
+                      </div>
+                      {annual && (
+                        <div style={{ fontSize: '0.78rem', color: MUTED, marginTop: 4 }}>
+                          ${plan.foundingAnnualPrice}/año &mdash; facturado anualmente
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ fontSize: '3rem', fontWeight: 900, color: WHITE, letterSpacing: '-0.03em' }}>{displayPrice}</span>
+                      <span style={{ fontSize: '0.95rem', color: DIM }}>/mes</span>
+                      {annual && (
+                        <div style={{ fontSize: '0.78rem', color: MUTED, marginTop: 4 }}>
+                          ${plan.annualPrice}/año &mdash; facturado anualmente
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
 

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { BG, CARD_BG, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens';
 
 const TIERS = ['Connect', 'Plus', 'Pro', 'Enterprise'];
-const TIER_PRICES = ['$49', '$99', '$149', '$499'];
+const TIER_PRICES = ['$79', '$99', '$149', '$499'];
 
 const ROWS = [
   { feature: 'Rooms', values: ['1', '3', '5', 'Unlimited'] },
@@ -15,13 +15,13 @@ const ROWS = [
   { feature: 'Post-Service Timeline', values: [true, true, true, true] },
   { feature: 'Church Portal', values: [true, true, true, true] },
   { feature: 'Signal Failover', values: [false, true, true, true] },
-  { feature: 'All 26 Integrations', values: [false, true, true, true] },
+  { feature: 'All 26 Integrations', values: ['3 core', true, true, true] },
   { feature: 'Deep ProPresenter Control', values: [false, true, true, true] },
   { feature: 'On-Call TD Rotation', values: [false, true, true, true] },
   { feature: 'Guest TD Tokens', values: [false, true, true, true] },
   { feature: 'AI Natural Language Commands', values: [false, true, true, true] },
   { feature: 'AI Setup Assistant', values: [false, true, true, true] },
-  { feature: 'AI Autopilot Rules', values: [false, false, '10', '25'] },
+  { feature: 'AI Autopilot Rules', values: [false, '5', '10', '25'] },
   { feature: 'Planning Center Sync + Write-Back', values: [false, false, true, true] },
   { feature: 'Monthly Health Reports', values: [false, false, true, true] },
   { feature: 'Dedicated Onboarding', values: [false, false, false, true] },

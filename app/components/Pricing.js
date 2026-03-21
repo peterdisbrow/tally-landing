@@ -67,7 +67,7 @@ export default function Pricing() {
               background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
               borderRadius: 20, padding: '5px 14px', whiteSpace: 'nowrap',
             }}>
-              SAVE 2 MONTHS
+              SAVE 3 MONTHS
             </span>
           )}
         </div>
@@ -78,9 +78,13 @@ export default function Pricing() {
           gap: 16, marginBottom: 32,
         }}>
           {PRICING.map((plan, i) => {
+            const isFounding = plan.plan === 'connect' && plan.foundingMonthlyPrice;
             const displayPrice = annual
               ? `$${Math.round(plan.annualPrice / 12)}`
               : `$${plan.monthlyPrice}`;
+            const foundingDisplayPrice = isFounding
+              ? (annual ? `$${Math.round(plan.foundingAnnualPrice / 12)}` : `$${plan.foundingMonthlyPrice}`)
+              : null;
             const period = '/mo';
             const ctaHref = plan.plan === 'managed'
               ? plan.ctaHref
@@ -109,12 +113,38 @@ export default function Pricing() {
                 <p style={{ color: DIM, fontSize: '0.82rem', margin: '0 0 24px', lineHeight: 1.5 }}>{plan.desc}</p>
 
                 <div style={{ marginBottom: 28 }}>
-                  <span style={{ fontSize: '3rem', fontWeight: 900, color: WHITE, letterSpacing: '-0.03em' }}>{displayPrice}</span>
-                  <span style={{ fontSize: '0.95rem', color: DIM }}>{period}</span>
-                  {annual && (
-                    <div style={{ fontSize: '0.78rem', color: MUTED, marginTop: 4 }}>
-                      ${plan.annualPrice}/yr &mdash; billed annually
-                    </div>
+                  {isFounding ? (
+                    <>
+                      <div style={{ marginBottom: 6 }}>
+                        <span style={{ fontSize: '3rem', fontWeight: 900, color: GREEN, letterSpacing: '-0.03em' }}>{foundingDisplayPrice}</span>
+                        <span style={{ fontSize: '0.95rem', color: DIM }}>{period}</span>
+                        <span style={{ fontSize: '0.82rem', color: DIM, marginLeft: 10, textDecoration: 'line-through' }}>{displayPrice}</span>
+                      </div>
+                      <div style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 6,
+                        background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)',
+                        borderRadius: 20, padding: '4px 12px', marginBottom: 4,
+                        fontFamily: 'ui-monospace, monospace', fontSize: '0.68rem',
+                        fontWeight: 700, letterSpacing: '0.08em', color: GREEN,
+                      }}>
+                        FOUNDING CHURCH RATE — LIMITED SPOTS
+                      </div>
+                      {annual && (
+                        <div style={{ fontSize: '0.78rem', color: MUTED, marginTop: 4 }}>
+                          ${plan.foundingAnnualPrice}/yr &mdash; billed annually
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ fontSize: '3rem', fontWeight: 900, color: WHITE, letterSpacing: '-0.03em' }}>{displayPrice}</span>
+                      <span style={{ fontSize: '0.95rem', color: DIM }}>{period}</span>
+                      {annual && (
+                        <div style={{ fontSize: '0.78rem', color: MUTED, marginTop: 4 }}>
+                          ${plan.annualPrice}/yr &mdash; billed annually
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
 
