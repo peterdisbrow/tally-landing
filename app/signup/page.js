@@ -199,16 +199,21 @@ export default function SignupPage() {
             </div>
           )}
 
-          {error && (
-            <div style={{ marginBottom: 14, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.35)', color: DANGER, borderRadius: 8, padding: 10, fontSize: 13 }}>
-              {error}
-            </div>
-          )}
+          <div aria-live="polite" aria-atomic="true">
+            {error && (
+              <div role="alert" style={{ marginBottom: 14, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.35)', color: DANGER, borderRadius: 8, padding: 10, fontSize: 13 }}>
+                {error}
+              </div>
+            )}
+          </div>
 
           <form onSubmit={handleSubmit} noValidate>
             {/* Church Name */}
-            <label style={labelStyle}>Church Name</label>
+            <label htmlFor="signup-name" style={labelStyle}>Church Name</label>
             <input
+              id="signup-name"
+              aria-describedby="signup-name-error"
+              aria-invalid={!!(touched.name && fieldErrors.name)}
               style={inputVariant(touched.name && fieldErrors.name)}
               value={form.name}
               onChange={e => handleChange('name', e.target.value)}
@@ -216,11 +221,14 @@ export default function SignupPage() {
               required
               placeholder="e.g. Grace Community Church"
             />
-            <FieldError msg={touched.name && fieldErrors.name} />
+            <FieldError id="signup-name-error" msg={touched.name && fieldErrors.name} />
 
             {/* Email */}
-            <label style={labelStyle}>Admin Email</label>
+            <label htmlFor="signup-email" style={labelStyle}>Admin Email</label>
             <input
+              id="signup-email"
+              aria-describedby="signup-email-error"
+              aria-invalid={!!(touched.email && fieldErrors.email)}
               style={inputVariant(touched.email && fieldErrors.email)}
               type="email"
               value={form.email}
@@ -229,11 +237,14 @@ export default function SignupPage() {
               required
               placeholder="td@yourchurch.org"
             />
-            <FieldError msg={touched.email && fieldErrors.email} />
+            <FieldError id="signup-email-error" msg={touched.email && fieldErrors.email} />
 
             {/* Password */}
-            <label style={labelStyle}>Password</label>
+            <label htmlFor="signup-password" style={labelStyle}>Password</label>
             <input
+              id="signup-password"
+              aria-describedby="signup-password-error"
+              aria-invalid={!!(touched.password && fieldErrors.password)}
               style={inputVariant(touched.password && fieldErrors.password)}
               type="password"
               minLength={8}
@@ -265,7 +276,7 @@ export default function SignupPage() {
                 </span>
               </div>
             )}
-            <FieldError msg={touched.password && fieldErrors.password} />
+            <FieldError id="signup-password-error" msg={touched.password && fieldErrors.password} />
 
             <label style={checkboxRowStyle}>
               <input type="checkbox" checked={tosAccepted} onChange={(e) => setTosAccepted(e.target.checked)} style={{ marginTop: 3, accentColor: GREEN }} />
@@ -314,11 +325,10 @@ export default function SignupPage() {
 }
 
 /* ── Inline error message ── */
-function FieldError({ msg }) {
-  if (!msg) return null;
+function FieldError({ id, msg }) {
   return (
-    <p style={{ margin: '4px 0 0', fontSize: 12, color: DANGER, lineHeight: 1.4 }}>
-      {msg}
+    <p id={id} aria-live="polite" style={{ margin: '4px 0 0', fontSize: 12, color: DANGER, lineHeight: 1.4, minHeight: 18 }}>
+      {msg || ''}
     </p>
   );
 }
