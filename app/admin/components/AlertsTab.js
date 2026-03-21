@@ -4,25 +4,25 @@ import { C, s, canWrite } from './adminStyles';
 
 const SEVERITY_COLORS = { CRITICAL: C.red, WARNING: C.yellow, INFO: C.blue };
 const ALERT_TYPE_LABELS = {
-  stream_stopped: '📡 Stream Stopped',
-  atem_disconnected: '🔌 ATEM Disconnected',
-  recording_failed: '⏺️ Recording Failed',
-  fps_low: '🎞️ Low FPS',
-  bitrate_low: '📉 Low Bitrate',
-  cpu_high: '🔥 High CPU',
-  obs_disconnected: '🔌 OBS Disconnected',
-  companion_disconnected: '🔌 Companion Disconnected',
-  vmix_disconnected: '🔌 vMix Disconnected',
-  encoder_disconnected: '🔌 Encoder Disconnected',
-  hyperdeck_disconnected: '🔌 HyperDeck Disconnected',
-  mixer_disconnected: '🔌 Mixer Disconnected',
-  ptz_disconnected: '🔌 PTZ Disconnected',
-  stream_started: '▶️ Stream Started',
-  recording_started: '⏺️ Recording Started',
-  service_ended: '🏁 Service Ended',
-  propresenter_disconnected: '🔌 ProPresenter Disconnected',
-  multiple_systems_down: '🚨 Multiple Systems Down',
-  no_td_response: '📵 No TD Response',
+  stream_stopped: 'Stream Stopped',
+  atem_disconnected: 'ATEM Disconnected',
+  recording_failed: 'Recording Failed',
+  fps_low: 'Low FPS',
+  bitrate_low: 'Low Bitrate',
+  cpu_high: 'High CPU',
+  obs_disconnected: 'OBS Disconnected',
+  companion_disconnected: 'Companion Disconnected',
+  vmix_disconnected: 'vMix Disconnected',
+  encoder_disconnected: 'Encoder Disconnected',
+  hyperdeck_disconnected: 'HyperDeck Disconnected',
+  mixer_disconnected: 'Mixer Disconnected',
+  ptz_disconnected: 'PTZ Disconnected',
+  stream_started: 'Stream Started',
+  recording_started: 'Recording Started',
+  service_ended: 'Service Ended',
+  propresenter_disconnected: 'ProPresenter Disconnected',
+  multiple_systems_down: 'Multiple Systems Down',
+  no_td_response: 'No TD Response',
 };
 
 function timeAgo(iso) {
@@ -75,9 +75,9 @@ export default function AlertsTab({ relay, role }) {
           style={{ ...s.input, width: 140, padding: '6px 10px', fontSize: 13 }}
         >
           <option value="">All Severities</option>
-          <option value="CRITICAL">🔴 Critical</option>
-          <option value="WARNING">🟡 Warning</option>
-          <option value="INFO">🔵 Info</option>
+          <option value="CRITICAL">Critical</option>
+          <option value="WARNING">Warning</option>
+          <option value="INFO">Info</option>
         </select>
 
         <select

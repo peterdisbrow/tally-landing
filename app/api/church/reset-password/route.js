@@ -4,7 +4,7 @@ import { checkRateLimit } from '../../../../lib/rate-limit';
 
 const SECRET = process.env.SESSION_SECRET;
 if (!SECRET && process.env.NODE_ENV === 'production') {
-  console.error('⚠️  SESSION_SECRET is not set — password reset will fail at runtime.');
+  console.error('SESSION_SECRET is not set — password reset will fail at runtime.');
 }
 import { RELAY_URL } from '../../../../lib/relay';
 const RELAY_KEY = process.env.RELAY_ADMIN_KEY || process.env.ADMIN_API_KEY;

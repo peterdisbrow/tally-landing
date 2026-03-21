@@ -53,7 +53,7 @@ function getEquipmentStatus(st) {
     items.push({
       label: 'Stream',
       color: st.streaming ? C.green : C.muted,
-      detail: st.streaming ? '🔴 Live' : 'Off-air',
+      detail: st.streaming ? 'Live' : 'Off-air',
     });
   }
 
@@ -260,7 +260,7 @@ export default function MonitorTab({ token }) {
 
         <div style={{ fontSize: 12, color: C.muted }}>
           {onlineCount} online · {churchList.length} total
-          {alertCount > 0 && <span style={{ color: C.red, marginLeft: 8 }}>🔔 {alertCount} alert{alertCount > 1 ? 's' : ''}</span>}
+          {alertCount > 0 && <span style={{ color: C.red, marginLeft: 8 }}>{alertCount} alert{alertCount > 1 ? 's' : ''}</span>}
         </div>
 
         {lastUpdate && (

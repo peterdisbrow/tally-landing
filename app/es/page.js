@@ -33,7 +33,7 @@ function HeroEs() {
       {/* Language toggle */}
       <div style={{ position: 'absolute', top: 20, right: 20 }}>
         <a href="/" style={{ color: DIM, fontSize: '0.8rem', textDecoration: 'none', border: `1px solid ${BORDER}`, borderRadius: 6, padding: '4px 10px' }}>
-          🌐 English
+          EN · English
         </a>
       </div>
 
@@ -317,26 +317,26 @@ function IncidentTimelineEs() {
 // ─── Spanish AppShowcase ──────────────────────────────────────────────────────
 
 const TABS_ES = [
-  { id: 'status',    label: '📊  Vista de Estado' },
-  { id: 'equipment', label: '⚙️  Configuración de Equipos' },
-  { id: 'engineer',  label: '🔧  Tally Engineer' },
+  { id: 'status',    label: 'Vista de Estado' },
+  { id: 'equipment', label: 'Configuración de Equipos' },
+  { id: 'engineer',  label: 'Tally Engineer' },
 ];
 
 const CAPTIONS_ES = {
   status: [
-    { icon: '🟢', label: 'Todo verde',               desc: 'Relay, ATEM, OBS, Companion, ProPresenter — cada conexión de un vistazo' },
-    { icon: '📹', label: 'Cámaras PGM y PVW',        desc: 'Ve qué cámara está en vivo y cuál está en espera de un vistazo' },
-    { icon: '⚡', label: 'Alertas de auto-recuperación', desc: 'Tally arregla problemas antes de que los notes — luego te muestra qué pasó' },
+    { label: 'Todo verde',               desc: 'Relay, ATEM, OBS, Companion, ProPresenter — cada conexión de un vistazo' },
+    { label: 'Cámaras PGM y PVW',        desc: 'Ve qué cámara está en vivo y cuál está en espera de un vistazo' },
+    { label: 'Alertas de auto-recuperación', desc: 'Tally arregla problemas antes de que los notes — luego te muestra qué pasó' },
   ],
   equipment: [
-    { icon: '🎛️', label: 'Detecta dispositivos automáticamente', desc: 'Encuentra tu ATEM, OBS, Companion, ProPresenter, HyperDecks y cámaras PTZ' },
-    { icon: '⚙️', label: 'Configuración única',      desc: 'Ingresa las IPs una vez, prueba conexiones, guarda — listo en 10 minutos' },
-    { icon: '🎤', label: 'Audio + video',             desc: 'Cámaras PTZ, HyperDecks, consolas de audio — todo desde la misma pantalla' },
+    { label: 'Detecta dispositivos automáticamente', desc: 'Encuentra tu ATEM, OBS, Companion, ProPresenter, HyperDecks y cámaras PTZ' },
+    { label: 'Configuración única',      desc: 'Ingresa las IPs una vez, prueba conexiones, guarda — listo en 10 minutos' },
+    { label: 'Audio + video',             desc: 'Cámaras PTZ, HyperDecks, consolas de audio — todo desde la misma pantalla' },
   ],
   engineer: [
-    { icon: '✅', label: 'Estado Listo / No Listo',  desc: 'Un vistazo te dice si todos los sistemas están listos para el servicio' },
-    { icon: '🧠', label: 'Diagnósticos con IA',      desc: 'Haz preguntas en español — Tally Engineer revisa tu equipo y responde' },
-    { icon: '📝', label: 'Planes de acción',          desc: 'Pasos priorizados para solucionar problemas antes de que se conviertan en crisis el domingo' },
+    { label: 'Estado Listo / No Listo',  desc: 'Un vistazo te dice si todos los sistemas están listos para el servicio' },
+    { label: 'Diagnósticos con IA',      desc: 'Haz preguntas en español — Tally Engineer revisa tu equipo y responde' },
+    { label: 'Planes de acción',          desc: 'Pasos priorizados para solucionar problemas antes de que se conviertan en crisis el domingo' },
   ],
 };
 
@@ -447,7 +447,6 @@ function AppShowcaseEs() {
               borderRadius: 12, padding: '18px 20px',
               display: 'flex', alignItems: 'flex-start', gap: 14,
             }}>
-              <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>{item.icon}</span>
               <div>
                 <div style={{ fontWeight: 700, color: WHITE, fontSize: '0.9rem', marginBottom: 4 }}>{item.label}</div>
                 <div style={{ color: MUTED, fontSize: '0.82rem', lineHeight: 1.55 }}>{item.desc}</div>
@@ -1228,7 +1227,7 @@ function FooterEs() {
         <a href="/terms" style={{ color: DIM, textDecoration: 'none' }}>Términos</a>
         <a href="/privacy" style={{ color: DIM, textDecoration: 'none' }}>Privacidad</a>
         <a href="/" style={{ color: GREEN, textDecoration: 'none', fontSize: '0.78rem', border: `1px solid rgba(34,197,94,0.3)`, borderRadius: 5, padding: '2px 8px' }}>
-          🌐 English
+          EN · English
         </a>
       </div>
       <p style={{ color: DIM, fontSize: '0.78rem', width: '100%', margin: 0 }}>

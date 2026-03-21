@@ -90,7 +90,7 @@ export default function AIChatDrawer({ relay }) {
         }}
         title="Tally AI"
       >
-        {open ? '×' : '✦'}
+        {open ? '×' : 'AI'}
       </button>
 
       {/* Chat drawer */}
@@ -111,7 +111,6 @@ export default function AIChatDrawer({ relay }) {
             padding: '14px 16px', borderBottom: `1px solid ${C.border}`,
             display: 'flex', alignItems: 'center', gap: 8,
           }}>
-            <span style={{ fontSize: 18 }}>✦</span>
             <div>
               <div style={{ fontSize: 14, fontWeight: 700 }}>Tally AI</div>
               <div style={{ fontSize: 10, color: C.muted }}>Church AV assistant</div>
@@ -149,7 +148,7 @@ export default function AIChatDrawer({ relay }) {
             ))}
             {sending && (
               <div style={{ alignSelf: 'flex-start', color: C.green, fontSize: 12, padding: '4px 0' }}>
-                ✦ Thinking…
+                Thinking…
               </div>
             )}
             <div ref={messagesEndRef} />

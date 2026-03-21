@@ -34,39 +34,33 @@ function typeColor(type) {
 const TEMPLATE_CATEGORIES = [
   {
     label: 'Onboarding',
-    icon: '🚀',
     match: (t) => /welcome|setup|registration|first-sunday|week-one|first-service/.test(t),
   },
   {
     label: 'Trial & Billing',
-    icon: '💳',
     match: (t) => /trial|payment|upgrade|downgrade|grace|invoice|cancellation-confirm/.test(t),
   },
   {
     label: 'Alerts & Operations',
-    icon: '🔔',
     match: (t) => /alert|escalation|digest|recap/.test(t),
   },
   {
     label: 'Engagement',
-    icon: '📬',
     match: (t) => /win-back|review|survey|reactivation/.test(t),
   },
   {
     label: 'Account',
-    icon: '🔑',
     match: (t) => /password|email-change/.test(t),
   },
   {
     label: 'Sales & Leads',
-    icon: '🎯',
     match: (t) => /lead-/.test(t),
   },
 ];
 
 function categorizeTemplates(templates) {
   const grouped = TEMPLATE_CATEGORIES.map(cat => ({ ...cat, items: [] }));
-  const other = { label: 'Other', icon: '📄', items: [] };
+  const other = { label: 'Other', items: [] };
 
   for (const tpl of templates) {
     const placed = grouped.find(g => g.match(tpl.type));
@@ -345,7 +339,7 @@ function Templates({ relay, role }) {
                 fontSize: 12, fontWeight: 700, color: C.muted, textTransform: 'uppercase',
                 letterSpacing: '0.06em', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6,
               }}>
-                <span>{group.icon}</span> {group.label}
+                {group.label}
                 <span style={{ fontSize: 11, fontWeight: 400, color: C.dim }}>({group.items.length})</span>
               </div>
 
