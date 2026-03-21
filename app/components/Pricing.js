@@ -28,7 +28,7 @@ export default function Pricing() {
           color: WHITE,
         }}>Simple, honest pricing.</h2>
         <p style={{ color: DIM, textAlign: 'center', marginBottom: 36, fontSize: '0.95rem' }}>
-          30-day free trial for every church. Cancel anytime.
+          30-day free trial for every church &mdash; no credit card required. Cancel anytime.
         </p>
 
         {/* Monthly / Annual toggle */}

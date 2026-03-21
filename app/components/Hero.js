@@ -52,7 +52,7 @@ export default function Hero() {
       </p>
 
       {/* CTAs */}
-      <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 80 }}>
+      <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 20 }}>
         <a href="/signup" style={{
           display: 'inline-block', padding: '15px 36px', fontSize: '1rem', fontWeight: 700,
           borderRadius: 8, border: 'none', background: GREEN, color: '#000',
@@ -68,6 +68,11 @@ export default function Hero() {
           See the App &darr;
         </a>
       </div>
+
+      {/* Trust line */}
+      <p style={{ color: DIM, fontSize: '0.8rem', marginBottom: 60 }}>
+        &#10003; Free 30-day trial &nbsp;&middot;&nbsp; &#10003; No credit card required &nbsp;&middot;&nbsp; &#10003; Cancel anytime
+      </p>
 
       {/* scrolling device strip */}
       <div style={{
