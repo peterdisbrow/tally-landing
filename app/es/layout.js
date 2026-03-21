@@ -1,17 +1,17 @@
 export const metadata = {
   title: 'Tally | Monitoreo y Recuperación Automática para Iglesias',
   description:
-    'Tu transmisión se cayó. Tally ya lo arregló. Monitoreo automático de recuperación para equipos de producción de iglesia. 26 integraciones. Prueba gratuita.',
+    'Tu transmisión se cayó. Tally ya lo arregló. Monitoreo con recuperación automática para equipos de producción de iglesia. 26 integraciones. Prueba gratuita.',
   metadataBase: new URL('https://tallyconnect.app'),
   keywords: [
     'software de transmisión para iglesias',
     'monitoreo de producción de iglesia',
     'recuperación automática de OBS',
     'transmisión en vivo iglesia',
-    'automatización iglesia AV',
+    'automatización AV para iglesias',
     'control ProPresenter',
     'director técnico iglesia',
-    'herramientas de producción de iglesia',
+    'herramientas de producción para iglesias',
   ],
   openGraph: {
     title: 'Tally | Monitoreo y Recuperación Automática para Iglesias',

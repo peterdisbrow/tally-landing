@@ -109,19 +109,19 @@ const FEATURES_ES = [
   { tag: 'ALERTAS',             name: 'Alertas por Slack + Telegram',                   desc: 'Tu DT recibe una alerta en Slack o Telegram en segundos — con pasos de diagnóstico y confirmación con un toque. Escalación si nadie responde en 5 minutos.' },
   { tag: 'PRE-SERVICIO',        name: 'Verificación Automática del Sistema',            desc: 'Confirmación de luz verde 30 min antes de cada servicio. Cada dispositivo probado, cada conexión verificada. Sin más recorridos manuales.' },
   { tag: 'CONTROL REMOTO',      name: 'Control Profundo de ProPresenter + ATEM',        desc: 'Corta cámaras, avanza diapositivas, activa looks, envía mensajes al escenario, inicia temporizadores — todo desde tu teléfono o Telegram.' },
-  { tag: 'COMANDOS CON IA',     name: 'Control por Lenguaje Natural',                   desc: 'Escribe "cortar a cámara 2 y luego iniciar grabación" y Tally lo hace. El análisis de comandos con IA entiende el español — sin menús necesarios.' },
+  { tag: 'COMANDOS CON IA',     name: 'Control por Lenguaje Natural',                   desc: 'Escribe "cortar a cámara 2 y luego iniciar grabación" y Tally lo hace. El análisis de comandos con IA entiende el español — sin necesidad de memorizar menús.' },
   { tag: 'PILOTO AUTOMÁTICO',   name: 'Piloto Automático con IA',                       desc: 'Crea reglas como "cuando empiecen las diapositivas de adoración, cambiar a cámara 1". Tally las ejecuta automáticamente durante el servicio — hasta 25 reglas en Enterprise.' },
   { tag: 'PORTAL DE IGLESIA',   name: 'Portal de Iglesia de Autoservicio',              desc: 'Cada iglesia tiene su propio panel — administra DTs, establece horarios de servicio, ve el historial de sesiones, configura alertas y gestiona la facturación.' },
   { tag: 'CRONOLOGÍA',          name: 'Resumen Post-Servicio',                          desc: 'Cada servicio tiene una cronología: qué pasó, qué falló, qué se recuperó automáticamente. Los resúmenes de sesión se envían automáticamente a Planning Center.' },
-  { tag: 'PLANNING CENTER',     name: 'Sincronización + Escritura en Planning Center',  desc: 'Obtiene horarios de servicio automáticamente. Después de cada servicio, las notas de producción se envían al plan — sin ingreso manual de datos.' },
+  { tag: 'PLANNING CENTER',     name: 'Sincronización + Escritura en Planning Center',  desc: 'Sincroniza los horarios de servicio automáticamente. Después de cada servicio, las notas de producción se envían al plan — sin captura manual de datos.' },
   { tag: 'ACCESO INVITADO',     name: 'Tokens para DT Invitado',                        desc: 'Genera tokens de acceso temporales para DTs invitados o voluntarios. Expiran automáticamente en 24 horas. Historial completo de cada acción.' },
   { tag: 'GUARDIA',             name: 'Rotación de DT de Guardia',                      desc: 'Rotación semanal con comandos de cambio en Telegram. Las alertas van al DT de guardia — no a todo el equipo.' },
-  { tag: 'INFORMES',            name: 'Informes Mensuales de Salud',                    desc: 'Estadísticas de tiempo activo, incidentes y auto-recuperaciones por iglesia. Los informes mensuales mantienen informado al liderazgo — entregados el 1ro de cada mes.' },
-  { tag: 'CONFIGURACIÓN IA',    name: 'Asistente de Configuración con IA',              desc: 'Sube una lista de patch o plano de cámaras y Tally auto-configura los canales de tu mezclador y etiquetas del ATEM. Analiza CSVs, PDFs y fotos con visión IA — configuración en minutos, no horas.' },
-  { tag: 'MULTI-SEDE',          name: 'Diseñado para Multi-Sala',                       desc: 'Comienza con una sala en Connect, escala a 3 en Plus, 5 en Pro, o ilimitadas en Enterprise — sin añadir caos al domingo.' },
+  { tag: 'INFORMES',            name: 'Informes Mensuales de Salud',                    desc: 'Estadísticas de disponibilidad, incidentes y recuperaciones automáticas por iglesia. Los informes mensuales mantienen informado al liderazgo — entregados el 1ro de cada mes.' },
+  { tag: 'CONFIGURACIÓN IA',    name: 'Asistente de Configuración con IA',              desc: 'Sube una lista de patch o diagrama de cámaras y Tally configura automáticamente los canales de tu mezclador y etiquetas del ATEM. Analiza CSVs, PDFs y fotos con visión IA — configuración en minutos, no horas.' },
+  { tag: 'MULTI-SEDE',          name: 'Diseñado para Multi-Sala',                       desc: 'Comienza con una sala en Connect, escala a 3 en Plus, 5 en Pro, o ilimitadas en Enterprise — sin complicar tu domingo.' },
   { tag: 'MULTI-ENCODER',       name: 'Cualquier Encoder, Cualquier Flujo de Trabajo',  desc: 'OBS, vMix, Ecamm, Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO — Tally monitorea cualquier encoder que uses.' },
   { tag: 'PRÓXIMAMENTE',        name: 'Vista Previa de Video en Vivo',                  desc: 'Ve tu señal de programa desde cualquier lugar. Stream de monitoreo H.264 enrutado de forma segura — requiere un encoder de hardware Tally Box. En desarrollo.' },
-  { tag: 'GUÍAS',               name: '15 Guías de Configuración Paso a Paso',          desc: 'Guías en lenguaje claro con resúmenes de inicio rápido, niveles de dificultad y detalles avanzados plegables. Escritas para voluntarios, no para ingenieros.' },
+  { tag: 'GUÍAS',               name: '15 Guías de Configuración Paso a Paso',          desc: 'Guías en lenguaje claro con resúmenes de inicio rápido, niveles de dificultad y secciones avanzadas que puedes expandir cuando las necesites. Escritas para voluntarios, no para ingenieros.' },
   { tag: 'PROTECCIÓN',          name: 'Protecciones para Comandos en Vivo',             desc: 'Tally advierte antes de ejecutar comandos peligrosos mientras estás en vivo — como detener un stream o cambiar fuentes. Confirma con tu DT antes de que ocurra algo arriesgado.' },
   { tag: 'CONTROL DE AUDIO',    name: 'Control Completo de Consola de Audio',           desc: 'EQ, compresión, compuertas, faders, silencio/solo — controla cada canal en tu consola Allen & Heath, Behringer, Midas o Yamaha desde Telegram.' },
   { tag: 'BIBLIOTECA DE PRESETS', name: 'Recall de Presets con Un Toque',              desc: 'Guarda configuraciones complejas de múltiples dispositivos y recupéralas al instante. Escenas del mezclador, macros del ATEM, colecciones de OBS — un toque para cambiar toda tu configuración de producción.' },
@@ -325,12 +325,12 @@ const TABS_ES = [
 const CAPTIONS_ES = {
   status: [
     { label: 'Todo verde',               desc: 'Relay, ATEM, OBS, Companion, ProPresenter — cada conexión de un vistazo' },
-    { label: 'Cámaras PGM y PVW',        desc: 'Ve qué cámara está en vivo y cuál está en espera de un vistazo' },
+    { label: 'Cámaras PGM y PVW',        desc: 'Ve de un vistazo qué cámara está en vivo y cuál está en espera' },
     { label: 'Alertas de auto-recuperación', desc: 'Tally arregla problemas antes de que los notes — luego te muestra qué pasó' },
   ],
   equipment: [
     { label: 'Detecta dispositivos automáticamente', desc: 'Encuentra tu ATEM, OBS, Companion, ProPresenter, HyperDecks y cámaras PTZ' },
-    { label: 'Configuración única',      desc: 'Ingresa las IPs una vez, prueba conexiones, guarda — listo en 10 minutos' },
+    { label: 'Configuración de una sola vez', desc: 'Ingresa las IPs una vez, prueba conexiones, guarda — listo en 10 minutos' },
     { label: 'Audio + video',             desc: 'Cámaras PTZ, HyperDecks, consolas de audio — todo desde la misma pantalla' },
   ],
   engineer: [
@@ -551,7 +551,7 @@ const STEPS_ES = [
   {
     num: '01',
     title: 'Instalar',
-    desc: 'Configuración en 10 minutos. Ejecuta la app en la computadora de cabina. Detecta automáticamente tu ATEM, OBS y Companion. El Asistente de Configuración IA puede auto-configurar tu mezclador y etiquetas de cámara desde una lista de patch.',
+    desc: 'Configuración en 10 minutos. Ejecuta la app en la computadora de cabina. Detecta automáticamente tu ATEM, OBS y Companion. El Asistente de Configuración con IA puede configurar automáticamente los canales de tu mezclador y etiquetas de cámara desde una lista de patch.',
   },
   {
     num: '02',
@@ -560,7 +560,7 @@ const STEPS_ES = [
   },
   {
     num: '03',
-    title: 'Relajarte',
+    title: 'Descansar',
     desc: 'Tally vigila toda tu producción. Si algo falla, lo arregla primero — y luego te avisa.',
   },
 ];
@@ -684,14 +684,14 @@ const PRICING_ES = [
     plan: 'managed',
     monthlyPrice: 499,
     annualPrice: 4491,
-    desc: 'Salas ilimitadas, incorporación personalizada y soporte dedicado.',
+    desc: 'Salas ilimitadas, onboarding personalizado y soporte dedicado.',
     featured: false,
     cta: 'Contactar Ventas \u2192',
     ctaHref: 'mailto:sales@tallyconnect.app',
     features: [
       'Todo lo de Pro',
       'Salas ilimitadas',
-      'Incorporación y configuración dedicada',
+      'Onboarding y configuración dedicados',
       'Piloto Automático IA (25 reglas de automatización)',
       'Reglas de piloto automático personalizadas',
       'Cambios de configuración remotos',
@@ -724,7 +724,7 @@ const FC_ROWS_ES = [
   { feature: 'Reglas de Piloto Automático IA', values: [false, false, '10', '25'] },
   { feature: 'Sincronización + Escritura en Planning Center', values: [false, false, true, true] },
   { feature: 'Informes Mensuales de Salud', values: [false, false, true, true] },
-  { feature: 'Incorporación Dedicada', values: [false, false, false, true] },
+  { feature: 'Onboarding Dedicado', values: [false, false, false, true] },
   { feature: 'Reglas de Piloto Automático Personalizadas', values: [false, false, false, true] },
   { feature: 'Cambios de Configuración Remotos', values: [false, false, false, true] },
   { feature: 'SLA de Respuesta 15 Min', values: [false, false, false, true] },
@@ -1109,7 +1109,7 @@ const FALLBACK_REVIEWS_ES = [
   {
     id: 'fallback-es-2',
     rating: 5,
-    body: 'Pasamos de necesitar un técnico pagado cada domingo a tener voluntarios confiados manejando toda la producción. Tally se encarga de los problemas para que puedan concentrarse en cámaras y diapositivas.',
+    body: 'Pasamos de necesitar un técnico pagado cada domingo a tener voluntarios manejando toda la producción con confianza. Tally se encarga de los problemas para que ellos puedan concentrarse en cámaras y diapositivas.',
     reviewer_name: 'Sarah K.',
     reviewer_role: 'Pastora de Alabanza',
     church_name: 'Harvest Fellowship',
@@ -1117,7 +1117,7 @@ const FALLBACK_REVIEWS_ES = [
   {
     id: 'fallback-es-3',
     rating: 5,
-    body: 'La verificación previa al servicio sola vale la suscripción. Cada domingo por la mañana recibimos luz verde 30 minutos antes del servicio. Sin más recorridos frenéticos por la cabina.',
+    body: 'Solo la verificación previa al servicio ya vale la suscripción. Cada domingo por la mañana recibimos luz verde 30 minutos antes del servicio. Se acabaron los recorridos frenéticos por la cabina.',
     reviewer_name: 'David R.',
     reviewer_role: 'Líder de Producción',
     church_name: 'New Life Church',
@@ -1246,7 +1246,7 @@ const FAQ_ES = [
   },
   {
     q: '¿Necesito saber programar para usarlo?',
-    a: 'No. Tally está diseñado para directores técnicos voluntarios y pastores que no son técnicos. La configuración toma menos de 30 minutos. Usas Telegram para controlar todo.',
+    a: 'No. Tally está diseñado para directores técnicos voluntarios y pastores sin conocimientos técnicos. La configuración toma menos de 30 minutos. Usas Telegram para controlar todo.',
   },
   {
     q: '¿Cómo funciona la recuperación automática?',
