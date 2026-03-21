@@ -276,7 +276,7 @@ export default function SignupPage() {
                 </span>
               </div>
             )}
-            <FieldError msg={touched.password && fieldErrors.password} />
+            <FieldError id="signup-password-error" msg={touched.password && fieldErrors.password} />
 
             <label style={checkboxRowStyle}>
               <input type="checkbox" checked={tosAccepted} onChange={(e) => setTosAccepted(e.target.checked)} style={{ marginTop: 3, accentColor: GREEN }} />
