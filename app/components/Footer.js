@@ -21,7 +21,9 @@ export default function Footer() {
         <a href="/terms" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>Terms of Service</a>
         <a href="/privacy" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>Privacy Policy</a>
         <a href="https://tallyconnect.app" className="footer-link" style={{ color: DIM, textDecoration: 'none' }}>tallyconnect.app</a>
-
+        <a href="/es" className="footer-link" style={{ color: GREEN, textDecoration: 'none', fontSize: '0.78rem', border: `1px solid rgba(34,197,94,0.3)`, borderRadius: 5, padding: '2px 8px' }}>
+          🌐 Español
+        </a>
       </div>
     </footer>
   );
