@@ -12,7 +12,7 @@ const TABS = [
 const CAPTIONS = {
   status: [
     { icon: '\ud83d\udfe2', label: 'All green', desc: 'Relay, ATEM, OBS, Companion, ProPresenter \u2014 every connection at a glance' },
-    { icon: '\ud83d\udcf9', label: 'PGM & PVW cameras', desc: 'See which camera is live and which is on deck \u2014 with live video preview' },
+    { icon: '\ud83d\udcf9', label: 'PGM & PVW cameras', desc: 'See which camera is live and which is on deck at a glance' },
     { icon: '\u26a1', label: 'Auto-recovery alerts', desc: 'Tally fixes problems before you notice \u2014 then shows you what happened' },
   ],
   equipment: [

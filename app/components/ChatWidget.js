@@ -138,7 +138,7 @@ function buildSystemRequirementsResponse() {
 }
 
 function buildVolunteerResponse() {
-  return `**Built for volunteer teams.** Auto-recovery handles problems, AI commands use plain English, and alerts tell people *what to do* — not just that something broke.\n\nGuest TD tokens auto-expire in 7 days. On-call rotation ensures the right person gets pinged.\n\n[CTA:Get Started Free:/signup]\n\nWant to see pricing or try the demo?`;
+  return `**Built for volunteer teams.** Auto-recovery handles problems, AI commands use plain English, and alerts tell people *what to do* — not just that something broke.\n\nGuest TD tokens auto-expire in 24 hours. On-call rotation ensures the right person gets pinged.\n\n[CTA:Get Started Free:/signup]\n\nWant to see pricing or try the demo?`;
 }
 
 function buildMultiSiteResponse() {

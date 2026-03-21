@@ -33,8 +33,10 @@ export default function Features() {
               <div style={{
                 display: 'inline-block', marginBottom: 20,
                 fontFamily: 'ui-monospace, monospace', fontSize: '0.65rem',
-                fontWeight: 700, letterSpacing: '0.12em', color: GREEN,
-                background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
+                fontWeight: 700, letterSpacing: '0.12em',
+                color: f.tag === 'COMING SOON' ? '#eab308' : GREEN,
+                background: f.tag === 'COMING SOON' ? 'rgba(234,179,8,0.08)' : 'rgba(34,197,94,0.08)',
+                border: f.tag === 'COMING SOON' ? '1px solid rgba(234,179,8,0.2)' : '1px solid rgba(34,197,94,0.2)',
                 borderRadius: 4, padding: '4px 10px',
               }}>{f.tag}</div>
               <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 10px', color: WHITE }}>{f.name}</h3>
