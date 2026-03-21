@@ -1,0 +1,57 @@
+{
+  "name": "Tally — Church AV Monitoring",
+  "short_name": "Tally",
+  "description": "AI-powered broadcast engineering for church production teams. Monitor ATEM, OBS, audio, encoders and more.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#09090B",
+  "theme_color": "#22c55e",
+  "categories": ["productivity", "utilities"],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/app-status.png",
+      "type": "image/png",
+      "label": "Live device monitoring dashboard"
+    },
+    {
+      "src": "/app-equipment.png",
+      "type": "image/png",
+      "label": "Equipment status view"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Church Portal",
+      "url": "/church-portal",
+      "description": "Go to your church dashboard"
+    },
+    {
+      "name": "Sign In",
+      "url": "/signin",
+      "description": "Sign in to your account"
+    }
+  ],
+  "prefer_related_applications": false
+}

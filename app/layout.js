@@ -1,4 +1,5 @@
 export const metadata = {
+  manifest: '/manifest.json',
   title: 'Tally | Church Streaming Auto-Recovery & Production Monitoring',
   description:
     'Your stream crashed. Tally already fixed it. Auto-recovery monitoring for church production teams. 26 integrations. Free trial.',
@@ -58,6 +59,7 @@ import SkipNav from './components/SkipNav';
 import ChatWidget from './components/ChatWidget';
 import CookieConsent from './components/CookieConsent';
 import GlobalStyles from './components/GlobalStyles';
+import PwaInit from './components/PwaInit';
 
 export default function RootLayout({ children }) {
   return (
@@ -77,6 +79,7 @@ export default function RootLayout({ children }) {
         <Analytics />
         <ChatWidget />
         <CookieConsent />
+        <PwaInit />
       </body>
     </html>
   );
