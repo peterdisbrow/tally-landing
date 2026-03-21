@@ -12,9 +12,9 @@ const STATUS_LABELS = {
 };
 const SEVERITY_COLORS = { P1: C.red, P2: C.yellow, P3: C.blue, P4: C.muted };
 const CATEGORY_LABELS = {
-  stream_down: '📡 Stream Down', no_audio_stream: '🔇 No Audio',
-  slides_issue: '🖥️ Slides Issue', atem_connectivity: '🔌 ATEM',
-  recording_issue: '⏺️ Recording', other: '📋 Other',
+  stream_down: 'Stream Down', no_audio_stream: 'No Audio',
+  slides_issue: 'Slides Issue', atem_connectivity: 'ATEM',
+  recording_issue: 'Recording', other: 'Other',
 };
 
 function timeAgo(iso) {
@@ -101,7 +101,7 @@ function TicketDetail({ ticket, relay, role, onClose, onUpdate }) {
             : ticket.updates.map((u, i) => (
                 <div key={u.id || i} style={{ borderLeft: `2px solid ${C.border}`, paddingLeft: 12, marginBottom: 12 }}>
                   <div style={{ fontSize: 12, color: C.muted }}>
-                    {u.actor_type === 'admin' ? '👤 Admin' : '⛪ Church'} · {timeAgo(u.created_at)}
+                    {u.actor_type === 'admin' ? 'Admin' : 'Church'} · {timeAgo(u.created_at)}
                   </div>
                   <div style={{ fontSize: 13, marginTop: 2 }}>{u.message}</div>
                 </div>

@@ -37,7 +37,6 @@ export default function LoginScreen({ onLogin }) {
   return (
     <div style={{ ...s.page, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 12 }}>
       <div style={{ ...s.card, width: 'min(380px, 100%)', textAlign: 'center' }}>
-        <div style={{ fontSize: 32, marginBottom: 8 }}>⛪</div>
         <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>
           <span style={s.logoGreen}>Tally</span> Admin
         </div>

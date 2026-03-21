@@ -237,7 +237,7 @@ export default function ResellersTab({ relay, role }) {
               {createErr && <div style={s.err}>{createErr}</div>}
               {apiKeyResult && (
                 <div style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: 8, padding: 14, marginTop: 12 }}>
-                  <div style={{ color: C.green, fontWeight: 600, fontSize: 13, marginBottom: 6 }}>✅ Reseller created!</div>
+                  <div style={{ color: C.green, fontWeight: 600, fontSize: 13, marginBottom: 6 }}>Reseller created!</div>
                   <div style={{ fontSize: 11, color: C.muted, marginBottom: 4 }}>API Key (save this — shown once):</div>
                   <div onClick={() => copyText(apiKeyResult)} style={{ fontFamily: 'monospace', fontSize: 12, color: C.green, background: 'rgba(0,0,0,0.3)', borderRadius: 6, padding: '8px 12px', cursor: 'pointer', wordBreak: 'break-all', border: '1px solid rgba(34,197,94,0.2)' }} title="Click to copy">{apiKeyResult}</div>
                 </div>
@@ -344,7 +344,7 @@ export default function ResellersTab({ relay, role }) {
                   <div style={{ width: 280, flexShrink: 0 }}>
                     {/* Links */}
                     <div style={{ ...s.section, marginBottom: 16 }}>
-                      <div style={s.sectionTitle}>🔗 Links</div>
+                      <div style={s.sectionTitle}>Links</div>
 
                       <div style={{ marginBottom: 10 }}>
                         <div style={{ fontSize: 10, color: C.dim, textTransform: 'uppercase', marginBottom: 3 }}>Portal Login</div>
@@ -378,7 +378,7 @@ export default function ResellersTab({ relay, role }) {
 
                     {/* Churches */}
                     <div style={{ ...s.section, marginBottom: 16 }}>
-                      <div style={s.sectionTitle}>⛪ Churches ({detail.churches?.length || 0})</div>
+                      <div style={s.sectionTitle}>Churches ({detail.churches?.length || 0})</div>
                       {(!detail.churches || detail.churches.length === 0) ? (
                         <div style={{ fontSize: 12, color: C.muted }}>No churches yet</div>
                       ) : (
@@ -395,7 +395,7 @@ export default function ResellersTab({ relay, role }) {
 
                     {/* Portal Password */}
                     <div style={{ ...s.section, marginBottom: 16 }}>
-                      <div style={s.sectionTitle}>🔐 Portal Credentials</div>
+                      <div style={s.sectionTitle}>Portal Credentials</div>
                       <div style={{ marginBottom: 8 }}>
                         <label style={s.label}>Portal Email</label>
                         <input style={{ ...s.input, fontSize: 12 }} type="email" value={pwForm.email} onChange={e => setPwForm(f => ({ ...f, email: e.target.value }))} placeholder="login@example.com" />
@@ -413,7 +413,7 @@ export default function ResellersTab({ relay, role }) {
                     {/* Danger zone */}
                     {canWrite(role) && (
                       <div style={{ ...s.section, borderColor: 'rgba(239,68,68,0.3)' }}>
-                        <div style={{ ...s.sectionTitle, color: C.red }}>⚠️ Danger Zone</div>
+                        <div style={{ ...s.sectionTitle, color: C.red }}>Danger Zone</div>
                         <button style={{ ...s.btn('danger'), fontSize: 11, padding: '6px 12px' }} onClick={deactivateReseller}>
                           Deactivate Reseller
                         </button>
@@ -441,10 +441,10 @@ function ApiKeyDisplay({ apiKey, onCopy }) {
         {revealed ? apiKey : masked}
       </div>
       <button style={{ ...buttonMini, color: C.muted }} onClick={() => setRevealed(r => !r)} title={revealed ? 'Hide' : 'Reveal'}>
-        {revealed ? '🙈' : '👁'}
+        {revealed ? 'Hide' : 'Show'}
       </button>
       <button style={{ ...buttonMini, color: C.muted }} onClick={() => onCopy(apiKey)} title="Copy">
-        📋
+        Copy
       </button>
     </div>
   );

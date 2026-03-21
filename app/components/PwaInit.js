@@ -71,7 +71,12 @@ export default function PwaInit() {
         width: '420px',
       }}
     >
-      <div style={{ fontSize: '28px' }}>📲</div>
+      <div style={{ flexShrink: 0 }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+          <line x1="12" y1="18" x2="12.01" y2="18"/>
+        </svg>
+      </div>
       <div style={{ flex: 1 }}>
         <div style={{ fontWeight: 700, color: '#F8FAFC', fontSize: '14px', marginBottom: '2px' }}>
           Install Tally
