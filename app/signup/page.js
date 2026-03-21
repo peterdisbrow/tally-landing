@@ -21,6 +21,7 @@ export default function SignupPage() {
     billingInterval: 'monthly',
   });
   const [referralCode, setReferralCode] = useState('');
+  const [referrerName, setReferrerName] = useState('');
   const [tosAccepted, setTosAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -31,12 +32,18 @@ export default function SignupPage() {
   const [touched, setTouched] = useState({});
   const [fieldErrors, setFieldErrors] = useState({});
 
-  // Read referral code from query params
+  // Read referral code from query params and look up referrer name
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const ref = params.get('ref');
-    if (ref) setReferralCode(ref);
+    if (ref) {
+      setReferralCode(ref);
+      fetch(`/api/referral?code=${encodeURIComponent(ref)}`)
+        .then(r => r.json())
+        .then(data => { if (data.valid && data.referrerName) setReferrerName(data.referrerName); })
+        .catch(err => console.warn('[Signup] Referral lookup failed (non-critical):', err.message));
+    }
   }, []);
 
   const [statusMessage, setStatusMessage] = useState('');
@@ -177,7 +184,12 @@ export default function SignupPage() {
           {referralCode && (
             <div style={{ marginBottom: 14, background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: GREEN_LT, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 16 }}>&#127873;</span>
-              <span>You were referred by a friend! Create your new account and subscribe — you&apos;ll both get a free month.</span>
+              <span>
+                {referrerName
+                  ? <>Referred by <strong>{referrerName}</strong>! Create your account and subscribe — you&apos;ll both get a free month.</>
+                  : <>You were referred by a friend! Create your new account and subscribe — you&apos;ll both get a free month.</>
+                }
+              </span>
             </div>
           )}
 
