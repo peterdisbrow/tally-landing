@@ -104,11 +104,11 @@ function HeroEs() {
 // ─── Spanish Features ────────────────────────────────────────────────────────
 
 const FEATURES_ES = [
-  { tag: 'CONMUTACIÓN DE SEÑAL', name: 'Señal Perdida — Tally Cambia Instantáneamente', desc: 'El diagnóstico multi-señal detecta pérdida de video, silencio de audio y desconexiones del ATEM. Cambia automáticamente a una fuente segura, alerta a tu DT y verifica la estabilidad antes de volver.' },
+  { tag: 'CAMBIO DE SEÑAL', name: 'Se va la señal — Tally cambia al instante', desc: 'Detecta pérdida de video, silencio de audio y desconexiones del ATEM. Cambia solo a una fuente segura, le avisa a tu DT y confirma que todo está estable antes de volver.' },
   { tag: 'AUTO-RECUPERACIÓN',   name: 'El Stream se Cae — Tally lo Arregla',           desc: 'La auto-recuperación reinicia tu stream antes de que la congregación lo note. Funciona con OBS, vMix y codificadores de hardware.' },
   { tag: 'ALERTAS',             name: 'Alertas por Slack + Telegram',                   desc: 'Tu DT recibe una alerta en Slack o Telegram en segundos — con pasos de diagnóstico y confirmación con un toque. Escalación si nadie responde en 5 minutos.' },
   { tag: 'PRE-SERVICIO',        name: 'Verificación Automática del Sistema',            desc: 'Confirmación de luz verde 30 min antes de cada servicio. Cada dispositivo probado, cada conexión verificada. Sin más recorridos manuales.' },
-  { tag: 'CONTROL REMOTO',      name: 'Control Profundo de ProPresenter + ATEM',        desc: 'Corta cámaras, avanza diapositivas, activa looks, envía mensajes al escenario, inicia temporizadores — todo desde tu teléfono o Telegram.' },
+  { tag: 'CONTROL REMOTO',      name: 'Control total de ProPresenter + ATEM',            desc: 'Cambia de cámara, avanza diapositivas, activa looks, manda mensajes al escenario, arranca temporizadores — todo desde tu celular o Telegram.' },
   { tag: 'COMANDOS CON IA',     name: 'Control por Lenguaje Natural',                   desc: 'Escribe "cortar a cámara 2 y luego iniciar grabación" y Tally lo hace. El análisis de comandos con IA entiende el español — sin necesidad de memorizar menús.' },
   { tag: 'PILOTO AUTOMÁTICO',   name: 'Piloto Automático con IA',                       desc: 'Crea reglas como "cuando empiecen las diapositivas de adoración, cambiar a cámara 1". Tally las ejecuta automáticamente durante el servicio — hasta 25 reglas en Enterprise.' },
   { tag: 'PORTAL DE IGLESIA',   name: 'Portal de Iglesia de Autoservicio',              desc: 'Cada iglesia tiene su propio panel — administra DTs, establece horarios de servicio, ve el historial de sesiones, configura alertas y gestiona la facturación.' },
@@ -123,7 +123,7 @@ const FEATURES_ES = [
   { tag: 'PRÓXIMAMENTE',        name: 'Vista Previa de Video en Vivo',                  desc: 'Ve tu señal de programa desde cualquier lugar. Stream de monitoreo H.264 enrutado de forma segura — requiere un encoder de hardware Tally Box. En desarrollo.' },
   { tag: 'GUÍAS',               name: '15 Guías de Configuración Paso a Paso',          desc: 'Guías en lenguaje claro con resúmenes de inicio rápido, niveles de dificultad y secciones avanzadas que puedes expandir cuando las necesites. Escritas para voluntarios, no para ingenieros.' },
   { tag: 'PROTECCIÓN',          name: 'Protecciones para Comandos en Vivo',             desc: 'Tally advierte antes de ejecutar comandos peligrosos mientras estás en vivo — como detener un stream o cambiar fuentes. Confirma con tu DT antes de que ocurra algo arriesgado.' },
-  { tag: 'CONTROL DE AUDIO',    name: 'Control Completo de Consola de Audio',           desc: 'EQ, compresión, compuertas, faders, silencio/solo — controla cada canal en tu consola Allen & Heath, Behringer, Midas o Yamaha desde Telegram.' },
+  { tag: 'CONTROL DE AUDIO',    name: 'Control total de tu consola de audio',           desc: 'EQ, compresión, gates, faders, mute/solo — maneja cada canal de tu consola Allen & Heath, Behringer, Midas o Yamaha directo desde Telegram.' },
   { tag: 'BIBLIOTECA DE PRESETS', name: 'Recall de Presets con Un Toque',              desc: 'Guarda configuraciones complejas de múltiples dispositivos y recupéralas al instante. Escenas del mezclador, macros del ATEM, colecciones de OBS — un toque para cambiar toda tu configuración de producción.' },
   { tag: 'PORTAL MÓVIL',        name: 'Portal de Iglesia para Móvil',                  desc: 'Tu panel de iglesia funciona en cualquier dispositivo. Verifica el estado del equipo, administra DTs y revisa sesiones desde tu iPhone durante el servicio.' },
 ];
@@ -714,7 +714,7 @@ const FC_ROWS_ES = [
   { feature: 'Auto-Recuperación (Reinicio de Stream)', values: [true, true, true, true] },
   { feature: 'Cronología Post-Servicio', values: [true, true, true, true] },
   { feature: 'Portal de Iglesia', values: [true, true, true, true] },
-  { feature: 'Conmutación de Señal', values: [false, true, true, true] },
+  { feature: 'Cambio de Señal (Failover)', values: [false, true, true, true] },
   { feature: 'Las 26 Integraciones', values: [false, true, true, true] },
   { feature: 'Control Profundo de ProPresenter', values: [false, true, true, true] },
   { feature: 'Rotación de DT de Guardia', values: [false, true, true, true] },
