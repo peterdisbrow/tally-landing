@@ -16,11 +16,14 @@ export default function ChatPanel({ churchId, relay, role }) {
 
   const loadMessages = useCallback(async () => {
     try {
-      const data = await relay(`/api/churches/${churchId}/chat?limit=100`);
+      const data = await relay(`/api/churches/${churchId}/chat?limit=50`);
       if (data?.messages) {
         setMessages(data.messages);
         if (data.messages.length > 0) lastTimestamp.current = data.messages[data.messages.length - 1].timestamp;
-        scrollToBottom();
+        // Instant scroll (no animation delay) so user sees newest messages first
+        requestAnimationFrame(() => {
+          if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        });
       }
     } catch {}
   }, [churchId, relay]);
