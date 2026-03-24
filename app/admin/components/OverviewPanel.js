@@ -2,20 +2,35 @@
 import { useState, useEffect } from 'react';
 import { C, s, getEncoderNameFromStatus, getEncoderConnectedFromStatus, getEncoderLiveFromStatus } from './adminStyles';
 
+function fmtDate(d) { return d ? new Date(d).toLocaleDateString() : '—'; }
+function fmtTime(d) { return d ? new Date(d).toLocaleString() : '—'; }
+function healthColor(score) { return score >= 90 ? C.green : score >= 75 ? '#86efac' : score >= 50 ? C.yellow : C.red; }
+function gradeBadge(g) {
+  if (!g) return <span style={s.badge(C.muted)}>—</span>;
+  const color = g === 'A' || g === 'A+' || g === 'B' ? C.green : g === 'C' ? C.yellow : C.red;
+  return <span style={s.badge(color)}>{g}</span>;
+}
+function sevBadge(sev) {
+  const color = sev === 'critical' ? C.red : sev === 'warning' ? C.yellow : C.muted;
+  return <span style={s.badge(color)}>{sev || 'info'}</span>;
+}
+
 export default function OverviewPanel({ churchId, relay }) {
   const [status, setStatus] = useState(null);
   const [schedule, setSchedule] = useState(null);
+  const [sv, setSv] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [st, sc] = await Promise.all([
+        const [st, sc, supportView] = await Promise.all([
           relay(`/api/churches/${churchId}/status`).catch(() => null),
           relay(`/api/churches/${churchId}/schedule`).catch(() => null),
+          relay(`/api/admin/church/${churchId}/support-view`).catch(() => null),
         ]);
-        if (!cancelled) { setStatus(st); setSchedule(sc); }
+        if (!cancelled) { setStatus(st); setSchedule(sc); setSv(supportView); }
       } finally { if (!cancelled) setLoading(false); }
     })();
     return () => { cancelled = true; };
@@ -33,6 +48,32 @@ export default function OverviewPanel({ churchId, relay }) {
   const encoderConnected = getEncoderConnectedFromStatus(st.status || st);
   const encoderLive = getEncoderLiveFromStatus(st.status || st);
 
+  const ch = sv?.church || {};
+  const hs = sv?.healthScore || { score: 100, trend: 'stable' };
+  const bill = sv?.billing || {};
+  const onb = sv?.onboarding || {};
+  const integ = sv?.integrations || {};
+  const cfg = sv?.config || {};
+  const alerts = sv?.recentAlerts || [];
+  const sessions = sv?.recentSessions || [];
+  const tickets = sv?.recentTickets || [];
+  const chat = sv?.chatHistory || [];
+  const tds = sv?.tds || [];
+
+  const chipStyle = (on) => ({
+    display: 'inline-block', padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 500,
+    background: on ? 'rgba(34,197,94,.1)' : 'rgba(148,163,184,.08)',
+    color: on ? C.green : C.dim,
+    border: `1px solid ${on ? 'rgba(34,197,94,.2)' : 'rgba(148,163,184,.15)'}`,
+  });
+  const miniTh = { textAlign: 'left', padding: '4px 6px', fontSize: 10, color: C.dim, fontWeight: 500, textTransform: 'uppercase', borderBottom: `1px solid ${C.border}` };
+  const miniTd = { padding: '5px 6px', borderBottom: '1px solid rgba(26,46,31,.3)', color: C.muted, fontSize: 12 };
+  const checkDot = (done) => ({
+    width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+    background: done ? C.green : C.dim,
+    boxShadow: done ? `0 0 4px ${C.green}` : 'none',
+  });
+
   return (
     <div>
       {/* Connection */}
@@ -44,6 +85,41 @@ export default function OverviewPanel({ churchId, relay }) {
           {version && <span style={s.badge(C.blue)}>v{version}</span>}
         </div>
       </div>
+
+      {/* Health Score */}
+      <div style={s.section}>
+        <div style={s.sectionTitle}>Health</div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ ...s.badge(healthColor(hs.score)), fontSize: 13, fontWeight: 700 }}>{hs.score}/100</span>
+          <span style={{ fontSize: 12, color: C.muted }}>Trend: {hs.trend || 'stable'}</span>
+          {sv?.status?.streamActive && <span style={s.badge(C.red)}>Stream Active</span>}
+          {sv?.status?.currentSession && (
+            <span style={s.badge(C.green)}>In Session — {Math.floor(sv.status.currentSession.duration / 60)} min</span>
+          )}
+        </div>
+      </div>
+
+      {/* Church Details */}
+      {sv && (
+        <div style={s.section}>
+          <div style={s.sectionTitle}>Details</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 16px', fontSize: 12 }}>
+            <div style={{ color: C.dim }}>Type</div><div style={{ color: C.white }}>{ch.church_type || 'recurring'}</div>
+            <div style={{ color: C.dim }}>Portal Email</div><div style={{ color: C.white }}>{ch.portal_email || ch.email || '—'}</div>
+            <div style={{ color: C.dim }}>Reg Code</div><div style={{ color: C.white, fontFamily: 'monospace' }}>{ch.registration_code || '—'}</div>
+            <div style={{ color: C.dim }}>Referral Code</div><div style={{ color: C.white, fontFamily: 'monospace' }}>{ch.referral_code || '—'}</div>
+            {ch.referred_by && <><div style={{ color: C.dim }}>Referred By</div><div style={{ color: C.white }}>{ch.referred_by}</div></>}
+            <div style={{ color: C.dim }}>Timezone</div><div style={{ color: C.white }}>{ch.timezone || '—'}</div>
+            <div style={{ color: C.dim }}>Registered</div><div style={{ color: C.white }}>{fmtTime(ch.registeredAt)}</div>
+            {bill.tier && <><div style={{ color: C.dim }}>Tier</div><div><span style={s.badge(C.green)}>{bill.tier}</span></div></>}
+            {bill.status && <><div style={{ color: C.dim }}>Billing Status</div><div style={{ color: C.white }}>{bill.status}{bill.billing_interval ? ` (${bill.billing_interval})` : ''}</div></>}
+            {bill.trial_ends_at && <><div style={{ color: C.dim }}>Trial Ends</div><div style={{ color: C.yellow }}>{fmtDate(bill.trial_ends_at)}</div></>}
+            {bill.stripe_customer_id && (
+              <><div style={{ color: C.dim }}>Stripe</div><div><a href={`https://dashboard.stripe.com/customers/${bill.stripe_customer_id}`} target="_blank" rel="noopener" style={{ color: C.green, fontSize: 11 }}>View in Stripe ↗</a></div></>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Equipment */}
       <div style={s.section}>
@@ -60,6 +136,57 @@ export default function OverviewPanel({ churchId, relay }) {
           </div>
         )}
       </div>
+
+      {/* Integrations */}
+      {sv && (
+        <div style={s.section}>
+          <div style={s.sectionTitle}>Integrations</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            <span style={chipStyle(integ.planningCenter)}>Planning Center</span>
+            <span style={chipStyle(integ.youtube)}>YouTube</span>
+            <span style={chipStyle(integ.facebook)}>Facebook</span>
+            <span style={chipStyle(integ.vimeo)}>Vimeo</span>
+            {ch.slack_channel && <span style={chipStyle(true)}>Slack</span>}
+          </div>
+        </div>
+      )}
+
+      {/* Onboarding */}
+      {sv && (
+        <div style={s.section}>
+          <div style={s.sectionTitle}>Onboarding</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {[
+              ['App Connected', onb.app_connected],
+              ['ATEM Connected', onb.atem_connected],
+              ['First Session', onb.first_session],
+              ['Telegram Setup', onb.telegram],
+              ['Failover Tested', onb.failover_tested],
+              ['Team Invited', onb.team_invited],
+            ].map(([label, val]) => (
+              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: C.muted }}>
+                <span style={checkDot(!!val)} />
+                {label}
+                {val && <span style={{ fontSize: 10, color: C.dim }}>{fmtDate(val)}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Configuration */}
+      {sv && (
+        <div style={s.section}>
+          <div style={s.sectionTitle}>Configuration</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            <span style={chipStyle(cfg.autoRecovery)}>Auto-Recovery</span>
+            <span style={chipStyle(cfg.failover)}>Failover{cfg.failoverAction ? ` (${cfg.failoverAction})` : ''}</span>
+          </div>
+          {cfg.autoPilotRulesCount > 0 && (
+            <div style={{ fontSize: 12, color: C.muted, marginTop: 6 }}>{cfg.autoPilotRulesCount} AutoPilot rule{cfg.autoPilotRulesCount !== 1 ? 's' : ''}</div>
+          )}
+        </div>
+      )}
 
       {/* Signal Failover */}
       {st.status?.failover && (
@@ -95,6 +222,66 @@ export default function OverviewPanel({ churchId, relay }) {
         </div>
       )}
 
+      {/* Tech Directors */}
+      {tds.length > 0 && (
+        <div style={s.section}>
+          <div style={s.sectionTitle}>Tech Directors ({tds.length})</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead><tr><th style={miniTh}>Name</th><th style={miniTh}>Email</th><th style={miniTh}>Access</th></tr></thead>
+            <tbody>
+              {tds.map(td => (
+                <tr key={td.id}><td style={{ ...miniTd, color: C.white }}>{td.name || '—'}</td><td style={miniTd}>{td.email || '—'}</td><td style={miniTd}>{td.access_level || 'full'}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Recent Sessions */}
+      {sessions.length > 0 && (
+        <div style={s.section}>
+          <div style={s.sectionTitle}>Recent Sessions</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead><tr><th style={miniTh}>Date</th><th style={miniTh}>Duration</th><th style={miniTh}>Grade</th><th style={miniTh}>Alerts</th></tr></thead>
+            <tbody>
+              {sessions.map(sess => (
+                <tr key={sess.id}><td style={{ ...miniTd, color: C.white }}>{fmtDate(sess.startedAt)}</td><td style={miniTd}>{sess.duration || '—'} min</td><td style={miniTd}>{gradeBadge(sess.grade)}</td><td style={miniTd}>{sess.alerts || 0}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Recent Alerts */}
+      {alerts.length > 0 && (
+        <div style={s.section}>
+          <div style={s.sectionTitle}>Recent Alerts ({alerts.length})</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead><tr><th style={miniTh}>Type</th><th style={miniTh}>Severity</th><th style={miniTh}>Time</th><th style={miniTh}>Status</th></tr></thead>
+            <tbody>
+              {alerts.slice(0, 10).map(a => (
+                <tr key={a.id}><td style={{ ...miniTd, color: C.white }}>{a.type || '—'}</td><td style={miniTd}>{sevBadge(a.severity)}</td><td style={miniTd}>{fmtTime(a.timestamp)}</td><td style={miniTd}>{a.resolved ? <span style={s.badge(C.green)}>Resolved</span> : <span style={s.badge(C.red)}>Open</span>}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Support Tickets */}
+      {tickets.length > 0 && (
+        <div style={s.section}>
+          <div style={s.sectionTitle}>Support Tickets</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead><tr><th style={miniTh}>Title</th><th style={miniTh}>Severity</th><th style={miniTh}>Status</th><th style={miniTh}>Created</th></tr></thead>
+            <tbody>
+              {tickets.map(t => (
+                <tr key={t.id}><td style={{ ...miniTd, color: C.white }}>{t.title || '—'}</td><td style={miniTd}>{sevBadge(t.severity)}</td><td style={miniTd}><span style={s.badge(C.muted)}>{t.status || '—'}</span></td><td style={miniTd}>{fmtDate(t.created_at)}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {/* Service Window */}
       <div style={s.section}>
         <div style={s.sectionTitle}>Service Window</div>
@@ -112,6 +299,22 @@ export default function OverviewPanel({ churchId, relay }) {
           </div>
         )}
       </div>
+
+      {/* Chat Preview */}
+      {chat.length > 0 && (
+        <div style={s.section}>
+          <div style={s.sectionTitle}>Recent Chat ({chat.length})</div>
+          <div style={{ maxHeight: 180, overflowY: 'auto', background: C.bg || '#09090B', border: `1px solid ${C.border}`, borderRadius: 8, padding: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {chat.map((m, i) => (
+              <div key={i} style={{ fontSize: 12, lineHeight: 1.4 }}>
+                <span style={{ fontWeight: 600, color: C.green, marginRight: 4 }}>{m.sender_name || m.source || 'System'}</span>
+                <span style={{ color: C.muted }}>{m.message || m.text || ''}</span>
+                <span style={{ fontSize: 10, color: C.dim, marginLeft: 6 }}>{fmtTime(m.timestamp || m.created_at)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
