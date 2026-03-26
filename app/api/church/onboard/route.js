@@ -4,7 +4,7 @@ import { checkRateLimit } from '../../../../lib/rate-limit';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://tallyconnect.app';
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const FROM_EMAIL = process.env.FROM_EMAIL || 'Tally <noreply@tallyconnect.app>';
-const GITHUB_RELEASES_URL = 'https://github.com/peterdisbrow/tally/releases/latest';
+const DOWNLOAD_MAC_URL = 'https://github.com/peterdisbrow/tally/releases/download/v1.0.1/Tally-signed.dmg';
 
 const ALLOWED_TIERS = new Set(['connect', 'plus', 'pro', 'managed', 'event']);
 const ALLOWED_BILLING_INTERVALS = new Set(['monthly', 'annual']);
@@ -56,7 +56,7 @@ function buildWelcomeEmailHtml({ churchName, email, registrationCode }) {
         <p style="font-size: 14px; color: #555; margin: 0 0 12px; line-height: 1.5;">
           Install Tally on your booth computer (the one connected to your ATEM and OBS).
         </p>
-        <a href="${GITHUB_RELEASES_URL}" style="
+        <a href="${DOWNLOAD_MAC_URL}" style="
           display: inline-block; padding: 10px 24px; font-size: 14px; font-weight: 700;
           background: #22c55e; color: #000; text-decoration: none; border-radius: 8px;
         ">Download Tally</a>
@@ -112,7 +112,7 @@ function buildWelcomeEmailText({ churchName, email, registrationCode }) {
 Your account is ready. Here's how to get started:
 
 STEP 1: Download the App
-Install Tally on your booth computer: ${GITHUB_RELEASES_URL}
+Install Tally on your booth computer: ${DOWNLOAD_MAC_URL}
 
 STEP 2: Sign In
 Open the app and sign in with: ${email}

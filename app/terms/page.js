@@ -82,7 +82,7 @@ export default function TermsPage() {
             Tally is offered under the following subscription tiers:
             <ul style={ulStyle}>
               <li>
-                <strong>Connect</strong> — $79/month
+                <strong>Connect</strong> — $79/month ($49/month for founding members during early access)
               </li>
               <li>
                 <strong>Plus</strong> — $99/month

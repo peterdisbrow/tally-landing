@@ -11,7 +11,7 @@ const AMBER = '#f59e0b';
 const AMBER_BG = 'rgba(245,158,11,0.08)';
 const AMBER_BORDER = 'rgba(245,158,11,0.3)';
 
-const GITHUB_RELEASES_URL = 'https://github.com/peterdisbrow/tally/releases/latest';
+const DOWNLOAD_MAC_URL = 'https://github.com/peterdisbrow/tally/releases/download/v1.0.1/Tally-signed.dmg';
 const PORTAL_URL = '/portal';
 const HELP_URL = '/help';
 
@@ -61,10 +61,10 @@ export default function SignupSuccessPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
-              <a href={GITHUB_RELEASES_URL} target="_blank" rel="noopener noreferrer" style={downloadBtn}>
+              <a href={DOWNLOAD_MAC_URL} target="_blank" rel="noopener noreferrer" style={downloadBtn}>
                 Download for Mac (Apple Silicon)
               </a>
-              <a href={GITHUB_RELEASES_URL} target="_blank" rel="noopener noreferrer" style={downloadBtnSecondary}>
+              <a href={DOWNLOAD_MAC_URL} target="_blank" rel="noopener noreferrer" style={downloadBtnSecondary}>
                 Download for Windows
               </a>
             </div>

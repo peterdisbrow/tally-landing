@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { BG, CARD_BG, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens';
 
 const TIERS = ['Connect', 'Plus', 'Pro', 'Enterprise'];
-const TIER_PRICES = ['$79', '$99', '$149', '$499'];
+const TIER_PRICES = ['$49', '$99', '$149', '$499'];
 
 const ROWS = [
   { feature: 'Rooms', values: ['1', '3', '5', 'Unlimited'] },
@@ -82,7 +82,13 @@ export default function FeatureComparison() {
                     fontWeight: 600, fontSize: '0.75rem',
                     color: tier === 'Pro' ? GREEN : DIM,
                     marginTop: 2,
-                  }}>{TIER_PRICES[i]}/mo</div>
+                  }}>
+                    {tier === 'Connect' ? (
+                      <><span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$79</span> {TIER_PRICES[i]}/mo</>
+                    ) : (
+                      <>{TIER_PRICES[i]}/mo</>
+                    )}
+                  </div>
                 </th>
               ))}
             </tr>
@@ -147,7 +153,7 @@ export default function FeatureComparison() {
               listStyle: 'none',
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
-              <span>{tier} <span style={{ fontWeight: 600, fontSize: '0.85rem', color: DIM, marginLeft: 8 }}>{TIER_PRICES[ti]}/mo</span></span>
+              <span>{tier} <span style={{ fontWeight: 600, fontSize: '0.85rem', color: DIM, marginLeft: 8 }}>{tier === 'Connect' ? <><span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$79</span> {TIER_PRICES[ti]}/mo</> : <>{TIER_PRICES[ti]}/mo</>}</span></span>
               <span style={{ color: MUTED, fontSize: '0.8rem' }}>tap to expand</span>
             </summary>
             <div style={{ padding: '0 20px 16px' }}>

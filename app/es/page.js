@@ -703,7 +703,7 @@ const PRICING_ES = [
 ];
 
 const FC_TIERS = ['Connect', 'Plus', 'Pro', 'Enterprise'];
-const FC_TIER_PRICES = ['$79', '$99', '$149', '$499'];
+const FC_TIER_PRICES = ['$49', '$99', '$149', '$499'];
 
 const FC_ROWS_ES = [
   { feature: 'Salas', values: ['1', '3', '5', 'Ilimitadas'] },
@@ -774,7 +774,13 @@ function FeatureComparisonEs() {
                   <div style={{
                     fontWeight: 600, fontSize: '0.75rem',
                     color: tier === 'Pro' ? GREEN : DIM, marginTop: 2,
-                  }}>{FC_TIER_PRICES[i]}/mes</div>
+                  }}>
+                    {tier === 'Connect' ? (
+                      <><span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$79</span> {FC_TIER_PRICES[i]}/mes</>
+                    ) : (
+                      <>{FC_TIER_PRICES[i]}/mes</>
+                    )}
+                  </div>
                 </th>
               ))}
             </tr>
@@ -837,7 +843,7 @@ function FeatureComparisonEs() {
               listStyle: 'none',
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
-              <span>{tier} <span style={{ fontWeight: 600, fontSize: '0.85rem', color: DIM, marginLeft: 8 }}>{FC_TIER_PRICES[ti]}/mes</span></span>
+              <span>{tier} <span style={{ fontWeight: 600, fontSize: '0.85rem', color: DIM, marginLeft: 8 }}>{tier === 'Connect' ? <><span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$79</span> {FC_TIER_PRICES[ti]}/mes</> : <>{FC_TIER_PRICES[ti]}/mes</>}</span></span>
               <span style={{ color: MUTED, fontSize: '0.8rem' }}>toca para expandir</span>
             </summary>
             <div style={{ padding: '0 20px 16px' }}>
