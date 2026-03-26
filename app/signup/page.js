@@ -17,6 +17,7 @@ export default function SignupPage() {
     name: '',
     email: '',
     password: '',
+    confirmPassword: '',
     tier: 'connect',
     billingInterval: 'monthly',
   });
@@ -69,6 +70,10 @@ export default function SignupPage() {
         if (!value) return 'Password is required';
         if (value.length < 8) return `${8 - value.length} more character${8 - value.length !== 1 ? 's' : ''} needed`;
         return '';
+      case 'confirmPassword':
+        if (!value) return 'Please confirm your password';
+        if (value !== form.password) return 'Passwords do not match';
+        return '';
       default:
         return '';
     }
@@ -81,11 +86,19 @@ export default function SignupPage() {
   }
 
   function handleChange(name, value) {
+    const updated = { ...form, [name]: value };
     setForm(f => ({ ...f, [name]: value }));
     // Clear error as user types if field was previously touched
     if (touched[name]) {
       const err = validateField(name, value);
       setFieldErrors(f => ({ ...f, [name]: err }));
+    }
+    // Re-validate confirmPassword when password changes
+    if (name === 'password' && touched.confirmPassword) {
+      const cpErr = updated.confirmPassword
+        ? (value !== updated.confirmPassword ? 'Passwords do not match' : '')
+        : 'Please confirm your password';
+      setFieldErrors(f => ({ ...f, confirmPassword: cpErr }));
     }
   }
 
@@ -116,12 +129,12 @@ export default function SignupPage() {
 
     // Validate all fields
     const allErrors = {};
-    ['name', 'email', 'password'].forEach(f => {
+    ['name', 'email', 'password', 'confirmPassword'].forEach(f => {
       const err = validateField(f, form[f]);
       if (err) allErrors[f] = err;
     });
     setFieldErrors(allErrors);
-    setTouched({ name: true, email: true, password: true });
+    setTouched({ name: true, email: true, password: true, confirmPassword: true });
 
     if (Object.values(allErrors).some(Boolean)) {
       setError('Please fix the errors above.');
@@ -277,6 +290,22 @@ export default function SignupPage() {
               </div>
             )}
             <FieldError id="signup-password-error" msg={touched.password && fieldErrors.password} />
+
+            {/* Confirm Password */}
+            <label htmlFor="signup-confirm-password" style={labelStyle}>Confirm Password</label>
+            <input
+              id="signup-confirm-password"
+              aria-describedby="signup-confirm-password-error"
+              aria-invalid={!!(touched.confirmPassword && fieldErrors.confirmPassword)}
+              style={inputVariant(touched.confirmPassword && fieldErrors.confirmPassword)}
+              type="password"
+              value={form.confirmPassword}
+              onChange={e => handleChange('confirmPassword', e.target.value)}
+              onBlur={() => handleBlur('confirmPassword')}
+              required
+              placeholder="Re-enter your password"
+            />
+            <FieldError id="signup-confirm-password-error" msg={touched.confirmPassword && fieldErrors.confirmPassword} />
 
             <label style={checkboxRowStyle}>
               <input type="checkbox" checked={tosAccepted} onChange={(e) => setTosAccepted(e.target.checked)} style={{ marginTop: 3, accentColor: GREEN }} />

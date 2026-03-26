@@ -6,6 +6,12 @@ import { RELAY_URL } from '../../../lib/relay';
 const CHAT_PROXY_SECRET = process.env.CHAT_PROXY_SECRET || '';
 
 export async function POST(request) {
+  /* ── Origin validation ── */
+  const origin = request.headers.get('origin');
+  if (origin && !['https://tallyconnect.app', 'https://www.tallyconnect.app'].includes(origin)) {
+    return Response.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   /* ── Rate limit ── */
   const rl = await checkRateLimit('chat', request);
   if (!rl.success) {

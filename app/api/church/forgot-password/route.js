@@ -4,7 +4,7 @@ import { checkRateLimit } from '../../../../lib/rate-limit';
 
 const SECRET = process.env.SESSION_SECRET;
 if (!SECRET && process.env.NODE_ENV === 'production') {
-  console.error('SESSION_SECRET is not set — password reset will fail at runtime.');
+  throw new Error('SESSION_SECRET is not set — refusing to start in production without it.');
 }
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://tallyconnect.app';
 const RESEND_API_KEY = process.env.RESEND_API_KEY;

@@ -41,6 +41,9 @@ export const metadata = {
       'Your stream crashed. Tally already fixed it. Auto-recovery monitoring for church production teams. 26 integrations. Free trial.',
     images: ['https://tallyconnect.app/og-image.png'],
   },
+  icons: {
+    icon: '/favicon.ico',
+  },
   robots: {
     index: true,
     follow: true,
