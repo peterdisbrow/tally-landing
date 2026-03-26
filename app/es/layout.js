@@ -19,14 +19,14 @@ export const metadata = {
       'Tu transmisión se cayó. Tally ya lo arregló. Recuperación automática de transmisión, monitoreo de producción y control con IA para equipos de iglesia. 23 integraciones. 30 días gratis.',
     url: 'https://tallyconnect.app/es',
     siteName: 'Tally',
-    locale: 'es_ES',
+    locale: 'es-419',
     type: 'website',
   },
   alternates: {
     canonical: 'https://tallyconnect.app/es',
     languages: {
       'en': 'https://tallyconnect.app',
-      'es': 'https://tallyconnect.app/es',
+      'es-419': 'https://tallyconnect.app/es',
     },
   },
 };

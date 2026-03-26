@@ -129,6 +129,17 @@ export default function Nav() {
             )
           ))}
           <a
+            href="/es"
+            aria-label="Ver en español"
+            style={{
+              color: MUTED, textDecoration: 'none', fontSize: '0.82rem', fontWeight: 600,
+              border: `1px solid ${BORDER}`, borderRadius: 6, padding: '5px 10px',
+              transition: 'color .2s',
+            }}
+          >
+            ES
+          </a>
+          <a
             href="/signup"
             style={{
               display: 'inline-block', padding: '9px 22px', fontSize: '0.88rem', fontWeight: 700,
@@ -181,6 +192,13 @@ export default function Nav() {
               </a>
             )
           ))}
+          <a
+            href="/es"
+            onClick={() => setMenuOpen(false)}
+            style={{ borderBottom: `1px solid ${BORDER}`, paddingRight: 6 }}
+          >
+            🌐 Ver en Español
+          </a>
           <a
             href="/signup"
             onClick={() => setMenuOpen(false)}

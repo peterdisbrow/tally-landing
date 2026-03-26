@@ -29,10 +29,10 @@ const jsonLd = {
       url: 'https://tallyconnect.app',
       offers: {
         '@type': 'AggregateOffer',
-        lowPrice: '0',
-        highPrice: '149',
+        lowPrice: '49',  // Founding Church Rate (monthly). Free trial available but no free tier.
+        highPrice: '499',
         priceCurrency: 'USD',
-        offerCount: 5,
+        offerCount: 4,
       },
     },
     {
@@ -40,6 +40,75 @@ const jsonLd = {
       name: 'Tally',
       url: 'https://tallyconnect.app',
       logo: 'https://tallyconnect.app/icon.svg',
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What equipment does Tally work with?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen & Heath, Yamaha CL/QL), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Dante audio, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, Telegram, YouTube Live, Facebook Live, and Vimeo Live. 26 integrations and counting.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What happens if our internet goes down?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: "Tally can't monitor remotely without internet, but it detects the disconnection immediately and alerts your TD. Your production gear still works normally — Tally is a monitoring layer, not a dependency. Nothing breaks if Tally goes offline.",
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'How long does setup take?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'About 10 minutes. Download the app on your booth computer, sign in with your registration code, and Tally auto-discovers your ATEM, OBS, and other gear on the network. No port forwarding, no complex configuration.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What if our stream drops during service?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: "Tally detects it in seconds, verifies it's a real outage (not a momentary blip), and auto-restarts your stream. Most recoveries happen before anyone in the congregation notices. You get a Telegram or Slack alert that says \"handled.\"",
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Can volunteers run this?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: "That's the whole point. Tally handles troubleshooting automatically so volunteers can focus on the creative side — camera work, slides, audio levels. Guest TD tokens give temporary access that auto-expires, so volunteers get exactly the access they need.",
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What happens when my trial ends?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Monitoring and auto-recovery stop, but your data and settings are preserved for 30 days. Subscribe anytime to pick up right where you left off — no re-setup needed.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Can I cancel anytime?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes. No contracts, no cancellation fees. Cancel from your Church Portal whenever you want. Your gear keeps working exactly as it did before Tally.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'How do we justify this cost to leadership?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'One prevented streaming outage during a Sunday service pays for Tally for an entire year. Many churches also spend $200–500 per service paying experienced techs to be on-call "just in case." Tally replaces that safety net at a fraction of the cost — 24/7 monitoring, automatic recovery, and instant alerts so volunteers can run production confidently.',
+          },
+        },
+      ],
     },
   ],
 };

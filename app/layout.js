@@ -44,7 +44,7 @@ export const metadata = {
     canonical: 'https://tallyconnect.app',
     languages: {
       'en': 'https://tallyconnect.app',
-      'es': 'https://tallyconnect.app/es',
+      'es-419': 'https://tallyconnect.app/es',
     },
   },
 };

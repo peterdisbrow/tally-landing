@@ -37,6 +37,9 @@ export default function Pricing() {
           gap: 12, marginBottom: 48,
         }}>
           <button
+            role="switch"
+            aria-checked={!annual}
+            aria-label="Switch to monthly billing"
             onClick={() => setAnnual(false)}
             style={{
               padding: '10px 24px', fontSize: '0.9rem', fontWeight: 700,
@@ -49,6 +52,9 @@ export default function Pricing() {
             Monthly
           </button>
           <button
+            role="switch"
+            aria-checked={annual}
+            aria-label="Switch to annual billing"
             onClick={() => setAnnual(true)}
             style={{
               padding: '10px 24px', fontSize: '0.9rem', fontWeight: 700,
@@ -101,13 +107,16 @@ export default function Pricing() {
                 boxShadow: plan.featured ? '0 0 40px rgba(34,197,94,0.08)' : undefined,
               }}>
                 {plan.featured && (
-                  <div style={{
-                    position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
-                    background: GREEN, color: '#000', padding: '4px 18px',
-                    borderRadius: 20, fontSize: '0.7rem', fontWeight: 800,
-                    letterSpacing: '0.08em', whiteSpace: 'nowrap',
-                    fontFamily: 'ui-monospace, monospace',
-                  }}>MOST POPULAR</div>
+                  <div
+                    aria-label={`${plan.name} — Most Popular plan`}
+                    style={{
+                      position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
+                      background: GREEN, color: '#000', padding: '4px 18px',
+                      borderRadius: 20, fontSize: '0.7rem', fontWeight: 800,
+                      letterSpacing: '0.08em', whiteSpace: 'nowrap',
+                      fontFamily: 'ui-monospace, monospace',
+                    }}
+                  >MOST POPULAR</div>
                 )}
 
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 6px', color: WHITE }}>{plan.name}</h3>
