@@ -38,7 +38,21 @@ export async function POST(req) {
       data = { error: text || 'Unexpected relay response' };
     }
 
-    return NextResponse.json(data, { status: upstream.status });
+    if (!upstream.ok || !data.token) {
+      return NextResponse.json(data, { status: upstream.status });
+    }
+
+    // Set the JWT as an httpOnly cookie — not accessible to JavaScript,
+    // which eliminates XSS exfiltration of the session token.
+    const response = NextResponse.json({ success: true }, { status: 200 });
+    response.cookies.set('tally_church_token', data.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+    });
+    return response;
   } catch (e) {
     return NextResponse.json({ error: e.message || 'Relay request failed' }, { status: 502 });
   }

@@ -11,7 +11,10 @@ const AMBER = '#f59e0b';
 const AMBER_BG = 'rgba(245,158,11,0.08)';
 const AMBER_BORDER = 'rgba(245,158,11,0.3)';
 
-const DOWNLOAD_MAC_URL = 'https://github.com/peterdisbrow/tally/releases/download/v1.0.1/Tally-signed.dmg';
+// Always points to the latest published release — no hardcoded version number
+const DOWNLOAD_BASE = 'https://github.com/tallyconnect/tally/releases/latest/download';
+const DOWNLOAD_MAC_URL = `${DOWNLOAD_BASE}/Tally.dmg`;
+const DOWNLOAD_WIN_URL = `${DOWNLOAD_BASE}/Tally-Setup.exe`;
 const PORTAL_URL = '/portal';
 const HELP_URL = '/help';
 
@@ -62,10 +65,10 @@ export default function SignupSuccessPage() {
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
               <a href={DOWNLOAD_MAC_URL} target="_blank" rel="noopener noreferrer" style={downloadBtn}>
-                Download for Mac (Apple Silicon)
+                ↓ Mac (Apple Silicon)
               </a>
-              <a href={DOWNLOAD_MAC_URL} target="_blank" rel="noopener noreferrer" style={downloadBtnSecondary}>
-                Download for Windows
+              <a href={DOWNLOAD_WIN_URL} target="_blank" rel="noopener noreferrer" style={downloadBtnSecondary}>
+                ↓ Windows
               </a>
             </div>
           </div>

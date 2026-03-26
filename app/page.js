@@ -9,6 +9,7 @@ import BoldStatement from './components/BoldStatement';
 import Integrations from './components/Integrations';
 import HowItWorks from './components/HowItWorks';
 import Pricing from './components/Pricing';
+import ROICalculator from './components/ROICalculator';
 import Hardware from './components/Hardware';
 import FounderQuote from './components/FounderQuote';
 import Testimonials from './components/Testimonials';
@@ -61,6 +62,7 @@ export default function Home() {
       <BoldStatement />
       <Integrations />
       <HowItWorks />
+      <ROICalculator />
       <Pricing />
       <div id="hardware"><Hardware /></div>
       <FounderQuote />

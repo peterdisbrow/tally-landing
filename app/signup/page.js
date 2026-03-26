@@ -6,11 +6,13 @@ import Nav from '../components/Nav';
 import Footer from '../components/Footer';
 
 const TIERS = [
-  { value: 'connect', name: 'Connect' },
-  { value: 'plus', name: 'Plus' },
-  { value: 'pro', name: 'Pro' },
-  { value: 'managed', name: 'Enterprise' },
+  { value: 'connect',  name: 'Connect',    monthlyPrice: 49,  annualPrice: 37 },
+  { value: 'plus',     name: 'Plus',        monthlyPrice: 99,  annualPrice: 74 },
+  { value: 'pro',      name: 'Pro',         monthlyPrice: 149, annualPrice: 112 },
+  { value: 'managed',  name: 'Enterprise',  monthlyPrice: 499, annualPrice: 374 },
 ];
+
+const VALID_PLANS = TIERS.map(t => t.value);
 
 export default function SignupPage() {
   const [form, setForm] = useState({
@@ -33,10 +35,23 @@ export default function SignupPage() {
   const [touched, setTouched] = useState({});
   const [fieldErrors, setFieldErrors] = useState({});
 
-  // Read referral code from query params and look up referrer name
+  // Read plan + referral code from query params
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
+
+    // Pre-select plan from ?plan= param (set by pricing page CTAs)
+    const planParam = params.get('plan');
+    if (planParam && VALID_PLANS.includes(planParam)) {
+      setForm(f => ({ ...f, tier: planParam }));
+    }
+
+    // Pre-select billing interval from ?interval= param
+    const intervalParam = params.get('interval');
+    if (intervalParam === 'annual' || intervalParam === 'monthly') {
+      setForm(f => ({ ...f, billingInterval: intervalParam }));
+    }
+
     const ref = params.get('ref');
     if (ref) {
       setReferralCode(ref);
@@ -217,6 +232,60 @@ export default function SignupPage() {
               <div role="alert" style={{ marginBottom: 14, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.35)', color: DANGER, borderRadius: 8, padding: 10, fontSize: 13 }}>
                 {error}
               </div>
+            )}
+          </div>
+
+          {/* Plan selector */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <span style={{ fontSize: 12, color: MUTED, fontWeight: 600 }}>PLAN</span>
+              <div style={{ display: 'flex', gap: 4 }}>
+                {['monthly', 'annual'].map(interval => (
+                  <button
+                    key={interval}
+                    type="button"
+                    onClick={() => handleChange('billingInterval', interval)}
+                    style={{
+                      padding: '4px 10px', fontSize: 11, fontWeight: 700, borderRadius: 6,
+                      border: `1px solid ${form.billingInterval === interval ? GREEN : BORDER}`,
+                      background: form.billingInterval === interval ? 'rgba(34,197,94,0.1)' : 'transparent',
+                      color: form.billingInterval === interval ? GREEN : MUTED,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {interval === 'monthly' ? 'Monthly' : 'Annual (save 25%)'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              {TIERS.map(tier => {
+                const price = form.billingInterval === 'annual' ? tier.annualPrice : tier.monthlyPrice;
+                const isSelected = form.tier === tier.value;
+                return (
+                  <button
+                    key={tier.value}
+                    type="button"
+                    onClick={() => handleChange('tier', tier.value)}
+                    style={{
+                      padding: '10px 12px', borderRadius: 8, textAlign: 'left',
+                      border: `1px solid ${isSelected ? GREEN : BORDER}`,
+                      background: isSelected ? 'rgba(34,197,94,0.08)' : 'transparent',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{ fontSize: 13, fontWeight: 700, color: isSelected ? GREEN : WHITE }}>{tier.name}</div>
+                    <div style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>
+                      {tier.value === 'managed' ? 'Contact us' : `$${price}/mo`}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            {form.tier === 'connect' && (
+              <p style={{ fontSize: 11, color: GREEN, marginTop: 6 }}>
+                ★ Founding Church Rate — limited spots at $49/mo
+              </p>
             )}
           </div>
 

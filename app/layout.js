@@ -24,14 +24,6 @@ export const metadata = {
     siteName: 'Tally',
     locale: 'en_US',
     type: 'website',
-    images: [
-      {
-        url: 'https://tallyconnect.app/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Tally — Church Streaming Auto-Recovery & Production Monitoring',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',

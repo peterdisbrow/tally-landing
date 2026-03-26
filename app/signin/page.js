@@ -73,12 +73,12 @@ export default function SignInPage() {
         return;
       }
 
-      // Store the token and redirect to portal
-      if (data.token) {
-        localStorage.setItem('tally_church_token', data.token);
+      // Token is now set as an httpOnly cookie by the server.
+      // Redirect to portal — the cookie is sent automatically.
+      if (data.success) {
         window.location.href = '/portal';
       } else {
-        setError('Login succeeded but no token received. Please try again.');
+        setError(data.error || 'Login succeeded but response was unexpected. Please try again.');
       }
     } catch (err) {
       setError('Network error. Please check your connection and try again.');

@@ -77,7 +77,7 @@ function HeroEs() {
 
       {/* CTAs */}
       <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 60 }}>
-        <a href="/signup" style={{
+        <a href="/es/signup" style={{
           display: 'inline-block', padding: '15px 36px', fontSize: '1rem', fontWeight: 700,
           borderRadius: 8, border: 'none', background: GREEN, color: '#000',
           cursor: 'pointer', textDecoration: 'none',
@@ -624,7 +624,7 @@ const PRICING_ES = [
     desc: 'Monitoreo, alertas y control remoto para una sola sala.',
     featured: false,
     cta: 'Iniciar Prueba Gratuita \u2192',
-    ctaHref: '/signup?plan=connect',
+    ctaHref: '/es/signup?plan=connect',
     features: [
       '1 sala incluida',
       'Monitoreo ATEM, OBS, vMix',
@@ -645,7 +645,7 @@ const PRICING_ES = [
     desc: 'Integraciones completas, comandos de IA y soporte multi-sala para equipos en crecimiento.',
     featured: false,
     cta: 'Iniciar Prueba Gratuita \u2192',
-    ctaHref: '/signup?plan=plus',
+    ctaHref: '/es/signup?plan=plus',
     features: [
       'Todo lo de Connect',
       'Hasta 3 salas',
@@ -667,7 +667,7 @@ const PRICING_ES = [
     desc: 'Piloto automático con IA, sincronización con Planning Center e informes mensuales para operaciones multi-sala.',
     featured: true,
     cta: 'Iniciar Prueba Gratuita \u2192',
-    ctaHref: '/signup?plan=pro',
+    ctaHref: '/es/signup?plan=pro',
     features: [
       'Todo lo de Plus',
       'Hasta 5 salas',
