@@ -53,7 +53,7 @@ export default function DownloadPage() {
               <div style={{ fontSize: 40, marginBottom: 12 }}>{'\uF8FF'}</div>
               <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 6 }}>Apple Silicon</h2>
               <p style={{ color: MUTED, fontSize: 13, marginBottom: 20 }}>
-                M1, M2, M3, M4 MacBook &amp; iMac
+                M1, M2, M3, M4 MacBook, iMac &amp; Mac Mini
               </p>
               <a
                 href="https://github.com/peterdisbrow/tally/releases/latest/download/Tally-arm64.dmg"
