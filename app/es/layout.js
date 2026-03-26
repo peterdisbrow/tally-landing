@@ -31,20 +31,8 @@ export const metadata = {
   },
 };
 
+// Nested layouts must NOT include <html>/<body> — those are owned by the
+// root layout (app/layout.js). This layout only contributes metadata.
 export default function SpanishLayout({ children }) {
-  return (
-    <html lang="es">
-      <body
-        style={{
-          margin: 0,
-          fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
-          background: '#09090B',
-          color: '#F8FAFC',
-          lineHeight: 1.6,
-        }}
-      >
-        {children}
-      </body>
-    </html>
-  );
+  return <>{children}</>;
 }
