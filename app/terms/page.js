@@ -43,8 +43,7 @@ export default function TermsPage() {
           </p>
 
           <Section title="1. Service Description">
-            Tally is a church production monitoring and remote control platform operated by ATEM
-            School (Andrew Disbrow). The service provides real-time monitoring, alerting, and remote
+            Tally is a church production monitoring and remote control platform operated by Tally Connect (Andrew Disbrow). The service provides real-time monitoring, alerting, and remote
             control capabilities for broadcast and production equipment including — but not limited
             to — Blackmagic ATEM switchers, OBS Studio, vMix, ProPresenter, Resolume, audio
             consoles, and streaming encoders. You are responsible for the lawful operation of the
@@ -83,7 +82,7 @@ export default function TermsPage() {
             Tally is offered under the following subscription tiers:
             <ul style={ulStyle}>
               <li>
-                <strong>Connect</strong> — $49/month
+                <strong>Connect</strong> — $79/month
               </li>
               <li>
                 <strong>Plus</strong> — $99/month
@@ -92,7 +91,7 @@ export default function TermsPage() {
                 <strong>Pro</strong> — $149/month
               </li>
               <li>
-                <strong>Enterprise</strong> — $499/month
+                <strong>Managed</strong> — $499/month
               </li>
               <li>
                 <strong>Event</strong> — $99 one-time purchase (single-event access)
@@ -179,12 +178,12 @@ export default function TermsPage() {
             <ul style={ulStyle}>
               <li>
                 Tally, the Tally logo, and all related trademarks, service marks, and trade names
-                are the property of ATEM School. You may not use our branding without prior written
+                are the property of Tally Connect. You may not use our branding without prior written
                 permission.
               </li>
               <li>
                 All software, documentation, APIs, and visual interfaces are owned by or licensed to
-                ATEM School and are protected by copyright, trade secret, and other intellectual
+                Tally Connect and are protected by copyright, trade secret, and other intellectual
                 property laws.
               </li>
               <li>
@@ -193,7 +192,7 @@ export default function TermsPage() {
                 during the subscription term.
               </li>
               <li>
-                Feedback, suggestions, or feature requests you submit may be used by ATEM School
+                Feedback, suggestions, or feature requests you submit may be used by Tally Connect
                 without obligation or compensation.
               </li>
               <li>
@@ -211,7 +210,7 @@ export default function TermsPage() {
               FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
             </p>
             <p style={pStyle}>
-              ATEM School does not warrant that the service will be uninterrupted, error-free, or
+              Tally Connect does not warrant that the service will be uninterrupted, error-free, or
               free of harmful components. We do not guarantee that auto-recovery actions will
               succeed, that alerts will be delivered instantly, or that remote commands will execute
               without delay.
@@ -235,7 +234,7 @@ export default function TermsPage() {
               </li>
               <li>
                 <strong>Blackmagic Design</strong> — ATEM switcher communication via the ATEM protocol.
-                Blackmagic Design is not affiliated with ATEM School.
+                Blackmagic Design is not affiliated with Tally Connect.
               </li>
               <li>
                 <strong>OBS Studio</strong> — Open-source software. Tally connects via the OBS
@@ -351,7 +350,7 @@ export default function TermsPage() {
             Tally is provided on an "as is" and "as available" basis.
             <ul style={ulStyle}>
               <li>
-                ATEM School is not liable for missed streams, equipment failures, or production
+                Tally Connect is not liable for missed streams, equipment failures, or production
                 disruptions.
               </li>
               <li>
@@ -369,7 +368,7 @@ export default function TermsPage() {
           </Section>
 
           <Section title="15. Indemnity, Disputes, and Governing Law">
-            You agree to indemnify ATEM School for misuse of the service or breach of these Terms.
+            You agree to indemnify Tally Connect for misuse of the service or breach of these Terms.
             <ul style={ulStyle}>
               <li>
                 Unless required by law, claims must be submitted by written notice and handled in
@@ -422,7 +421,7 @@ export default function TermsPage() {
               <li>
                 These Terms, together with the{' '}
                 <a href="/privacy" style={{ color: GREEN }}>Privacy Policy</a>, constitute the entire
-                agreement between you and ATEM School regarding Tally and supersede all prior or
+                agreement between you and Tally Connect regarding Tally and supersede all prior or
                 contemporaneous agreements, communications, and proposals.
               </li>
               <li>

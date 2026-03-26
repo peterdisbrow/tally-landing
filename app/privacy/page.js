@@ -56,12 +56,11 @@ export default function PrivacyPage() {
           <Section title="What data we collect">
             <ul style={ulStyle}>
               <li>
-                <strong>Signup form:</strong> name, church name, and email address. Stored in
-                Mailchimp for email communications.
+                <strong>Signup form:</strong> name, church name, and email address. Managed through Resend for transactional and service emails.
               </li>
               <li>
                 <strong>Account signup:</strong> church name, admin email, and password (hashed
-                using bcrypt). Stored on our relay server for authentication.
+                using scrypt). Stored on our relay server for authentication.
               </li>
               <li>
                 <strong>Payment:</strong> billing is handled entirely by Stripe. We never see or
@@ -76,6 +75,12 @@ export default function PrivacyPage() {
               <li>
                 <strong>Stream health metrics:</strong> bitrate, frame rate, encoder status, and
                 streaming platform connection data. Used for alerts, auto-recovery, and session recaps.
+              </li>
+              <li>
+                <strong>Stream platform accounts:</strong> if you connect YouTube, Facebook, or Vimeo accounts for viewer analytics, we store OAuth access tokens to collect viewer counts during live streams. We do not access your video content, subscriber lists, or post on your behalf.
+              </li>
+              <li>
+                <strong>Planning Center:</strong> if you enable Planning Center integration, we sync service schedules, team assignments, and volunteer check-in data. We store a Planning Center API token and cached schedule data. We do not modify your Planning Center data without explicit action.
               </li>
               <li>
                 <strong>Video preview data:</strong> low-resolution preview frames may be transmitted
@@ -139,11 +144,6 @@ export default function PrivacyPage() {
                 <a href="https://stripe.com/privacy" style={{ color: GREEN }}>stripe.com/privacy</a>.
               </li>
               <li>
-                <strong>Mailchimp</strong> (email) — stores your name and email if you sign up for
-                marketing emails. Their privacy policy:{' '}
-                <a href="https://mailchimp.com/legal/privacy/" style={{ color: GREEN }}>mailchimp.com/legal/privacy</a>.
-              </li>
-              <li>
                 <strong>Plausible Analytics</strong> (analytics) — receives anonymized, aggregate
                 page view data. No personal data is transmitted. Their data policy:{' '}
                 <a href="https://plausible.io/data-policy" style={{ color: GREEN }}>plausible.io/data-policy</a>.
@@ -185,6 +185,18 @@ export default function PrivacyPage() {
                 privacy policy:{' '}
                 <a href="https://railway.app/legal/privacy" style={{ color: GREEN }}>railway.app/legal/privacy</a>.
               </li>
+              <li>
+                <strong>YouTube / Google</strong> (viewer analytics) — if connected, we use YouTube Data API v3 to read live broadcast viewer counts. Subject to{' '}
+                <a href="https://policies.google.com/privacy" style={{ color: GREEN }}>Google&apos;s Privacy Policy</a>.
+              </li>
+              <li>
+                <strong>Facebook / Meta</strong> (viewer analytics) — if connected, we use the Facebook Graph API to read live video viewer counts. Subject to{' '}
+                <a href="https://www.facebook.com/privacy/policy/" style={{ color: GREEN }}>Meta&apos;s Privacy Policy</a>.
+              </li>
+              <li>
+                <strong>Vimeo</strong> (viewer analytics) — if connected, we use Vimeo&apos;s API to read live event viewer counts (Enterprise accounts only). Subject to{' '}
+                <a href="https://vimeo.com/privacy" style={{ color: GREEN }}>Vimeo&apos;s Privacy Policy</a>.
+              </li>
             </ul>
             <p style={pStyle}>
               We do not sell, rent, or share your personal information with third parties for
@@ -214,7 +226,7 @@ export default function PrivacyPage() {
                 the Tally desktop app, and our servers is encrypted using TLS (HTTPS).
               </li>
               <li>
-                <strong>Password hashing:</strong> passwords are hashed using bcrypt before storage.
+                <strong>Password hashing:</strong> passwords are hashed using scrypt before storage.
                 We never store plaintext passwords.
               </li>
               <li>
@@ -261,7 +273,7 @@ export default function PrivacyPage() {
               </li>
               <li>
                 <strong>Email marketing data:</strong> if you unsubscribe from marketing emails,
-                your email is removed from our Mailchimp audience within 30 days.
+                your email is removed from our mailing list within 30 days.
               </li>
               <li>
                 <strong>Support correspondence:</strong> retained for up to 12 months after
@@ -323,7 +335,7 @@ export default function PrivacyPage() {
                 interests (e.g., improving the product, preventing abuse).
               </li>
               <li>
-                <strong>Data controller:</strong> ATEM School (Andrew Disbrow) is the data controller
+                <strong>Data controller:</strong> Tally Connect (Andrew Disbrow) is the data controller
                 for personal data collected through Tally.
               </li>
               <li>
