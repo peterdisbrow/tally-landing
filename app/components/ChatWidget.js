@@ -643,11 +643,16 @@ export default function ChatWidget() {
           </div>
 
           {/* Messages */}
-          <div style={{
-            flex: 1, overflow: 'auto', padding: '12px 14px',
-            display: 'flex', flexDirection: 'column', gap: 10,
-            minHeight: 200, maxHeight: isMobile ? 'calc(100vh - 130px)' : 'calc(60vh - 130px)',
-          }}>
+          <div
+            role="log"
+            aria-live="polite"
+            aria-label="Chat messages"
+            style={{
+              flex: 1, overflow: 'auto', padding: '12px 14px',
+              display: 'flex', flexDirection: 'column', gap: 10,
+              minHeight: 200, maxHeight: isMobile ? 'calc(100vh - 130px)' : 'calc(60vh - 130px)',
+            }}
+          >
             {/* Welcome state — quick-action pills */}
             {messages.length === 0 && (
               <div style={{ textAlign: 'center', padding: '20px 0' }}>

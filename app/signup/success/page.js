@@ -106,10 +106,10 @@ export default function SignupSuccessPage() {
               background: AMBER_BG, border: `1px solid ${AMBER_BORDER}`,
             }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: AMBER, letterSpacing: '0.08em', marginBottom: 6 }}>
-                SAVE THIS CODE
+                OPTIONAL: TELEGRAM ALERTS
               </div>
-              <p style={{ color: MUTED, fontSize: 13, margin: '0 0 10px', lineHeight: 1.5 }}>
-                Your tech directors can register for Telegram alerts by sending this command to <strong style={{ color: WHITE }}>@tallybot</strong>:
+              <p style={{ color: MUTED, fontSize: 13, margin: '0 0 6px', lineHeight: 1.5 }}>
+                Tally sends stream alerts via <strong style={{ color: WHITE }}>Slack</strong> or <strong style={{ color: WHITE }}>Telegram</strong> — you configure this in the app. If you use Telegram, your tech directors register by sending this command to <strong style={{ color: WHITE }}>@tallybot</strong>:
               </p>
               <div style={{
                 fontFamily: 'ui-monospace, monospace', fontSize: 20, fontWeight: 800,
@@ -117,6 +117,9 @@ export default function SignupSuccessPage() {
               }}>
                 /register {registrationCode}
               </div>
+              <p style={{ color: DIM, fontSize: 12, margin: '8px 0 0', lineHeight: 1.4 }}>
+                Don&apos;t use Telegram? Configure Slack alerts instead from the app — no Telegram account needed.
+              </p>
             </div>
           )}
 

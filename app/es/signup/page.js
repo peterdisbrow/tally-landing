@@ -200,8 +200,12 @@ export default function SignupEsPage() {
         <div style={{ maxWidth: 520, margin: '0 auto' }}>
           <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
             <h1 style={{ fontSize: 28, marginBottom: 8 }}>Crea tu Cuenta Tally</h1>
-            <p style={{ color: MUTED, lineHeight: 1.55, marginBottom: 18 }}>
+            <p style={{ color: MUTED, lineHeight: 1.55, marginBottom: 10 }}>
               Comienza tu prueba gratuita — sin tarjeta de crédito. Inicia sesión en la aplicación de escritorio con tu correo y contraseña.
+            </p>
+            <p style={{ fontSize: 12, color: MUTED, lineHeight: 1.55, marginBottom: 18, padding: '8px 12px', background: 'rgba(148,163,184,0.06)', borderRadius: 6, borderLeft: `2px solid ${BORDER}` }}>
+              <strong style={{ color: WHITE }}>Canales de alerta:</strong> Tally envía alertas por Slack y/o Telegram.
+              Después del registro recibirás un código para conectar a tu equipo al bot de Telegram <strong style={{ color: WHITE }}>@tallybot</strong> — o configura Slack en su lugar. Ambos son opcionales.
             </p>
 
             {referralCode && (

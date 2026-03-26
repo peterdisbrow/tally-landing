@@ -205,8 +205,12 @@ export default function SignupPage() {
       <div style={{ maxWidth: 520, margin: '0 auto' }}>
         <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
           <h1 style={{ fontSize: 28, marginBottom: 8 }}>Create Your Tally Account</h1>
-          <p style={{ color: MUTED, lineHeight: 1.55, marginBottom: 18 }}>
+          <p style={{ color: MUTED, lineHeight: 1.55, marginBottom: 10 }}>
             Start your free trial — no credit card required. Log into the desktop app with your email and password.
+          </p>
+          <p style={{ fontSize: 12, color: MUTED, lineHeight: 1.55, marginBottom: 18, padding: '8px 12px', background: 'rgba(148,163,184,0.06)', borderRadius: 6, borderLeft: `2px solid ${BORDER}` }}>
+            <strong style={{ color: WHITE }}>Alert channels:</strong> Tally sends alerts via Slack and/or Telegram.
+            After signup you&apos;ll receive a registration code to connect your team to the <strong style={{ color: WHITE }}>@tallybot</strong> Telegram bot — or configure Slack instead. Both are optional; you can use either or both.
           </p>
 
           {referralCode && (
