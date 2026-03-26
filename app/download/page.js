@@ -56,7 +56,7 @@ export default function DownloadPage() {
                 M1, M2, M3, M4 MacBook &amp; iMac
               </p>
               <a
-                href="https://github.com/peterdisbrow/tally/releases/latest/download/Tally-1.0.0-arm64.dmg"
+                href="https://github.com/peterdisbrow/tally/releases/latest/download/Tally-arm64.dmg"
                 style={{
                   display: 'inline-block',
                   background: GREEN,
@@ -89,7 +89,7 @@ export default function DownloadPage() {
                 2015\u20132020 MacBook &amp; iMac
               </p>
               <a
-                href="https://github.com/peterdisbrow/tally/releases/latest/download/Tally-1.0.0.dmg"
+                href="https://github.com/peterdisbrow/tally/releases/latest/download/Tally-intel.dmg"
                 style={{
                   display: 'inline-block',
                   background: '#1e293b',
