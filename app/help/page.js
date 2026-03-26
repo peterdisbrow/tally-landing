@@ -36,6 +36,9 @@ export default function HelpPage() {
     'Session recaps',
     'Remote control',
     'Live video preview',
+    'Setting up Bitfocus Companion with Tally',
+    'Companion: recommended buttons for church production',
+    'Reading device status through Companion variables',
   ];
   const troubleshootingTitles = [
     'Stream went down',
