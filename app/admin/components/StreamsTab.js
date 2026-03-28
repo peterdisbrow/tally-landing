@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import Hls from 'hls.js';
 import { C, s } from './adminStyles';
 
 export default function StreamsTab({ relay }) {
@@ -100,11 +99,13 @@ export default function StreamsTab({ relay }) {
     }
   }
 
-  function startPlayer(churchId, hlsUrl) {
+  async function startPlayer(churchId, hlsUrl) {
     const video = videoRef.current;
     if (!video) return;
-    // Use Vercel proxy for HLS (reliable, handles CORS automatically)
     const src = `/api/admin/relay?path=${encodeURIComponent(`/api/admin/stream/${churchId}/live.m3u8`)}`;
+
+    // Dynamic import — hls.js uses browser APIs that break SSR
+    const { default: Hls } = await import('hls.js');
 
     if (Hls.isSupported()) {
       destroyPlayer();
