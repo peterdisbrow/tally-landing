@@ -65,17 +65,25 @@ export default function StreamsTab({ relay }) {
     return () => clearInterval(pollRef.current);
   }, [selectedChurch]);
 
+  const isLiveRef = useRef(isLive);
+  isLiveRef.current = isLive;
+
   async function loadChurchStream(churchId) {
     try {
       const data = await relay(`/api/admin/stream/${churchId}/key`);
-      setStreamKey(data);
+      // Only update streamKey state when key or rtmpUrl changes (not on every poll)
+      setStreamKey(prev => {
+        if (prev && prev.streamKey === data.streamKey && prev.rtmpUrl === data.rtmpUrl) return prev;
+        return data;
+      });
+      // Update meta (sidebar only, doesn't affect video)
       if (data.meta) setStreamMeta(data.meta);
-      const wasLive = isLive;
-      setIsLive(data.active);
-      if (data.active && !wasLive) {
-        startPlayer(churchId);
-      } else if (!data.active && wasLive) {
-        destroyPlayer();
+      // Only update isLive when it actually changes
+      const wasLive = isLiveRef.current;
+      if (data.active !== wasLive) {
+        setIsLive(data.active);
+        if (data.active && !wasLive) startPlayer(churchId);
+        else if (!data.active && wasLive) destroyPlayer();
       }
     } catch (e) {
       console.error('Failed to load stream key', e);
