@@ -127,13 +127,28 @@ async function proxyRequest(req, method) {
 
   // Pass through HLS content (m3u8 playlists and .ts segments) as raw binary
   const contentType = upstream.headers.get('content-type') || '';
-  if (contentType.includes('mpegurl') || contentType.includes('mp2t') || contentType.includes('octet-stream')) {
+  if (contentType.includes('mpegurl')) {
+    // Rewrite m3u8 playlist: replace relative segment filenames with absolute proxy URLs
+    let m3u8 = await upstream.text();
+    const pathDir = upstreamPath.replace(/\/[^/]+$/, ''); // e.g. /api/admin/stream/{churchId}
+    m3u8 = m3u8.replace(/^(seg\d+\.ts)$/gm, (match) => {
+      return `/api/admin/relay?path=${encodeURIComponent(pathDir + '/' + match)}`;
+    });
+    return new Response(m3u8, {
+      status: upstream.status,
+      headers: {
+        'Content-Type': 'application/vnd.apple.mpegurl',
+        'Cache-Control': 'no-cache, no-store',
+      },
+    });
+  }
+  if (contentType.includes('mp2t') || contentType.includes('octet-stream')) {
     const buffer = await upstream.arrayBuffer();
     return new Response(buffer, {
       status: upstream.status,
       headers: {
-        'Content-Type': contentType,
-        'Cache-Control': contentType.includes('mpegurl') ? 'no-cache, no-store' : 'public, max-age=60',
+        'Content-Type': 'video/mp2t',
+        'Cache-Control': 'public, max-age=60',
       },
     });
   }
