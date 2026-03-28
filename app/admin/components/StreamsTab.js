@@ -102,7 +102,9 @@ export default function StreamsTab({ relay }) {
   async function startPlayer(churchId, hlsUrl) {
     const video = videoRef.current;
     if (!video) return;
-    const src = `/api/admin/relay?path=${encodeURIComponent(`/api/admin/stream/${churchId}/live.m3u8`)}`;
+    // Direct Railway HLS URL (bypasses Vercel proxy — no body size limit, lower latency)
+    // Falls back to proxy if direct URL not available
+    const src = hlsUrl || streamKey?.hlsUrl || `/api/admin/relay?path=${encodeURIComponent(`/api/admin/stream/${churchId}/live.m3u8`)}`;
 
     // Dynamic import — hls.js uses browser APIs that break SSR
     const { default: Hls } = await import('hls.js');
