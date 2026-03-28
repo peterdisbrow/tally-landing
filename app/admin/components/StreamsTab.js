@@ -222,38 +222,107 @@ export default function StreamsTab({ relay }) {
     ));
   }
 
+  function formatUptime(startedAt) {
+    if (!startedAt) return null;
+    const seconds = Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000);
+    if (seconds < 60) return `${seconds}s`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    return `${h}h ${m}m`;
+  }
+
+  function formatBitrate(kbps) {
+    if (!kbps) return '—';
+    if (kbps >= 1000) return `${(kbps / 1000).toFixed(1)} Mbps`;
+    return `${kbps} kbps`;
+  }
+
+  function bitrateColor(kbps) {
+    if (!kbps) return C.muted;
+    if (kbps >= 4000) return C.green;
+    if (kbps >= 2000) return C.greenLt;
+    if (kbps >= 1000) return C.yellow;
+    return C.red;
+  }
+
   function renderStreamMeta() {
-    const items = [];
-
-    // RTMP ingest analytics
-    if (streamMeta && isLive) {
-      if (streamMeta.bitrateKbps) items.push({ label: 'Bitrate', value: `${streamMeta.bitrateKbps} kbps`, color: streamMeta.bitrateKbps > 2000 ? C.green : C.yellow });
-      if (streamMeta.resolution) items.push({ label: 'Resolution', value: streamMeta.resolution });
-      if (streamMeta.fps) items.push({ label: 'FPS', value: String(streamMeta.fps) });
-      if (streamMeta.codec) items.push({ label: 'Codec', value: streamMeta.codec.toUpperCase() });
+    if (!isLive) {
+      return <div style={{ color: C.muted, fontSize: 13, padding: '8px 0' }}>Stream not active</div>;
     }
 
-    // Uptime from stream start
-    if (streamKey?.active && streamMeta) {
-      const streams = activeStreams;
-      // Calculate from startedAt if available
-      if (streamKey.startedAt || (activeStreams.length > 0)) {
-        // We don't have startedAt on streamKey, use from activeStreams list
-      }
+    const sections = [];
+
+    // ── Ingest Status ──
+    const statusItems = [];
+    statusItems.push({ label: 'RTMP Ingest', value: 'Connected', color: C.green });
+    if (streamKey?.startedAt) {
+      statusItems.push({ label: 'Uptime', value: formatUptime(streamKey.startedAt) });
+    }
+    sections.push({ title: 'Ingest Status', items: statusItems });
+
+    // ── Video ──
+    if (streamMeta) {
+      const videoItems = [];
+      if (streamMeta.resolution) videoItems.push({ label: 'Resolution', value: streamMeta.resolution });
+      if (streamMeta.fps) videoItems.push({ label: 'Frame Rate', value: `${streamMeta.fps} fps` });
+      if (streamMeta.codec) videoItems.push({ label: 'Video Codec', value: streamMeta.codec.toUpperCase() });
+      if (streamMeta.audioCodec) videoItems.push({ label: 'Audio Codec', value: streamMeta.audioCodec.toUpperCase() });
+      if (videoItems.length) sections.push({ title: 'Media', items: videoItems });
     }
 
-    // Equipment session info
+    // ── Bitrate ──
+    if (streamMeta?.bitrateKbps) {
+      const br = streamMeta.bitrateKbps;
+      sections.push({
+        title: 'Bitrate',
+        custom: (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+              <span style={{ fontSize: 20, fontWeight: 700, color: bitrateColor(br), fontFamily: 'monospace' }}>
+                {formatBitrate(br)}
+              </span>
+              <span style={{ fontSize: 11, color: C.muted }}>
+                {br >= 4000 ? 'Excellent' : br >= 2000 ? 'Good' : br >= 1000 ? 'Low' : 'Very Low'}
+              </span>
+            </div>
+            <div style={{ height: 4, background: C.border, borderRadius: 2, overflow: 'hidden' }}>
+              <div style={{
+                height: '100%', borderRadius: 2,
+                width: `${Math.min(100, (br / 10000) * 100)}%`,
+                background: bitrateColor(br),
+                transition: 'width 0.5s, background 0.5s',
+              }} />
+            </div>
+          </div>
+        ),
+      });
+    }
+
+    // ── Church Equipment Context ──
     if (equipmentStatus) {
       const st = equipmentStatus.status || {};
-      if (st.streamActive !== undefined) items.push({ label: 'Encoder Stream', value: st.streamActive ? 'Active' : 'Inactive' });
-      if (st.currentSession?.duration) items.push({ label: 'Session Duration', value: `${Math.floor(st.currentSession.duration / 60)} min` });
+      const eqItems = [];
+      if (st.currentSession) {
+        eqItems.push({ label: 'Service Session', value: 'Active', color: C.green });
+        if (st.currentSession.duration) {
+          eqItems.push({ label: 'Session Duration', value: `${Math.floor(st.currentSession.duration / 60)} min` });
+        }
+      }
+      if (eqItems.length) sections.push({ title: 'Service Context', items: eqItems });
     }
 
-    if (items.length === 0) return <div style={{ color: C.muted, fontSize: 13 }}>No stream metadata</div>;
-    return items.map((m, i) => (
-      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 13 }}>
-        <span style={{ color: C.muted }}>{m.label}</span>
-        <span style={{ color: m.color || C.white, fontWeight: 500, fontFamily: 'monospace' }}>{m.value}</span>
+    return sections.map((section, si) => (
+      <div key={si} style={{ marginBottom: si < sections.length - 1 ? 14 : 0 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: C.dim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>
+          {section.title}
+        </div>
+        {section.custom || section.items.map((m, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', fontSize: 13 }}>
+            <span style={{ color: C.muted }}>{m.label}</span>
+            <span style={{ color: m.color || C.white, fontWeight: 500, fontFamily: 'monospace' }}>{m.value}</span>
+          </div>
+        ))}
       </div>
     ));
   }
