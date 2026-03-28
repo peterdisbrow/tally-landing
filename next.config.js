@@ -63,6 +63,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob:",
               "font-src 'self'",
+              "media-src 'self' blob:",
               `connect-src 'self' https://plausible.io${process.env.NODE_ENV === 'development' ? ' ws://localhost:* http://localhost:*' : ''}`,
               "frame-ancestors 'none'",
               "base-uri 'self'",
