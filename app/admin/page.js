@@ -14,6 +14,7 @@ import EmailsTab from './components/EmailsTab';
 import MonitorTab from './components/MonitorTab';
 import StatusTab from './components/StatusTab';
 import OutreachTab from './components/OutreachTab';
+import StreamsTab from './components/StreamsTab';
 import AIChatDrawer from './components/AIChatDrawer';
 
 export default function AdminPage() {
@@ -262,6 +263,7 @@ export default function AdminPage() {
         {tab === 'tickets'   && <TicketsTab relay={relay} role={role} />}
         {tab === 'emails'    && <EmailsTab relay={relay} role={role} />}
         {tab === 'monitor'   && <MonitorTab token={token} />}
+        {tab === 'streams'   && <StreamsTab relay={relay} />}
         {tab === 'status'    && <StatusTab relay={relay} role={role} />}
         {tab === 'outreach'  && <OutreachTab />}
       </div>

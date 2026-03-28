@@ -34,6 +34,11 @@ const ALLOWED_PATH_PREFIXES = [
   '/api/support',
   '/api/chat',
   '/api/status',
+  '/api/admin/streams',
+  '/api/admin/stream',
+  '/api/admin/church',
+  '/api/admin/overview',
+  '/api/admin/churches',
 ];
 
 function getToken(req) {
@@ -119,6 +124,19 @@ async function proxyRequest(req, method) {
     },
     ...(body ? { body } : {}),
   });
+
+  // Pass through HLS content (m3u8 playlists and .ts segments) as raw binary
+  const contentType = upstream.headers.get('content-type') || '';
+  if (contentType.includes('mpegurl') || contentType.includes('mp2t') || contentType.includes('octet-stream')) {
+    const buffer = await upstream.arrayBuffer();
+    return new Response(buffer, {
+      status: upstream.status,
+      headers: {
+        'Content-Type': contentType,
+        'Cache-Control': contentType.includes('mpegurl') ? 'no-cache, no-store' : 'public, max-age=60',
+      },
+    });
+  }
 
   const text = await upstream.text();
   const [payload] = parseJsonText(text, upstream.status);
