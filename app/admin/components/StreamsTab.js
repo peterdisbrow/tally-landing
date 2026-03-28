@@ -103,8 +103,8 @@ export default function StreamsTab({ relay }) {
   function startPlayer(churchId, hlsUrl) {
     const video = videoRef.current;
     if (!video) return;
-    // Use direct Railway HLS URL (bypasses Vercel proxy — no body size limit, lower latency)
-    const src = hlsUrl || streamKey?.hlsUrl || `/api/admin/relay?path=${encodeURIComponent(`/api/admin/stream/${churchId}/live.m3u8`)}`;
+    // Use Vercel proxy for HLS (reliable, handles CORS automatically)
+    const src = `/api/admin/relay?path=${encodeURIComponent(`/api/admin/stream/${churchId}/live.m3u8`)}`;
 
     // If HLS.js hasn't loaded yet, retry in 1s
     if (typeof window !== 'undefined' && !window.Hls) {
