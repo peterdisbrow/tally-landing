@@ -9,6 +9,8 @@ export default function StreamsTab({ relay }) {
   const [streamKey, setStreamKey] = useState(null);
   const [isLive, setIsLive] = useState(false);
   const [equipmentStatus, setEquipmentStatus] = useState(null);
+  const [streamMeta, setStreamMeta] = useState(null);
+  const [isMuted, setIsMuted] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState('');
@@ -67,6 +69,7 @@ export default function StreamsTab({ relay }) {
     try {
       const data = await relay(`/api/admin/stream/${churchId}/key`);
       setStreamKey(data);
+      if (data.meta) setStreamMeta(data.meta);
       const wasLive = isLive;
       setIsLive(data.active);
       if (data.active && !wasLive) {
@@ -97,9 +100,12 @@ export default function StreamsTab({ relay }) {
       destroyPlayer();
       const hls = new window.Hls({
         liveDurationInfinity: true,
-        liveBackBufferLength: 0,
-        maxBufferLength: 6,
-        maxMaxBufferLength: 12,
+        liveBackBufferLength: 30,
+        maxBufferLength: 30,
+        maxMaxBufferLength: 60,
+        liveSyncDurationCount: 3,
+        liveMaxLatencyDurationCount: 6,
+        highBufferWatchdogPeriod: 3,
       });
       hls.loadSource(src);
       hls.attachMedia(video);
@@ -207,16 +213,39 @@ export default function StreamsTab({ relay }) {
   }
 
   function renderStreamMeta() {
-    if (!equipmentStatus) return <div style={{ color: C.muted, fontSize: 13 }}>No stream data</div>;
-    const st = equipmentStatus.status || {};
     const items = [];
-    if (st.streamActive !== undefined) items.push(`Stream Active: ${st.streamActive ? 'Yes' : 'No'}`);
-    if (st.currentSession) {
-      items.push('Session: Active');
-      if (st.currentSession.duration) items.push(`Duration: ${Math.floor(st.currentSession.duration / 60)} min`);
+
+    // RTMP ingest analytics
+    if (streamMeta && isLive) {
+      if (streamMeta.bitrateKbps) items.push({ label: 'Bitrate', value: `${streamMeta.bitrateKbps} kbps`, color: streamMeta.bitrateKbps > 2000 ? C.green : C.yellow });
+      if (streamMeta.resolution) items.push({ label: 'Resolution', value: streamMeta.resolution });
+      if (streamMeta.fps) items.push({ label: 'FPS', value: String(streamMeta.fps) });
+      if (streamMeta.codec) items.push({ label: 'Codec', value: streamMeta.codec.toUpperCase() });
     }
+
+    // Uptime from stream start
+    if (streamKey?.active && streamMeta) {
+      const streams = activeStreams;
+      // Calculate from startedAt if available
+      if (streamKey.startedAt || (activeStreams.length > 0)) {
+        // We don't have startedAt on streamKey, use from activeStreams list
+      }
+    }
+
+    // Equipment session info
+    if (equipmentStatus) {
+      const st = equipmentStatus.status || {};
+      if (st.streamActive !== undefined) items.push({ label: 'Encoder Stream', value: st.streamActive ? 'Active' : 'Inactive' });
+      if (st.currentSession?.duration) items.push({ label: 'Session Duration', value: `${Math.floor(st.currentSession.duration / 60)} min` });
+    }
+
     if (items.length === 0) return <div style={{ color: C.muted, fontSize: 13 }}>No stream metadata</div>;
-    return items.map((m, i) => <div key={i} style={{ padding: '3px 0', fontSize: 13 }}>{m}</div>);
+    return items.map((m, i) => (
+      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 13 }}>
+        <span style={{ color: C.muted }}>{m.label}</span>
+        <span style={{ color: m.color || C.white, fontWeight: 500, fontFamily: 'monospace' }}>{m.value}</span>
+      </div>
+    ));
   }
 
   if (loading) return <div style={{ color: C.muted, padding: 24 }}>Loading...</div>;
@@ -281,7 +310,7 @@ export default function StreamsTab({ relay }) {
             <video
               ref={videoRef}
               style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain' }}
-              autoPlay muted playsInline
+              autoPlay muted={isMuted} playsInline
             />
             {(!selectedChurch || !isLive) && (
               <div style={{
@@ -293,6 +322,29 @@ export default function StreamsTab({ relay }) {
               </div>
             )}
           </div>
+
+          {/* Audio controls */}
+          {isLive && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10, padding: '8px 0' }}>
+              <button
+                style={{ ...s.btn(isMuted ? 'secondary' : 'primary'), fontSize: 12, padding: '6px 14px', display: 'flex', alignItems: 'center', gap: 6 }}
+                onClick={() => {
+                  const next = !isMuted;
+                  setIsMuted(next);
+                  if (videoRef.current) videoRef.current.muted = next;
+                }}
+              >
+                {isMuted ? '\uD83D\uDD07 Unmute Audio' : '\uD83D\uDD0A Audio On'}
+              </button>
+              {!isMuted && (
+                <input
+                  type="range" min="0" max="1" step="0.05" defaultValue="0.7"
+                  style={{ width: 100, accentColor: C.green }}
+                  onChange={e => { if (videoRef.current) videoRef.current.volume = parseFloat(e.target.value); }}
+                />
+              )}
+            </div>
+          )}
 
           {/* Stream key info card */}
           {streamKey && (
@@ -337,7 +389,7 @@ export default function StreamsTab({ relay }) {
 
             <div style={{ ...s.card }}>
               <div style={{ fontSize: 11, fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>
-                Stream Info
+                Stream Analytics
               </div>
               {renderStreamMeta()}
             </div>
