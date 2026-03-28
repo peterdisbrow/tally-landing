@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Script from 'next/script';
 import { C, s } from './adminStyles';
 
 export default function StreamsTab({ relay }) {
@@ -104,6 +105,13 @@ export default function StreamsTab({ relay }) {
     if (!video) return;
     // Use direct Railway HLS URL (bypasses Vercel proxy — no body size limit, lower latency)
     const src = hlsUrl || streamKey?.hlsUrl || `/api/admin/relay?path=${encodeURIComponent(`/api/admin/stream/${churchId}/live.m3u8`)}`;
+
+    // If HLS.js hasn't loaded yet, retry in 1s
+    if (typeof window !== 'undefined' && !window.Hls) {
+      console.log('[StreamPreview] HLS.js not loaded yet, retrying in 1s...');
+      setTimeout(() => startPlayer(churchId, hlsUrl), 1000);
+      return;
+    }
 
     if (typeof window !== 'undefined' && window.Hls && window.Hls.isSupported()) {
       destroyPlayer();
@@ -331,8 +339,16 @@ export default function StreamsTab({ relay }) {
   return (
     <>
       {/* Load HLS.js */}
-      {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
-      <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js" />
+      <Script
+        src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"
+        strategy="afterInteractive"
+        onLoad={() => {
+          // If stream is already live when HLS.js finishes loading, start the player
+          if (isLiveRef.current && selectedChurch && !hlsRef.current && streamKey?.hlsUrl) {
+            startPlayer(selectedChurch, streamKey.hlsUrl);
+          }
+        }}
+      />
 
       {/* Toolbar */}
       <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 20, flexWrap: 'wrap' }}>
