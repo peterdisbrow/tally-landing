@@ -26,21 +26,13 @@ const RELEASES = [
       { type: 'fixed', text: 'Infinite WebSocket replacement loop on the relay server' },
       { type: 'fixed', text: 'Unconfigured device pills no longer clutter the status bar' },
       { type: 'fixed', text: 'Removed STATUS_JSON stdout spam from the agent process' },
-    ],
-  },
-  {
-    version: '1.1.12',
-    date: 'March 28, 2026',
-    tag: null,
-    changes: [
       { type: 'fixed', text: 'ProPresenter 21.x compatibility \u2014 replaced WebSocket with REST API polling to match the new PP protocol' },
-      { type: 'fixed', text: 'ProPresenter status tracking now works correctly in the desktop app' },
       { type: 'improved', text: 'Tally Engineer AI updated with ProPresenter 21.x version rebranding knowledge' },
     ],
   },
   {
-    version: '1.1.8',
-    date: 'March 27, 2026',
+    version: '1.1.10',
+    date: 'March 28, 2026',
     tag: null,
     changes: [
       { type: 'new', text: 'PTZ camera controls promoted to core \u2014 no longer requires a Plus plan' },
