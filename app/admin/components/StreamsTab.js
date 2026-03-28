@@ -82,7 +82,7 @@ export default function StreamsTab({ relay }) {
       const wasLive = isLiveRef.current;
       if (data.active !== wasLive) {
         setIsLive(data.active);
-        if (data.active && !wasLive) startPlayer(churchId);
+        if (data.active && !wasLive) startPlayer(churchId, data.hlsUrl);
         else if (!data.active && wasLive) destroyPlayer();
       }
     } catch (e) {
@@ -99,12 +99,11 @@ export default function StreamsTab({ relay }) {
     }
   }
 
-  function startPlayer(churchId) {
+  function startPlayer(churchId, hlsUrl) {
     const video = videoRef.current;
     if (!video) return;
     // Use direct Railway HLS URL (bypasses Vercel proxy — no body size limit, lower latency)
-    const directUrl = streamKey?.hlsUrl;
-    const src = directUrl || `/api/admin/relay?path=${encodeURIComponent(`/api/admin/stream/${churchId}/live.m3u8`)}`;
+    const src = hlsUrl || streamKey?.hlsUrl || `/api/admin/relay?path=${encodeURIComponent(`/api/admin/stream/${churchId}/live.m3u8`)}`;
 
     if (typeof window !== 'undefined' && window.Hls && window.Hls.isSupported()) {
       destroyPlayer();
