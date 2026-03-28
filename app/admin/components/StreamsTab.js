@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import Script from 'next/script';
+import Hls from 'hls.js';
 import { C, s } from './adminStyles';
 
 export default function StreamsTab({ relay }) {
@@ -106,16 +106,9 @@ export default function StreamsTab({ relay }) {
     // Use Vercel proxy for HLS (reliable, handles CORS automatically)
     const src = `/api/admin/relay?path=${encodeURIComponent(`/api/admin/stream/${churchId}/live.m3u8`)}`;
 
-    // If HLS.js hasn't loaded yet, retry in 1s
-    if (typeof window !== 'undefined' && !window.Hls) {
-      console.log('[StreamPreview] HLS.js not loaded yet, retrying in 1s...');
-      setTimeout(() => startPlayer(churchId, hlsUrl), 1000);
-      return;
-    }
-
-    if (typeof window !== 'undefined' && window.Hls && window.Hls.isSupported()) {
+    if (Hls.isSupported()) {
       destroyPlayer();
-      const hls = new window.Hls({
+      const hls = new Hls({
         liveDurationInfinity: true,
         liveBackBufferLength: 30,
         maxBufferLength: 30,
@@ -126,11 +119,11 @@ export default function StreamsTab({ relay }) {
       });
       hls.loadSource(src);
       hls.attachMedia(video);
-      hls.on(window.Hls.Events.MANIFEST_PARSED, () => {
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
         video.play().catch(() => {});
       });
-      hls.on(window.Hls.Events.ERROR, (_, data) => {
-        if (data.fatal && data.type === window.Hls.ErrorTypes.NETWORK_ERROR) {
+      hls.on(Hls.Events.ERROR, (_, data) => {
+        if (data.fatal && data.type === Hls.ErrorTypes.NETWORK_ERROR) {
           setTimeout(() => {
             if (hlsRef.current) hlsRef.current.loadSource(src);
           }, 3000);
@@ -338,18 +331,6 @@ export default function StreamsTab({ relay }) {
 
   return (
     <>
-      {/* Load HLS.js */}
-      <Script
-        src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"
-        strategy="afterInteractive"
-        onLoad={() => {
-          // If stream is already live when HLS.js finishes loading, start the player
-          if (isLiveRef.current && selectedChurch && !hlsRef.current && streamKey?.hlsUrl) {
-            startPlayer(selectedChurch, streamKey.hlsUrl);
-          }
-        }}
-      />
-
       {/* Toolbar */}
       <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 20, flexWrap: 'wrap' }}>
         <select
