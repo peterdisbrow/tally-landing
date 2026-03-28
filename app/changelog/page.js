@@ -14,9 +14,24 @@ export const metadata = {
 
 const RELEASES = [
   {
-    version: '1.1.12',
+    version: '1.1.21',
     date: 'March 28, 2026',
     tag: 'Latest',
+    changes: [
+      { type: 'new', text: 'Device status now streams live from the relay via SSE \u2014 faster, more reliable equipment monitoring' },
+      { type: 'new', text: 'Collapsible toggles on all status sections in the desktop app' },
+      { type: 'new', text: 'ProPresenter pill added to the status bar' },
+      { type: 'fixed', text: 'ProPresenter 21 integration rewritten to match proven Tally Clicker patterns for rock-solid stability' },
+      { type: 'fixed', text: 'ProPresenter slide data now updates correctly during polling' },
+      { type: 'fixed', text: 'Infinite WebSocket replacement loop on the relay server' },
+      { type: 'fixed', text: 'Unconfigured device pills no longer clutter the status bar' },
+      { type: 'fixed', text: 'Removed STATUS_JSON stdout spam from the agent process' },
+    ],
+  },
+  {
+    version: '1.1.12',
+    date: 'March 28, 2026',
+    tag: null,
     changes: [
       { type: 'fixed', text: 'ProPresenter 21.x compatibility \u2014 replaced WebSocket with REST API polling to match the new PP protocol' },
       { type: 'fixed', text: 'ProPresenter status tracking now works correctly in the desktop app' },
