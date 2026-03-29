@@ -101,7 +101,7 @@ export default function ChurchesTab({ relay, role }) {
   async function deleteChurch(churchId, name) {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
     try {
-      await relay(`/api/churches/${churchId}`, { method: 'DELETE' });
+      await relay(`/api/admin/churches/${churchId}`, { method: 'DELETE' });
       setChurches(prev => prev.filter(c => c.churchId !== churchId));
     } catch(e) { alert('Error: ' + e.message); }
   }
