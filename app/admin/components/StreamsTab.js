@@ -42,15 +42,14 @@ export default function StreamsTab({ relay }) {
     init();
   }, [relay]);
 
-  // When selectedChurch changes, load stream key + equipment status
+  // When selectedChurch changes, reset player and load new stream
   useEffect(() => {
-    if (!selectedChurch) {
-      setStreamKey(null);
-      setEquipmentStatus(null);
-      setIsLive(false);
-      destroyPlayer();
-      return;
-    }
+    destroyPlayer();
+    setIsLive(false);
+    setStreamKey(null);
+    setStreamMeta(null);
+    setEquipmentStatus(null);
+    if (!selectedChurch) return;
     loadChurchStream(selectedChurch);
     loadEquipmentStatus(selectedChurch);
   }, [selectedChurch]);
