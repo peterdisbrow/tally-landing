@@ -5,7 +5,7 @@ import { CARD_BG, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens';
 const FAQ_ITEMS = [
   {
     q: 'What equipment does Tally work with?',
-    a: <>ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen &amp; Heath, Yamaha CL/QL), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Dante audio, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, Telegram, YouTube Live, Facebook Live, and Vimeo Live. 26 integrations and counting. <a href="/hardware" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 600 }}>See the full compatibility list &rarr;</a></>,
+    a: <>ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen &amp; Heath, Yamaha CL/QL/TF), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Shelly smart plugs, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, Telegram, YouTube Live, Facebook Live, and Vimeo Live. 26 integrations and counting. <a href="/hardware" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 600 }}>See the full compatibility list &rarr;</a></>,
   },
   {
     q: 'What happens if our internet goes down?',
@@ -21,7 +21,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What about false triggers or accidental restarts?',
-    a: 'Tally verifies before it acts. Before any recovery, it checks your encoder status, network upstream, and platform ingest to confirm a real failure \u2014 brief packet loss and transient dips are ignored and logged as suppressed false alarms. Recovery rules are configurable per church: auto-recover, notify-only, or ask-first. Max retry limits prevent infinite loops. Hardware failures (ATEM disconnect, mixer offline) go straight to your TD \u2014 Tally won\u2019t try to power-cycle your gear.',
+    a: 'Tally verifies before it acts. Before any recovery, it checks your encoder status, network upstream, and platform ingest to confirm a real failure \u2014 brief packet loss and transient dips are ignored and logged as suppressed false alarms. Recovery rules are configurable per church: auto-recover, notify-only, or ask-first. Max retry limits prevent infinite loops. For hardware failures, Tally can power-cycle gear via Shelly smart plugs if configured \u2014 otherwise it alerts your TD immediately with diagnosis steps.',
   },
   {
     q: 'What does the AI do?',
@@ -29,7 +29,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What is the Church Portal?',
-    a: 'Every church gets a self-service web dashboard where your team can manage TDs, set service schedules, view session history and incident timelines, configure alert preferences, generate guest access tokens for volunteers, and handle billing \u2014 all without contacting support.',
+    a: 'Every church gets a self-service web dashboard where your team can manage TDs with viewer, operator, and admin access levels, set service schedules, view session history and incident timelines, configure alert preferences, generate guest access tokens for volunteers, and handle billing \u2014 all without contacting support. TDs can log in directly with their own credentials and see only what their access level allows.',
   },
   {
     q: 'Do I need a dedicated computer?',

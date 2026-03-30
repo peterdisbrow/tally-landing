@@ -475,8 +475,7 @@ const INTEGRATIONS_ES = [
   { name: 'Allen & Heath',       tag: 'AUDIO'        },
   { name: 'Behringer X32',       tag: 'AUDIO'        },
   { name: 'Midas M32',           tag: 'AUDIO'        },
-  { name: 'Yamaha CL/QL',        tag: 'AUDIO'        },
-  { name: 'Dante Audio',         tag: 'AUDIO'        },
+  { name: 'Yamaha CL/QL/TF',      tag: 'AUDIO'        },
   { name: 'HyperDeck',           tag: 'GRABACIÓN'    },
   { name: 'PTZ Cameras',         tag: 'CÁMARA'       },
   { name: 'Video Hub',           tag: 'ENRUTADOR'    },
@@ -488,6 +487,7 @@ const INTEGRATIONS_ES = [
   { name: 'YouTube Live',        tag: 'CDN'          },
   { name: 'Facebook Live',       tag: 'CDN'          },
   { name: 'Vimeo Live',          tag: 'CDN'          },
+  { name: 'Shelly Smart Plugs',  tag: 'ENERGÍA'      },
 ];
 
 function IntegrationsEs() {
@@ -682,8 +682,7 @@ const PRICING_ES = [
   {
     name: 'Enterprise',
     plan: 'managed',
-    monthlyPrice: 499,
-    annualPrice: 4491,
+    customPricing: true,
     desc: 'Salas ilimitadas, onboarding personalizado y soporte dedicado.',
     featured: false,
     cta: 'Contactar Ventas \u2192',
@@ -703,7 +702,7 @@ const PRICING_ES = [
 ];
 
 const FC_TIERS = ['Connect', 'Plus', 'Pro', 'Enterprise'];
-const FC_TIER_PRICES = ['$49', '$99', '$149', '$499'];
+const FC_TIER_PRICES = ['$49', '$99', '$149', 'Consultar'];
 
 const FC_ROWS_ES = [
   { feature: 'Salas', values: ['1', '3', '5', 'Ilimitadas'] },
@@ -777,6 +776,8 @@ function FeatureComparisonEs() {
                   }}>
                     {tier === 'Connect' ? (
                       <><span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$79</span> {FC_TIER_PRICES[i]}/mes</>
+                    ) : tier === 'Enterprise' ? (
+                      <>{FC_TIER_PRICES[i]}</>
                     ) : (
                       <>{FC_TIER_PRICES[i]}/mes</>
                     )}
@@ -843,7 +844,7 @@ function FeatureComparisonEs() {
               listStyle: 'none',
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
-              <span>{tier} <span style={{ fontWeight: 600, fontSize: '0.85rem', color: DIM, marginLeft: 8 }}>{tier === 'Connect' ? <><span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$79</span> {FC_TIER_PRICES[ti]}/mes</> : <>{FC_TIER_PRICES[ti]}/mes</>}</span></span>
+              <span>{tier} <span style={{ fontWeight: 600, fontSize: '0.85rem', color: DIM, marginLeft: 8 }}>{tier === 'Connect' ? <><span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$79</span> {FC_TIER_PRICES[ti]}/mes</> : tier === 'Enterprise' ? <>{FC_TIER_PRICES[ti]}</> : <>{FC_TIER_PRICES[ti]}/mes</>}</span></span>
               <span style={{ color: MUTED, fontSize: '0.8rem' }}>toca para expandir</span>
             </summary>
             <div style={{ padding: '0 20px 16px' }}>
@@ -965,12 +966,14 @@ function PricingEs() {
         }}>
           {PRICING_ES.map((plan, i) => {
             const isFounding = plan.plan === 'connect' && plan.foundingMonthlyPrice;
-            const displayPrice = annual
+            const isCustom = plan.customPricing;
+            const displayPrice = isCustom ? 'Consultar' : (annual
               ? `$${Math.round(plan.annualPrice / 12)}`
-              : `$${plan.monthlyPrice}`;
+              : `$${plan.monthlyPrice}`);
             const foundingDisplayPrice = isFounding
               ? (annual ? `$${Math.round(plan.foundingAnnualPrice / 12)}` : `$${plan.foundingMonthlyPrice}`)
               : null;
+            const period = isCustom ? '' : '/mes';
             const ctaHref = plan.plan === 'managed'
               ? plan.ctaHref
               : `${plan.ctaHref}${annual ? '&interval=annual' : ''}`;
@@ -1023,8 +1026,8 @@ function PricingEs() {
                   ) : (
                     <>
                       <span style={{ fontSize: '3rem', fontWeight: 900, color: WHITE, letterSpacing: '-0.03em' }}>{displayPrice}</span>
-                      <span style={{ fontSize: '0.95rem', color: DIM }}>/mes</span>
-                      {annual && (
+                      <span style={{ fontSize: '0.95rem', color: DIM }}>{period}</span>
+                      {annual && !isCustom && (
                         <div style={{ fontSize: '0.78rem', color: MUTED, marginTop: 4 }}>
                           ${plan.annualPrice}/año &mdash; facturado anualmente
                         </div>

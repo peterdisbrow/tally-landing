@@ -91,7 +91,7 @@ export default function TermsPage() {
                 <strong>Pro</strong> — $149/month
               </li>
               <li>
-                <strong>Managed</strong> — $499/month
+                <strong>Managed (Enterprise)</strong> — Custom pricing
               </li>
               <li>
                 <strong>Event</strong> — $99 one-time purchase (single-event access)

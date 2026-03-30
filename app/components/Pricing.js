@@ -79,13 +79,14 @@ export default function Pricing() {
         }}>
           {PRICING.map((plan, i) => {
             const isFounding = plan.plan === 'connect' && plan.foundingMonthlyPrice;
-            const displayPrice = annual
+            const isCustom = plan.customPricing;
+            const displayPrice = isCustom ? 'Custom' : (annual
               ? `$${Math.round(plan.annualPrice / 12)}`
-              : `$${plan.monthlyPrice}`;
+              : `$${plan.monthlyPrice}`);
             const foundingDisplayPrice = isFounding
               ? (annual ? `$${Math.round(plan.foundingAnnualPrice / 12)}` : `$${plan.foundingMonthlyPrice}`)
               : null;
-            const period = '/mo';
+            const period = isCustom ? '' : '/mo';
             const ctaHref = plan.plan === 'managed'
               ? plan.ctaHref
               : `${plan.ctaHref}${annual ? '&interval=annual' : ''}`;
@@ -139,7 +140,7 @@ export default function Pricing() {
                     <>
                       <span style={{ fontSize: '3rem', fontWeight: 900, color: WHITE, letterSpacing: '-0.03em' }}>{displayPrice}</span>
                       <span style={{ fontSize: '0.95rem', color: DIM }}>{period}</span>
-                      {annual && (
+                      {annual && !isCustom && (
                         <div style={{ fontSize: '0.78rem', color: MUTED, marginTop: 4 }}>
                           ${plan.annualPrice}/yr &mdash; billed annually
                         </div>

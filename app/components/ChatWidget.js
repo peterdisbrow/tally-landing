@@ -126,7 +126,7 @@ function buildProPresenterResponse() {
 }
 
 function buildAudioResponse() {
-  return `Supported: **X32, M32, Allen & Heath SQ/dLive, Yamaha CL/QL/TF, Dante.**\n\nMute/unmute, set faders, recall scenes — all from your phone. AI understands "mute channel 3" or "unmute pastor lav."\n\nWant to try audio commands in the demo?`;
+  return `Supported: **X32, M32, Allen & Heath SQ/dLive, Yamaha CL/QL/TF.**\n\nMute/unmute, set faders, recall scenes — all from your phone. AI understands "mute channel 3" or "unmute pastor lav."\n\nWant to try audio commands in the demo?`;
 }
 
 function buildInternetResponse() {
@@ -145,7 +145,8 @@ function buildMultiSiteResponse() {
   const plans = PRICING.filter(p => p.features.some(f => /room/i.test(f)));
   const lines = plans.map(p => {
     const roomFeature = p.features.find(f => /room/i.test(f));
-    return `• **${p.name}** ($${p.monthlyPrice}/mo) — ${roomFeature}`;
+    const price = p.customPricing ? 'custom pricing' : `$${p.monthlyPrice}/mo`;
+    return `• **${p.name}** (${price}) — ${roomFeature}`;
   });
   return `Multi-room ready:\n\n${lines.join('\n')}\n\nOne dashboard, all rooms at a glance. How many rooms are you running?`;
 }
@@ -155,11 +156,11 @@ function buildPlanningCenterResponse() {
 }
 
 function buildAutopilotResponse() {
-  return `**AI Autopilot** — create rules like "when worship slides start → switch to camera 1" and Tally executes automatically.\n\n• **Pro** ($149/mo) — 10 rules\n• **Enterprise** ($499/mo) — 25 rules\n\n[CTA:Get Started Free:/signup]\n\nWant to hear about a specific use case?`;
+  return `**AI Autopilot** — create rules like "when worship slides start → switch to camera 1" and Tally executes automatically.\n\n• **Pro** ($149/mo) — 10 rules\n• **Enterprise** (custom pricing) — 25 rules\n\n[CTA:Get Started Free:/signup]\n\nWant to hear about a specific use case?`;
 }
 
 function buildRecommendPlanResponse() {
-  return `Quick guide:\n\n• **1 room, basic** → Connect $49/mo\n• **2-3 rooms, AI features** → Plus $99/mo\n• **Multi-room, automation** → Pro $149/mo *(most popular)*\n• **Multi-site** → Enterprise $499/mo\n• **One-time event** → Event $99\n\nAll include **30 days free**.\n\n[CTA:Get Started Free:/signup]\n\nTell me about your setup — I'll narrow it down!`;
+  return `Quick guide:\n\n• **1 room, basic** → Connect $49/mo\n• **2-3 rooms, AI features** → Plus $99/mo\n• **Multi-room, automation** → Pro $149/mo *(most popular)*\n• **Multi-site** → Enterprise (custom pricing)\n• **One-time event** → Event $99\n\nAll include **30 days free**.\n\n[CTA:Get Started Free:/signup]\n\nTell me about your setup — I'll narrow it down!`;
 }
 
 function buildSecurityResponse() {
@@ -182,7 +183,7 @@ const STATIC_FLOWS = [
   { match: (m) => /\b(alert|notification|escalat|notify)/i.test(m) && /\b(how|what|tell|about)/i.test(m), reply: buildAlertsResponse },
   { match: (m) => /\b(propresenter|pro ?presenter|slides?|presentation|worship.*(slide|lyric))/i.test(m) && !/demo/i.test(m), reply: buildProPresenterResponse },
   { match: (m) => /\b(atem|switcher|video switch|blackmagic.*(switch|atem))/i.test(m) && !/demo/i.test(m), reply: buildAtemResponse },
-  { match: (m) => /\b(audio|mixer|console|x32|m32|behringer|midas|allen.{0,3}heath|yamaha|dante|sound\b)/i.test(m) && !/demo/i.test(m), reply: buildAudioResponse },
+  { match: (m) => /\b(audio|mixer|console|x32|m32|behringer|midas|allen.{0,3}heath|yamaha|sound\b)/i.test(m) && !/demo/i.test(m), reply: buildAudioResponse },
   { match: (m) => /\b(auto ?pilot|automat|rule.*trigger|trigger.*rule)/i.test(m), reply: buildAutopilotResponse },
   { match: (m) => /\bplanning ?center/i.test(m), reply: buildPlanningCenterResponse },
 

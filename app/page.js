@@ -29,7 +29,7 @@ const jsonLd = {
       offers: {
         '@type': 'AggregateOffer',
         lowPrice: '0',
-        highPrice: '499',
+        highPrice: '149',
         priceCurrency: 'USD',
         offerCount: 5,
       },

@@ -11,12 +11,12 @@ const TABS = [
 
 const CAPTIONS = {
   status: [
-    { icon: '\ud83d\udfe2', label: 'All green', desc: 'Relay, ATEM, OBS, Companion, ProPresenter \u2014 every connection at a glance' },
+    { icon: '\ud83d\udfe2', label: 'All green', desc: 'Relay, ATEM, OBS, vMix, Companion, ProPresenter, VideoHub \u2014 every connection at a glance' },
     { icon: '\ud83d\udcf9', label: 'PGM & PVW cameras', desc: 'See which camera is live and which is on deck at a glance' },
     { icon: '\u26a1', label: 'Auto-recovery alerts', desc: 'Tally fixes problems before you notice \u2014 then shows you what happened' },
   ],
   equipment: [
-    { icon: '\ud83c\udfdb\ufe0f', label: 'Auto-discovers devices', desc: 'Finds your ATEM, OBS, Companion, ProPresenter, HyperDecks, and PTZ cameras' },
+    { icon: '\ud83c\udfdb\ufe0f', label: 'Auto-discovers devices', desc: 'Finds your ATEM, OBS, vMix, Companion, ProPresenter, VideoHub, HyperDecks, PTZ cameras, and Shelly smart plugs' },
     { icon: '\u2699\ufe0f', label: 'One-time setup', desc: 'Enter IPs once, test connections, save \u2014 done in 10 minutes' },
     { icon: '\ud83c\udfa4', label: 'Audio + video', desc: 'PTZ cameras, HyperDecks, audio consoles \u2014 all from the same screen' },
   ],
@@ -56,7 +56,7 @@ export default function AppShowcase() {
           maxWidth: 560, margin: '0 auto 64px', lineHeight: 1.7,
         }}>
           The Tally client installs on your booth computer in minutes.
-          Your TD sees every device status at a glance &mdash; and you see every church from your phone.
+          Your TD sees every device status at a glance &mdash; switch between rooms with the room selector and see every church from your phone.
         </p>
 
         {/* Tab selector */}
