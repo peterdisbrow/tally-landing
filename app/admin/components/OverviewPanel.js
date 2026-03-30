@@ -20,6 +20,7 @@ export default function OverviewPanel({ churchId, relay }) {
   const [schedule, setSchedule] = useState(null);
   const [sv, setSv] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedRoom, setSelectedRoom] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -59,6 +60,20 @@ export default function OverviewPanel({ churchId, relay }) {
   const tickets = sv?.recentTickets || [];
   const chat = sv?.chatHistory || [];
   const tds = sv?.tds || [];
+  const rooms = sv?.rooms || [];
+  const roomInstanceMap = sv?.roomInstanceMap || {};
+  const instanceStatusMap = sv?.instanceStatusMap || {};
+
+  // Get equipment for selected room (or default aggregate)
+  function getDevicesForRoom(roomId) {
+    if (!roomId) return eq;
+    const instanceName = roomInstanceMap[roomId];
+    if (!instanceName) return {};
+    const instData = instanceStatusMap[instanceName];
+    if (!instData) return {};
+    return instData.connectedDevices || {};
+  }
+  const filteredDevices = getDevicesForRoom(selectedRoom);
 
   const chipStyle = (on) => ({
     display: 'inline-block', padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 500,
@@ -76,6 +91,24 @@ export default function OverviewPanel({ churchId, relay }) {
 
   return (
     <div>
+      {/* Room Selector (multi-room churches) */}
+      {rooms.length >= 2 && (
+        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <label style={{ fontSize: 12, color: C.muted, fontWeight: 500 }}>Room:</label>
+          <select
+            value={selectedRoom}
+            onChange={e => setSelectedRoom(e.target.value)}
+            style={{ ...s.input, width: 200, padding: '6px 10px', fontSize: 13 }}
+          >
+            <option value="">All Rooms</option>
+            {rooms.map(rm => (
+              <option key={rm.id} value={rm.id}>{rm.name}</option>
+            ))}
+          </select>
+          <span style={{ fontSize: 11, color: C.dim }}>{rooms.length} rooms</span>
+        </div>
+      )}
+
       {/* Connection */}
       <div style={s.section}>
         <div style={s.sectionTitle}>Connection</div>
@@ -123,16 +156,30 @@ export default function OverviewPanel({ churchId, relay }) {
 
       {/* Equipment */}
       <div style={s.section}>
-        <div style={s.sectionTitle}>Equipment</div>
-        {Object.keys(eq).length === 0 ? (
-          <div style={{ color: C.muted, fontSize: 12 }}>No equipment data available.</div>
+        <div style={s.sectionTitle}>
+          <span>Equipment</span>
+          {selectedRoom && rooms.length >= 2 && (
+            <span style={{ fontSize: 10, color: C.dim, fontWeight: 400 }}>(filtered by room)</span>
+          )}
+        </div>
+        {Object.keys(filteredDevices).length === 0 ? (
+          <div style={{ color: C.muted, fontSize: 12 }}>
+            {selectedRoom ? 'No equipment data for this room.' : 'No equipment data available.'}
+          </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 8, fontSize: 12 }}>
-            {eq.atem && <div><span style={{ color: C.muted }}>ATEM:</span> <span style={{ color: C.white }}>{eq.atem.model || 'Connected'}</span></div>}
-            <div><span style={{ color: C.muted }}>{encoderName}:</span> <span style={{ color: encoderConnected ? C.green : C.muted }}>{encoderConnected ? 'Connected' : 'Not connected'}</span></div>
-            <div><span style={{ color: C.muted }}>Stream:</span> <span style={{ color: encoderLive ? C.red : C.muted }}>{encoderLive ? 'Live' : 'Off-air'}</span></div>
-            {eq.propresenter !== undefined && <div><span style={{ color: C.muted }}>ProPresenter:</span> <span style={{ color: eq.propresenter ? C.green : C.muted }}>{eq.propresenter ? 'Connected' : 'Not connected'}</span></div>}
-            {eq.audio && <div><span style={{ color: C.muted }}>Audio Inputs:</span> <span style={{ color: C.white }}>{Array.isArray(eq.audio) ? eq.audio.length : eq.audio}</span></div>}
+            {filteredDevices.atem && <div><span style={{ color: C.muted }}>ATEM:</span> <span style={{ color: C.white }}>{typeof filteredDevices.atem === 'object' ? (filteredDevices.atem.model || 'Connected') : (filteredDevices.atem ? 'Connected' : 'Not connected')}</span></div>}
+            {(filteredDevices.obs !== undefined || filteredDevices.vmix !== undefined || !selectedRoom) && (
+              <div><span style={{ color: C.muted }}>{selectedRoom ? (filteredDevices.obs ? 'OBS' : filteredDevices.vmix ? 'vMix' : encoderName) : encoderName}:</span> <span style={{ color: selectedRoom ? (filteredDevices.obs || filteredDevices.vmix ? C.green : C.muted) : (encoderConnected ? C.green : C.muted) }}>{selectedRoom ? (filteredDevices.obs || filteredDevices.vmix ? 'Connected' : 'Not connected') : (encoderConnected ? 'Connected' : 'Not connected')}</span></div>
+            )}
+            {!selectedRoom && <div><span style={{ color: C.muted }}>Stream:</span> <span style={{ color: encoderLive ? C.red : C.muted }}>{encoderLive ? 'Live' : 'Off-air'}</span></div>}
+            {selectedRoom && filteredDevices.streamActive !== undefined && <div><span style={{ color: C.muted }}>Stream:</span> <span style={{ color: filteredDevices.streamActive ? C.red : C.muted }}>{filteredDevices.streamActive ? 'Live' : 'Off-air'}</span></div>}
+            {filteredDevices.companion !== undefined && <div><span style={{ color: C.muted }}>Companion:</span> <span style={{ color: filteredDevices.companion ? C.green : C.muted }}>{filteredDevices.companion ? 'Connected' : 'Not connected'}</span></div>}
+            {Array.isArray(filteredDevices.encoders) && filteredDevices.encoders.length > 0 && <div><span style={{ color: C.muted }}>Encoders:</span> <span style={{ color: C.white }}>{filteredDevices.encoders.length}</span></div>}
+            {Array.isArray(filteredDevices.ptz) && filteredDevices.ptz.length > 0 && <div><span style={{ color: C.muted }}>PTZ Cameras:</span> <span style={{ color: C.white }}>{filteredDevices.ptz.length}</span></div>}
+            {Array.isArray(filteredDevices.hyperdecks) && filteredDevices.hyperdecks.length > 0 && <div><span style={{ color: C.muted }}>HyperDecks:</span> <span style={{ color: C.white }}>{filteredDevices.hyperdecks.length}</span></div>}
+            {!selectedRoom && eq.propresenter !== undefined && <div><span style={{ color: C.muted }}>ProPresenter:</span> <span style={{ color: eq.propresenter ? C.green : C.muted }}>{eq.propresenter ? 'Connected' : 'Not connected'}</span></div>}
+            {!selectedRoom && eq.audio && <div><span style={{ color: C.muted }}>Audio Inputs:</span> <span style={{ color: C.white }}>{Array.isArray(eq.audio) ? eq.audio.length : eq.audio}</span></div>}
           </div>
         )}
       </div>

@@ -14,6 +14,7 @@ export default function StreamsTab({ relay }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState('');
+  const [selectedRoom, setSelectedRoom] = useState('');
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
   const pollRef = useRef(null);
@@ -49,6 +50,7 @@ export default function StreamsTab({ relay }) {
     setStreamKey(null);
     setStreamMeta(null);
     setEquipmentStatus(null);
+    setSelectedRoom('');
     if (!selectedChurch) return;
     loadChurchStream(selectedChurch);
     loadEquipmentStatus(selectedChurch);
@@ -182,12 +184,25 @@ export default function StreamsTab({ relay }) {
     setTimeout(() => setToast(''), 2500);
   }
 
+  // ── Room data from support-view ──
+  const rooms = equipmentStatus?.rooms || [];
+  const roomInstanceMap = equipmentStatus?.roomInstanceMap || {};
+  const instanceStatusMap = equipmentStatus?.instanceStatusMap || {};
+
   // ── Equipment rendering ──
   function renderEquipment() {
     if (!equipmentStatus) return <div style={{ color: C.muted, fontSize: 13, padding: '12px 0' }}>No data yet</div>;
     const st = equipmentStatus.status || {};
-    const devices = st.connectedDevices || {};
-    const online = st.online;
+    let devices, online;
+    if (selectedRoom) {
+      const instName = roomInstanceMap[selectedRoom];
+      const instData = instName ? instanceStatusMap[instName] : null;
+      devices = instData?.connectedDevices || {};
+      online = instData?.online ?? false;
+    } else {
+      devices = st.connectedDevices || {};
+      online = st.online;
+    }
 
     const items = [];
     items.push({ label: 'App', ok: online, detail: online ? 'Connected' : 'Offline' });
@@ -349,6 +364,20 @@ export default function StreamsTab({ relay }) {
             </option>
           ))}
         </select>
+
+        {/* Room selector (multi-room churches) */}
+        {selectedChurch && rooms.length >= 2 && (
+          <select
+            value={selectedRoom}
+            onChange={e => setSelectedRoom(e.target.value)}
+            style={{ ...s.input, width: 180, cursor: 'pointer' }}
+          >
+            <option value="">All Rooms</option>
+            {rooms.map(rm => (
+              <option key={rm.id} value={rm.id}>{rm.name}</option>
+            ))}
+          </select>
+        )}
 
         {isLive && (
           <span style={{
