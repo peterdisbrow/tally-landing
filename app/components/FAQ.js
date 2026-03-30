@@ -5,7 +5,7 @@ import { CARD_BG, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens';
 const FAQ_ITEMS = [
   {
     q: 'What equipment does Tally work with?',
-    a: <>ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen &amp; Heath, Yamaha CL/QL/TF), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Shelly smart plugs, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, Telegram, YouTube Live, Facebook Live, and Vimeo Live. 26 integrations and counting. <a href="/hardware" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 600 }}>See the full compatibility list &rarr;</a></>,
+    a: <>ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen &amp; Heath via Companion, Yamaha CL/QL/TF), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Shelly smart plugs, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, Telegram, YouTube Live, and Facebook Live. 23 integrations and counting. <a href="/hardware" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 600 }}>See the full compatibility list &rarr;</a></>,
   },
   {
     q: 'What happens if our internet goes down?',
@@ -13,7 +13,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'How long does setup take?',
-    a: 'About 10 minutes. Download the app on your booth computer, sign in with your registration code, and Tally auto-discovers your ATEM, OBS, and other gear on the network. No port forwarding, no complex configuration. Your church gets its own self-service portal immediately. Want to go faster? The AI Setup Assistant can auto-configure your mixer channels and ATEM input labels from a patch list or camera plot.',
+    a: 'About 10 minutes. Download the app on your booth computer, sign in with your registration code, and enter the IP addresses for your ATEM, OBS, and other gear on the network. No port forwarding, no complex configuration. Your church gets its own self-service portal immediately. Want to go faster? The AI Setup Assistant can auto-configure your mixer channels and ATEM input labels from a patch list or camera plot.',
   },
   {
     q: 'What if our stream drops during service?',
@@ -25,7 +25,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What does the AI do?',
-    a: 'Three things. First, AI natural language commands let your TDs type plain English like "cut to camera 2 and start recording" instead of navigating menus. Second, AI Autopilot lets you create rules that fire automatically during service \u2014 like switching cameras when worship slides start. Third, the AI Setup Assistant auto-configures your mixer channels and ATEM input labels from a patch list, camera plot, or photo \u2014 using AI vision to parse whatever format you have. Available on Plus and above.',
+    a: 'Three things. First, AI natural language commands let your TDs type plain English like "cut to camera 2 and start recording" instead of navigating menus. Second, AI Autopilot lets you create step-by-step production rundowns that auto-advance on a timer during service. Third, the AI Setup Assistant auto-configures your mixer channels and ATEM input labels from a patch list, camera plot, or photo \u2014 using AI vision to parse whatever format you have. Available on Plus and above.',
   },
   {
     q: 'What is the Church Portal?',

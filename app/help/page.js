@@ -141,7 +141,7 @@ export default function HelpPage() {
               <li>Choose your plan (30-day free trial included)</li>
               <li>Download the Tally desktop app from the portal</li>
               <li>Enter your registration code in the app</li>
-              <li>The app auto-discovers your ATEM switcher, OBS, and other equipment</li>
+              <li>Enter the IP addresses for your ATEM switcher, OBS, and other equipment</li>
               <li>Your church appears live on the dashboard within minutes</li>
             </ol>
             <p style={{ ...paraStyle, marginTop: 12 }}>
@@ -152,7 +152,7 @@ export default function HelpPage() {
           <AccordionItem title="Connecting your equipment" hidden={!match('Connecting your equipment')}>
             <ul style={ulStyle}>
               <li>
-                <strong style={{ color: WHITE }}>ATEM Switcher</strong> — Tally auto-discovers ATEM on your network. Ensure the booth computer and ATEM are on the same subnet.
+                <strong style={{ color: WHITE }}>ATEM Switcher</strong> — Enter your ATEM's IP address in Tally. Ensure the booth computer and ATEM are on the same subnet.
               </li>
               <li>
                 <strong style={{ color: WHITE }}>OBS Studio</strong> — Enable the OBS WebSocket server (Tools &rarr; WebSocket Server Settings). Tally connects automatically on port 4455.

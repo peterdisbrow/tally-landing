@@ -76,7 +76,7 @@ function buildWelcomeEmailHtml({ churchName, email, registrationCode }) {
         <div style="font-size: 13px; font-weight: 700; color: #22c55e; margin-bottom: 6px;">STEP 3</div>
         <div style="font-size: 15px; font-weight: 700; color: #111; margin-bottom: 4px;">Connect Your Gear</div>
         <p style="font-size: 14px; color: #555; margin: 0; line-height: 1.5;">
-          The setup wizard will auto-discover your ATEM, OBS, and other devices on the network. You'll be monitoring in minutes.
+          The setup wizard walks you through connecting your ATEM, OBS, and other devices by entering their IP addresses. You'll be monitoring in minutes.
         </p>
       </div>
 
@@ -118,7 +118,7 @@ STEP 2: Sign In
 Open the app and sign in with: ${email}
 
 STEP 3: Connect Your Gear
-The setup wizard will auto-discover your ATEM, OBS, and other devices.
+The setup wizard walks you through connecting your ATEM, OBS, and other devices by IP address.
 
 TELEGRAM SETUP
 Have your tech directors send this to @tallybot:

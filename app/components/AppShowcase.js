@@ -16,7 +16,7 @@ const CAPTIONS = {
     { icon: '\u26a1', label: 'Auto-recovery alerts', desc: 'Tally fixes problems before you notice \u2014 then shows you what happened' },
   ],
   equipment: [
-    { icon: '\ud83c\udfdb\ufe0f', label: 'Auto-discovers devices', desc: 'Finds your ATEM, OBS, vMix, Companion, ProPresenter, VideoHub, HyperDecks, PTZ cameras, and Shelly smart plugs' },
+    { icon: '\ud83c\udfdb\ufe0f', label: 'Connect your devices', desc: 'Enter IP addresses for your ATEM, OBS, vMix, Companion, ProPresenter, VideoHub, HyperDecks, and PTZ cameras. Shelly smart plugs auto-discover via mDNS.' },
     { icon: '\u2699\ufe0f', label: 'One-time setup', desc: 'Enter IPs once, test connections, save \u2014 done in 10 minutes' },
     { icon: '\ud83c\udfa4', label: 'Audio + video', desc: 'PTZ cameras, HyperDecks, audio consoles \u2014 all from the same screen' },
   ],
@@ -116,7 +116,7 @@ export default function AppShowcase() {
           </div>
           <Image
             src={activeTab === 'status' ? '/app-status.png' : activeTab === 'equipment' ? '/app-equipment.png' : '/app-engineer.png'}
-            alt={activeTab === 'status' ? 'Tally status dashboard showing live stream status, connected devices, and camera preview' : activeTab === 'equipment' ? 'Tally equipment setup screen showing auto-discovered ATEM, OBS, and Companion devices' : 'Tally Engineer AI diagnostics with Go/No-Go status and action plans'}
+            alt={activeTab === 'status' ? 'Tally status dashboard showing live stream status, connected devices, and camera preview' : activeTab === 'equipment' ? 'Tally equipment setup screen showing connected ATEM, OBS, and Companion devices' : 'Tally Engineer AI diagnostics with Go/No-Go status and action plans'}
             width={1200}
             height={761}
             priority={activeTab === 'status'}

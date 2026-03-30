@@ -214,7 +214,7 @@ function AtemMiniSetup() {
       </ul>
 
       <h2 style={h2}>Remote Monitoring with Tally</h2>
-      <p style={p}>Once your ATEM is on the network, <a href="/signup" style={a}>Tally auto-discovers it</a> and gives your team remote access to:</p>
+      <p style={p}>Once your ATEM is on the network, <a href="/signup" style={a}>Tally connects to it</a> and gives your team remote access to:</p>
       <ul style={ul}>
         <li>See which camera is live (program) and which is next (preview) — from your phone</li>
         <li>Switch cameras remotely via Telegram commands</li>
@@ -399,7 +399,7 @@ function RemoteMonitoring() {
       <ol style={ol}>
         <li><a href="/signup" style={a}>Sign up for a free trial</a> — no credit card required</li>
         <li>Install the Tally desktop app on your booth computer (10 minutes)</li>
-        <li>Tally auto-discovers your ATEM, OBS, and other equipment</li>
+        <li>Enter the IP addresses for your ATEM, OBS, and other equipment</li>
         <li>Connect Slack or Telegram for alerts</li>
         <li>Set your service schedule so pre-checks run at the right time</li>
       </ol>
@@ -578,7 +578,7 @@ function PTZCameraBuyingGuide() {
       <ul style={ul}>
         <li><strong style={strong}>Recall presets from Telegram</strong> — Type "camera 1 preset 3" and Tally moves the camera. No joystick controller needed.</li>
         <li><strong style={strong}>Camera status monitoring</strong> — See which cameras are online, which preset they're on, and whether any input has gone black — from your phone or the church portal.</li>
-        <li><strong style={strong}>Autopilot rules</strong> — Set rules like "when worship slides start, switch to camera 1 wide shot." Tally moves the camera and cuts the switcher automatically.</li>
+        <li><strong style={strong}>Autopilot rundowns</strong> — Create step-by-step production rundowns that auto-advance on a timer during service. Tally executes each step automatically.</li>
         <li><strong style={strong}>Pre-service camera check</strong> — 30 minutes before service, Tally verifies every camera is responding and connected. If a camera has lost power or network, your TD gets an alert before volunteers arrive.</li>
       </ul>
       <p style={p}><a href="/signup" style={a}>Start a free trial</a> and connect your PTZ cameras alongside your ATEM in under 10 minutes.</p>

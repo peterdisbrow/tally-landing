@@ -90,7 +90,7 @@ function buildIntegrationsResponse() {
 }
 
 function buildSetupResponse() {
-  return `Setup takes **10 minutes**:\n\n1. Download the app (macOS or Windows)\n2. Sign in with your code\n3. Tally auto-discovers your gear on the network\n\nNo port forwarding. Works behind firewalls. Runs on your existing booth computer.\n\n[CTA:Get Started Free:/signup]`;
+  return `Setup takes **10 minutes**:\n\n1. Download the app (macOS or Windows)\n2. Sign in with your code\n3. Enter IP addresses for your ATEM, OBS, and other gear\n\nNo port forwarding. Works behind firewalls. Runs on your existing booth computer.\n\n[CTA:Get Started Free:/signup]`;
 }
 
 function buildTrialResponse() {
@@ -156,7 +156,7 @@ function buildPlanningCenterResponse() {
 }
 
 function buildAutopilotResponse() {
-  return `**AI Autopilot** — create rules like "when worship slides start → switch to camera 1" and Tally executes automatically.\n\n• **Pro** ($149/mo) — 10 rules\n• **Enterprise** (custom pricing) — 25 rules\n\n[CTA:Get Started Free:/signup]\n\nWant to hear about a specific use case?`;
+  return `**AI Autopilot** — create step-by-step production rundowns that auto-advance on a timer during service.\n\n• **Pro** ($149/mo) — 10 steps\n• **Enterprise** (custom pricing) — 25 steps\n\n[CTA:Get Started Free:/signup]\n\nWant to hear about a specific use case?`;
 }
 
 function buildRecommendPlanResponse() {

@@ -47,7 +47,7 @@ export default function Features() {
 
         <div style={{ textAlign: 'center', marginTop: 48 }}>
           <p style={{ color: DIM, fontSize: '0.9rem', marginBottom: 14 }}>
-            Works with 26+ integrations across switchers, encoders, audio, and presentation software.
+            Works with 23+ integrations across switchers, encoders, audio, and presentation software.
           </p>
           <a href="/hardware" style={{
             display: 'inline-block', padding: '12px 28px', fontSize: '0.9rem', fontWeight: 700,

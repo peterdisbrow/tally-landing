@@ -90,7 +90,7 @@ export default function SignupSuccessPage() {
               <div>
                 <div style={stepTitle}>Connect Your Gear</div>
                 <p style={stepDesc}>
-                  Enter your ATEM IP address (or click Auto-Discover). Tally will find your OBS, Companion, and audio console automatically. You&apos;ll be monitoring in minutes.
+                  Enter the IP addresses for your ATEM, OBS, Companion, and audio console. Shelly smart plugs are discovered automatically via mDNS. You&apos;ll be monitoring in minutes.
                 </p>
               </div>
             </div>

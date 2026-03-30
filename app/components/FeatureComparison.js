@@ -15,7 +15,7 @@ const ROWS = [
   { feature: 'Post-Service Timeline', values: [true, true, true, true] },
   { feature: 'Church Portal', values: [true, true, true, true] },
   { feature: 'Signal Failover', values: [false, true, true, true] },
-  { feature: 'All 26 Integrations', values: ['3 core', true, true, true] },
+  { feature: 'All 23 Integrations', values: ['3 core', true, true, true] },
   { feature: 'Deep ProPresenter Control', values: [false, true, true, true] },
   { feature: 'On-Call TD Rotation', values: [false, true, true, true] },
   { feature: 'Guest TD Tokens', values: [false, true, true, true] },

@@ -48,7 +48,7 @@ export default function Hero() {
         color: DIM, fontSize: '0.9rem', margin: '0 auto 52px',
         fontFamily: 'ui-monospace, monospace', letterSpacing: '0.04em',
       }}>
-        26 integrations &middot; Automatic recovery &middot; AI natural language control &middot; Self-service church portal
+        23 integrations &middot; Automatic recovery &middot; AI natural language control &middot; Self-service church portal
       </p>
 
       {/* CTAs */}

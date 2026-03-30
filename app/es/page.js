@@ -110,7 +110,7 @@ const FEATURES_ES = [
   { tag: 'PRE-SERVICIO',        name: 'Verificación Automática del Sistema',            desc: 'Confirmación de luz verde 30 min antes de cada servicio. Cada dispositivo probado, cada conexión verificada. Sin más recorridos manuales.' },
   { tag: 'CONTROL REMOTO',      name: 'Control total de ProPresenter + ATEM',            desc: 'Cambia de cámara, avanza diapositivas, activa looks, manda mensajes al escenario, arranca temporizadores — todo desde tu celular o Telegram.' },
   { tag: 'COMANDOS CON IA',     name: 'Control por Lenguaje Natural',                   desc: 'Escribe "cortar a cámara 2 y luego iniciar grabación" y Tally lo hace. El análisis de comandos con IA entiende el español — sin necesidad de memorizar menús.' },
-  { tag: 'PILOTO AUTOMÁTICO',   name: 'Piloto Automático con IA',                       desc: 'Crea reglas como "cuando empiecen las diapositivas de adoración, cambiar a cámara 1". Tally las ejecuta automáticamente durante el servicio — hasta 25 reglas en Enterprise.' },
+  { tag: 'PILOTO AUTOMÁTICO',   name: 'Piloto Automático con IA',                       desc: 'Crea guiones de producción paso a paso que avanzan automáticamente con temporizador durante el servicio. Hasta 25 pasos en Enterprise.' },
   { tag: 'PORTAL DE IGLESIA',   name: 'Portal de Iglesia de Autoservicio',              desc: 'Cada iglesia tiene su propio panel — administra DTs, establece horarios de servicio, ve el historial de sesiones, configura alertas y gestiona la facturación.' },
   { tag: 'CRONOLOGÍA',          name: 'Resumen Post-Servicio',                          desc: 'Cada servicio tiene una cronología: qué pasó, qué falló, qué se recuperó automáticamente. Los resúmenes de sesión se envían automáticamente a Planning Center.' },
   { tag: 'PLANNING CENTER',     name: 'Sincronización + Escritura en Planning Center',  desc: 'Sincroniza los horarios de servicio automáticamente. Después de cada servicio, las notas de producción se envían al plan — sin captura manual de datos.' },
@@ -174,7 +174,7 @@ function FeaturesEs() {
 
         <div style={{ textAlign: 'center', marginTop: 48 }}>
           <p style={{ color: DIM, fontSize: '0.9rem', marginBottom: 14 }}>
-            Compatible con más de 26 integraciones: mezcladores, codificadores, audio y software de presentación.
+            Compatible con más de 23 integraciones: mezcladores, codificadores, audio y software de presentación.
           </p>
           <a href="/hardware" style={{
             display: 'inline-block', padding: '12px 28px', fontSize: '0.9rem', fontWeight: 700,
@@ -486,7 +486,6 @@ const INTEGRATIONS_ES = [
   { name: 'AJA HELO',            tag: 'ENCODER'      },
   { name: 'YouTube Live',        tag: 'CDN'          },
   { name: 'Facebook Live',       tag: 'CDN'          },
-  { name: 'Vimeo Live',          tag: 'CDN'          },
   { name: 'Shelly Smart Plugs',  tag: 'ENERGÍA'      },
 ];
 
@@ -538,7 +537,7 @@ function IntegrationsEs() {
           textAlign: 'center', color: DIM, fontSize: '0.9rem',
           marginTop: 36, fontStyle: 'italic',
         }}>
-          26 integraciones y contando. Si está en tu cabina, Tally lo monitorea.
+          23 integraciones y contando. Si está en tu cabina, Tally lo monitorea.
         </p>
       </div>
     </section>
@@ -651,7 +650,7 @@ const PRICING_ES = [
       'Todo lo de Connect',
       'Hasta 3 salas',
       'Conmutación de señal (cambio automático a fuente segura)',
-      'Las 26 integraciones de dispositivos',
+      'Las 23 integraciones de dispositivos',
       'Control profundo de ProPresenter (looks, temporizadores, mensajes)',
       'Rotación de DT de guardia',
       'Tokens de acceso para DT invitado',
@@ -714,7 +713,7 @@ const FC_ROWS_ES = [
   { feature: 'Cronología Post-Servicio', values: [true, true, true, true] },
   { feature: 'Portal de Iglesia', values: [true, true, true, true] },
   { feature: 'Cambio de Señal (Failover)', values: [false, true, true, true] },
-  { feature: 'Las 26 Integraciones', values: [false, true, true, true] },
+  { feature: 'Las 23 Integraciones', values: [false, true, true, true] },
   { feature: 'Control Profundo de ProPresenter', values: [false, true, true, true] },
   { feature: 'Rotación de DT de Guardia', values: [false, true, true, true] },
   { feature: 'Tokens de DT Invitado', values: [false, true, true, true] },
@@ -1251,7 +1250,7 @@ function FooterEs() {
 const FAQ_ES = [
   {
     q: '¿Funciona con mi equipo actual?',
-    a: 'Sí. Tally es compatible con más de 26 dispositivos incluyendo ATEM, OBS, vMix, ProPresenter, Blackmagic, Ecamm, BirdDog, Teradek, y más. No necesitas reemplazar nada.',
+    a: 'Sí. Tally es compatible con más de 23 dispositivos incluyendo ATEM, OBS, vMix, ProPresenter, Blackmagic, Ecamm, Teradek, y más. No necesitas reemplazar nada.',
   },
   {
     q: '¿Necesito saber programar para usarlo?',
