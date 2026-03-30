@@ -5,6 +5,16 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/admin/:path*',
+        destination: 'https://api.tallyconnect.app/admin/:path*',
+        permanent: true,
+      },
+      {
+        source: '/admin',
+        destination: 'https://api.tallyconnect.app/admin',
+        permanent: true,
+      },
+      {
         source: '/portal',
         destination: 'https://api.tallyconnect.app/church-portal',
         permanent: false,
