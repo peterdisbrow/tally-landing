@@ -3,19 +3,43 @@ import Nav from '../components/Nav';
 import Footer from '../components/Footer';
 
 export const metadata = {
-  title: 'Download Tally — Mac Desktop App',
-  description: 'Download the Tally desktop app for macOS. Signed and notarized by Apple. Works with Apple Silicon and Intel Macs.',
+  title: 'Download Tally — Desktop App for Mac & Windows',
+  description: 'Download the Tally desktop app for macOS and Windows. Signed and notarized by Apple. Works with Apple Silicon, Intel Macs, and Windows PCs.',
   openGraph: {
     title: 'Download Tally',
-    description: 'Get the Tally desktop app for macOS.',
+    description: 'Get the Tally desktop app for macOS and Windows.',
     url: 'https://tallyconnect.app/download',
   },
 };
 
-const CURRENT_VERSION = '1.0.2';
-const RELEASE_DATE = 'March 26, 2026';
+const GITHUB_REPO = 'peterdisbrow/tally';
+const GITHUB_LATEST = `https://github.com/${GITHUB_REPO}/releases/latest/download`;
 
-export default function DownloadPage() {
+async function getLatestRelease() {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`, {
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return {
+      version: data.tag_name?.replace(/^v/, '') || null,
+      publishedAt: data.published_at,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export default async function DownloadPage() {
+  const release = await getLatestRelease();
+  const version = release?.version || '1.1.38';
+  const releaseDate = release?.publishedAt
+    ? new Date(release.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    : null;
+
+  const windowsUrl = `${GITHUB_LATEST}/Tally-Setup-${version}.exe`;
+
   return (
     <>
       <Nav />
@@ -30,33 +54,33 @@ export default function DownloadPage() {
           paddingRight: 20,
         }}
       >
-        <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
           <h1 style={{ fontSize: 36, fontWeight: 800, marginTop: 40, marginBottom: 8 }}>
             Download Tally
           </h1>
           <p style={{ color: MUTED, fontSize: 15, marginBottom: 40 }}>
-            v{CURRENT_VERSION} &middot; {RELEASE_DATE} &middot; macOS 12+
+            v{version}{releaseDate ? ` \u00b7 ${releaseDate}` : ''} &middot; macOS 12+ / Windows 10+
           </p>
 
           {/* Download Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, marginBottom: 40 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 40 }}>
             {/* Apple Silicon */}
             <div
               style={{
                 background: CARD,
                 border: `1px solid ${BORDER}`,
                 borderRadius: 14,
-                padding: '32px 28px',
+                padding: '32px 24px',
                 textAlign: 'center',
               }}
             >
               <div style={{ fontSize: 40, marginBottom: 12 }}>{'\uF8FF'}</div>
-              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 6 }}>Apple Silicon</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 6 }}>Mac &mdash; Apple Silicon</h2>
               <p style={{ color: MUTED, fontSize: 13, marginBottom: 20 }}>
                 M1, M2, M3, M4 MacBook, iMac &amp; Mac Mini
               </p>
               <a
-                href="https://github.com/peterdisbrow/tally/releases/latest/download/Tally-arm64.dmg"
+                href={`${GITHUB_LATEST}/Tally-arm64.dmg`}
                 style={{
                   display: 'inline-block',
                   background: GREEN,
@@ -79,17 +103,17 @@ export default function DownloadPage() {
                 background: CARD,
                 border: `1px solid ${BORDER}`,
                 borderRadius: 14,
-                padding: '32px 28px',
+                padding: '32px 24px',
                 textAlign: 'center',
               }}
             >
               <div style={{ fontSize: 40, marginBottom: 12 }}>{'\uF8FF'}</div>
-              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 6 }}>Intel</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 6 }}>Mac &mdash; Intel</h2>
               <p style={{ color: MUTED, fontSize: 13, marginBottom: 20 }}>
-                2015\u20132020 MacBook &amp; iMac
+                2015&ndash;2020 MacBook &amp; iMac
               </p>
               <a
-                href="https://github.com/peterdisbrow/tally/releases/latest/download/Tally-intel.dmg"
+                href={`${GITHUB_LATEST}/Tally-x64.dmg`}
                 style={{
                   display: 'inline-block',
                   background: '#1e293b',
@@ -105,6 +129,39 @@ export default function DownloadPage() {
                 Download .dmg
               </a>
               <p style={{ color: MUTED, fontSize: 11, marginTop: 10 }}>~140 MB</p>
+            </div>
+
+            {/* Windows */}
+            <div
+              style={{
+                background: CARD,
+                border: `1px solid ${BORDER}`,
+                borderRadius: 14,
+                padding: '32px 24px',
+                textAlign: 'center',
+              }}
+            >
+              <div style={{ fontSize: 40, marginBottom: 12 }}>{'\u{1FA9F}'}</div>
+              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 6 }}>Windows</h2>
+              <p style={{ color: MUTED, fontSize: 13, marginBottom: 20 }}>
+                Windows 10 or later (64-bit)
+              </p>
+              <a
+                href={windowsUrl}
+                style={{
+                  display: 'inline-block',
+                  background: '#0078d4',
+                  color: WHITE,
+                  fontWeight: 700,
+                  fontSize: 15,
+                  padding: '12px 32px',
+                  borderRadius: 10,
+                  textDecoration: 'none',
+                }}
+              >
+                Download .exe
+              </a>
+              <p style={{ color: MUTED, fontSize: 11, marginTop: 10 }}>~90 MB</p>
             </div>
           </div>
 
@@ -145,8 +202,8 @@ export default function DownloadPage() {
           >
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>System Requirements</h3>
             <ul style={{ color: MUTED, fontSize: 13, lineHeight: 2, paddingLeft: 18, margin: 0 }}>
-              <li>macOS 12 Monterey or later</li>
-              <li>Apple Silicon (M1+) or Intel processor</li>
+              <li>macOS 12 Monterey or later / Windows 10 or later</li>
+              <li>Apple Silicon (M1+), Intel processor, or 64-bit Windows</li>
               <li>4 GB RAM minimum</li>
               <li>200 MB free disk space</li>
               <li>Internet connection for relay communication</li>
