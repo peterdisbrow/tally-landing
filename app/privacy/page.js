@@ -44,8 +44,8 @@ export default function PrivacyPage() {
           </p>
 
           <Section title="Who we are">
-            Tally is a church production monitoring and remote control platform operated by
-            Tally Connect. Our website is{' '}
+            Tally Connect is a church production monitoring and remote control platform operated by
+            Disbrow Productions, LLC. Our website is{' '}
             <a href="https://tallyconnect.app" style={{ color: GREEN }}>
               tallyconnect.app
             </a>
@@ -335,8 +335,8 @@ export default function PrivacyPage() {
                 interests (e.g., improving the product, preventing abuse).
               </li>
               <li>
-                <strong>Data controller:</strong> Tally Connect is the data controller
-                for personal data collected through Tally.
+                <strong>Data controller:</strong> Disbrow Productions, LLC is the data controller
+                for personal data collected through Tally Connect.
               </li>
               <li>
                 <strong>International transfers:</strong> your data may be transferred to and

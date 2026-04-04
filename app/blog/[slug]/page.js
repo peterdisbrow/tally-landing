@@ -54,9 +54,8 @@ export default async function BlogPost({ params }) {
     description: post.metaDescription,
     datePublished: post.date,
     author: {
-      '@type': 'Person',
+      '@type': 'Organization',
       name: post.author,
-      jobTitle: post.authorRole,
     },
     publisher: {
       '@type': 'Organization',

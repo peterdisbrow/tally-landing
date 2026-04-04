@@ -36,7 +36,7 @@ export default function BlogIndex() {
       '@type': 'BlogPosting',
       headline: p.title,
       datePublished: p.date,
-      author: { '@type': 'Person', name: p.author },
+      author: { '@type': 'Organization', name: p.author },
       url: `https://tallyconnect.app/blog/${p.slug}`,
     })),
   };
