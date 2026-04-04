@@ -43,7 +43,7 @@ export default function TermsPage() {
           </p>
 
           <Section title="1. Service Description">
-            Tally is a church production monitoring and remote control platform operated by Tally Connect (Andrew Disbrow). The service provides real-time monitoring, alerting, and remote
+            Tally is a church production monitoring and remote control platform operated by Tally Connect. The service provides real-time monitoring, alerting, and remote
             control capabilities for broadcast and production equipment including — but not limited
             to — Blackmagic ATEM switchers, OBS Studio, vMix, ProPresenter, Resolume, audio
             consoles, and streaming encoders. You are responsible for the lawful operation of the

@@ -44,8 +44,8 @@ export default function PrivacyPage() {
           </p>
 
           <Section title="Who we are">
-            Tally is a church production monitoring and remote control platform operated by ATEM
-            School (Andrew Disbrow). Our website is{' '}
+            Tally is a church production monitoring and remote control platform operated by
+            Tally Connect. Our website is{' '}
             <a href="https://tallyconnect.app" style={{ color: GREEN }}>
               tallyconnect.app
             </a>
@@ -335,7 +335,7 @@ export default function PrivacyPage() {
                 interests (e.g., improving the product, preventing abuse).
               </li>
               <li>
-                <strong>Data controller:</strong> Tally Connect (Andrew Disbrow) is the data controller
+                <strong>Data controller:</strong> Tally Connect is the data controller
                 for personal data collected through Tally.
               </li>
               <li>

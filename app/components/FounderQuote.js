@@ -17,15 +17,15 @@ export default function FounderQuote() {
           <p style={{
             fontFamily: 'ui-monospace, monospace', fontSize: '0.72rem',
             fontWeight: 700, letterSpacing: '0.15em', color: GREEN, marginBottom: 24,
-          }}>WHY I BUILT THIS</p>
+          }}>WHY WE BUILT THIS</p>
           <blockquote style={{
             fontSize: 'clamp(1.05rem, 2.5vw, 1.3rem)', color: WHITE,
             lineHeight: 1.75, margin: '0 0 32px', fontStyle: 'italic',
             borderLeft: `3px solid ${GREEN}`, paddingLeft: 24,
           }}>
-            &ldquo;I&apos;ve spent 15 years inside church broadcast booths &mdash; from small community churches to
+            &ldquo;We&apos;ve spent years inside church broadcast booths &mdash; from small community churches to
             multi-site campuses. Stream failures are embarrassing. Missed recordings are unrecoverable.
-            I built Tally because I wanted to sleep on Saturday night knowing Sunday would be fine.&rdquo;
+            We built Tally because we wanted church teams to sleep on Saturday night knowing Sunday would be fine.&rdquo;
           </blockquote>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{
@@ -34,10 +34,10 @@ export default function FounderQuote() {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontWeight: 900, fontSize: '1.1rem', color: '#000',
               flexShrink: 0,
-            }}>A</div>
+            }}>T</div>
             <div>
-              <div style={{ fontWeight: 800, color: WHITE, fontSize: '0.95rem' }}>Andrew Disbrow</div>
-              <div style={{ color: DIM, fontSize: '0.82rem' }}>Broadcast Engineer &middot; Founder, Tally</div>
+              <div style={{ fontWeight: 800, color: WHITE, fontSize: '0.95rem' }}>Tally Team</div>
+              <div style={{ color: DIM, fontSize: '0.82rem' }}>Built by church production people</div>
             </div>
           </div>
         </div>
