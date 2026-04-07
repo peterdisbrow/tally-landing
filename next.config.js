@@ -49,6 +49,22 @@ const nextConfig = {
         source: '/tools/checklist/',
         destination: '/tools/checklist/index.html',
       },
+      {
+        source: '/clock',
+        destination: '/tools/clock/index.html',
+      },
+      {
+        source: '/clock/',
+        destination: '/tools/clock/index.html',
+      },
+      {
+        source: '/streaming-config',
+        destination: '/tools/streaming-config/index.html',
+      },
+      {
+        source: '/streaming-config/',
+        destination: '/tools/streaming-config/index.html',
+      },
     ];
   },
   async headers() {
@@ -70,11 +86,11 @@ const nextConfig = {
             value: [
               "default-src 'self'",
               `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''} https://plausible.io`,
-              "style-src 'self' 'unsafe-inline'",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
               "img-src 'self' data: blob:",
-              "font-src 'self'",
+              "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
               "media-src 'self' blob:",
-              `connect-src 'self' https://plausible.io https://api.tallyconnect.app${process.env.NODE_ENV === 'development' ? ' ws://localhost:* http://localhost:*' : ''}`,
+              `connect-src 'self' https://plausible.io https://api.tallyconnect.app wss://api.tallyconnect.app https://timeapi.io https://worldtimeapi.org${process.env.NODE_ENV === 'development' ? ' ws://localhost:* http://localhost:*' : ''}`,
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
