@@ -6,6 +6,7 @@ import Features from './components/Features';
 import IncidentTimeline from './components/IncidentTimeline';
 import AppShowcase from './components/AppShowcase';
 import BoldStatement from './components/BoldStatement';
+import RundownShowcase from './components/RundownShowcase';
 import Integrations from './components/Integrations';
 import HowItWorks from './components/HowItWorks';
 import Pricing from './components/Pricing';
@@ -25,7 +26,7 @@ const jsonLd = {
       name: 'Tally',
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'macOS, Windows',
-      description: 'Church production monitoring, AI control, and auto-recovery. Monitor ATEM, OBS, vMix, audio consoles, encoders, and stream health from anywhere. 23 integrations.',
+      description: 'Church production monitoring, rundown planning, AI control, and auto-recovery. Full service rundown planner with live show mode, 7 output views, and collaborative editing. Monitor ATEM, OBS, vMix, audio consoles, encoders, and stream health from anywhere. 23 integrations.',
       url: 'https://tallyconnect.app',
       offers: {
         '@type': 'AggregateOffer',
@@ -74,6 +75,14 @@ const jsonLd = {
           acceptedAnswer: {
             '@type': 'Answer',
             text: "Tally detects it in seconds, verifies it's a real outage (not a momentary blip), and auto-restarts your stream. Most recoveries happen before anyone in the congregation notices. You get a Telegram or Slack alert that says \"handled.\"",
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What is the Rundown Planner?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'A full service planning and live show control tool built into Tally. Build rundowns with drag-and-drop, set hard start times, and go live with cue-by-cue GO/Back navigation. It includes 7 output views — confidence monitor, studio clock, teleprompter, speaker timer, public view, show control, and post-show report — all shareable via link with no login required. Multiple team members can edit simultaneously with real-time presence indicators. You can import existing service plans from PDF, Word, or PowerPoint using AI, or save and reuse templates. Included in all plans.',
           },
         },
         {
@@ -128,6 +137,7 @@ export default function Home() {
       <div id="features"><Features /></div>
       <div id="timeline"><IncidentTimeline /></div>
       <AppShowcase />
+      <div id="rundown"><RundownShowcase /></div>
       <BoldStatement />
       <Integrations />
       <HowItWorks />

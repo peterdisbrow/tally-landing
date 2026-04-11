@@ -24,6 +24,10 @@ const FAQ_ITEMS = [
     a: 'Tally verifies before it acts. Before any recovery, it checks your encoder status, network upstream, and platform ingest to confirm a real failure \u2014 brief packet loss and transient dips are ignored and logged as suppressed false alarms. Recovery rules are configurable per church: auto-recover, notify-only, or ask-first. Max retry limits prevent infinite loops. For hardware failures, Tally can power-cycle gear via Shelly smart plugs if configured \u2014 otherwise it alerts your TD immediately with diagnosis steps.',
   },
   {
+    q: 'What is the Rundown Planner?',
+    a: 'A full service planning and live show control tool built into Tally. Build rundowns with drag-and-drop, set hard start times, and go live with cue-by-cue GO/Back navigation. It includes 7 output views — confidence monitor, studio clock, teleprompter, speaker timer, public view, show control, and post-show report — all shareable via link with no login required. Multiple team members can edit simultaneously with real-time presence indicators. You can import existing service plans from PDF, Word, or PowerPoint using AI, or save and reuse templates. Included in all plans.',
+  },
+  {
     q: 'What does the AI do?',
     a: 'Three things. First, AI natural language commands let your TDs type plain English like "cut to camera 2 and start recording" instead of navigating menus. Second, AI Autopilot lets you create step-by-step production rundowns that auto-advance on a timer during service. Third, the AI Setup Assistant auto-configures your mixer channels and ATEM input labels from a patch list, camera plot, or photo \u2014 using AI vision to parse whatever format you have. Available on Plus and above.',
   },
