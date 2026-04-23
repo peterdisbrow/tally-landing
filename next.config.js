@@ -58,6 +58,14 @@ const nextConfig = {
         destination: '/tools/clock/index.html',
       },
       {
+        source: '/multi-clock',
+        destination: '/tools/clock/index.html',
+      },
+      {
+        source: '/multi-clock/',
+        destination: '/tools/clock/index.html',
+      },
+      {
         source: '/streaming-config',
         destination: '/tools/streaming-config/index.html',
       },
