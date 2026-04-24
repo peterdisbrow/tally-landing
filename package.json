@@ -2,14 +2,9 @@
   "name": "tally-landing",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "apps/*"
-  ],
   "scripts": {
     "dev": "next dev",
-    "dev:clock": "npm --workspace @tally-landing/clock run dev",
-    "build": "npm run build:clock && next build",
-    "build:clock": "npm --workspace @tally-landing/clock run build",
+    "build": "next build",
     "start": "next start",
     "test": "vitest run"
   },
