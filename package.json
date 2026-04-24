@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "dev:clock": "npm --prefix apps/clock run dev",
+    "dev:all": "concurrently -k -n next,clock -c blue,magenta \"npm run dev\" \"npm run dev:clock\"",
     "build": "npm run build:clock && next build",
     "build:clock": "npm --prefix apps/clock ci --include=dev && npm --prefix apps/clock run build",
     "start": "next start",
     "test": "vitest run",
+    "typecheck:clock": "cd apps/clock && npx --no-install tsc --noEmit -p tsconfig.app.json",
     "sync:tools": "./scripts/sync-tools.sh"
   },
   "dependencies": {
@@ -20,6 +22,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.1.4",
+    "concurrently": "^9.1.0",
     "vitest": "^4.0.18"
   }
 }

@@ -1025,13 +1025,12 @@ const Clock = () => {
         )}
       </AnimatePresence>
 
-      {/* Disbrow Productions logo */}
       {logoVisible && <div className="absolute bottom-3 right-4 z-50 flex flex-col items-end">
         <span className="font-display text-[11px] font-bold tracking-[0.25em] text-white/20">
-          DISBROW
+          TALLYCONNECT
         </span>
         <span className="font-display text-[7px] tracking-[0.35em] text-white/15 -mt-0.5">
-          PRODUCTIONS
+          PRODUCTION CLOCK
         </span>
       </div>}
     </div>

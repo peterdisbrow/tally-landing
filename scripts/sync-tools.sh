@@ -14,7 +14,7 @@ if [ ! -d "$RELAY_TOOLS" ]; then
   exit 1
 fi
 
-TOOLS=(clock streaming-config)
+TOOLS=(streaming-config)
 
 for tool in "${TOOLS[@]}"; do
   src="$RELAY_TOOLS/$tool"
