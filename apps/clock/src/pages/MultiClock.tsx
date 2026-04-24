@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Plus, Monitor, Settings, Maximize, Minimize } from "lucide-react";
+import { ArrowLeft, Plus, Monitor, Settings, Maximize, Minimize, Menu, Check } from "lucide-react";
 import ClockCell, { type ClockCellConfig } from "@/components/clock/ClockCell";
 import AuthPanel from "@/components/clock/AuthPanel";
 import LoginForm from "@/components/clock/LoginForm";
@@ -76,6 +76,7 @@ const MultiClock = () => {
   const [globalScale, setGlobalScale] = useState<number>(() => loadScale());
   const [featuredHeight, setFeaturedHeight] = useState<number>(() => loadFeaturedHeight());
   const [showGlobalSettings, setShowGlobalSettings] = useState(false);
+  const [showLayoutMenu, setShowLayoutMenu] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [hovered, setHovered] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -255,20 +256,65 @@ const MultiClock = () => {
         <div className="flex items-center gap-3 pointer-events-auto">
           <AuthPanel />
 
-          {/* Layout picker */}
-          {LAYOUTS.map(l => (
+          {/* Layout picker — desktop: inline buttons */}
+          <div className="hidden md:flex items-center gap-3">
+            {LAYOUTS.map(l => (
+              <button
+                key={l.mode}
+                onClick={() => setLayout(l.mode)}
+                className="px-2 py-1 text-[10px] font-mono uppercase tracking-wider border transition-colors"
+                style={{
+                  color: layout === l.mode ? "#ef4444" : "rgba(255,255,255,0.25)",
+                  borderColor: layout === l.mode ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.1)",
+                }}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Layout picker — mobile: burger menu */}
+          <div className="md:hidden relative">
             <button
-              key={l.mode}
-              onClick={() => setLayout(l.mode)}
-              className="px-2 py-1 text-[10px] font-mono uppercase tracking-wider border transition-colors"
-              style={{
-                color: layout === l.mode ? "#ef4444" : "rgba(255,255,255,0.25)",
-                borderColor: layout === l.mode ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.1)",
-              }}
+              onClick={() => setShowLayoutMenu(p => !p)}
+              className="text-white/30 hover:text-white/70 transition-colors flex items-center gap-1"
+              title="Layout"
+              aria-label="Select layout"
+              aria-expanded={showLayoutMenu}
             >
-              {l.label}
+              <Menu size={20} />
+              <span className="text-[10px] font-mono uppercase tracking-wider" style={{ color: "#ef4444" }}>
+                {currentLayout.label}
+              </span>
             </button>
-          ))}
+
+            {showLayoutMenu && (
+              <>
+                {/* Click-outside backdrop */}
+                <div
+                  className="fixed inset-0 z-[65]"
+                  onClick={() => setShowLayoutMenu(false)}
+                />
+                {/* Dropdown */}
+                <div className="absolute right-0 top-full mt-2 z-[70] bg-black/95 border border-white/10 rounded min-w-[160px] flex flex-col py-1 shadow-lg">
+                  {LAYOUTS.map(l => {
+                    const active = layout === l.mode;
+                    return (
+                      <button
+                        key={l.mode}
+                        onClick={() => { setLayout(l.mode); setShowLayoutMenu(false); }}
+                        className="flex items-center justify-between gap-3 px-3 py-2 text-xs font-mono uppercase tracking-wider hover:bg-white/5 transition-colors text-left"
+                        style={{ color: active ? "#ef4444" : "rgba(255,255,255,0.6)" }}
+                      >
+                        <span>{l.label}</span>
+                        {active && <Check size={14} />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
 
           {/* Add clock */}
           {clocks.length < currentLayout.max && (
