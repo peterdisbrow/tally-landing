@@ -37,6 +37,7 @@ Rewrites in `next.config.js`: `/clock` and `/multi-clock` → `/tools/clock/inde
   - `WSS  wss://api.tallyconnect.app/portal?token=<jwt>`
 - **Supabase anon config** lives in `apps/clock/.env.production` and is committed on purpose (it's a public anon key, embedded in the client bundle).
 - **Toolbar visibility.** Window-level `mousemove` / `touchstart` / `keydown` shows the bar + arms a 2.5s auto-hide timer. Do not revert to root-div `onMouseEnter` — it doesn't fire when the cursor is already inside the page on mount.
+- **ClockCell tally modes are prop-gated.** The tally-tier modes (ProPresenter, HyperDeck, Stream/Record time, Last Cue, ATEM Rec/Timecode) only appear in the per-cell mode picker when `isTallyConnected` is truthy — and the live values come from sibling props (`proPresenter`, `hyperdecks`, `atem`, `streamStartedAt`, etc.). Any page that renders `ClockCell` must destructure the full status bundle from `useTallyConnect()` and spread it into every cell. `MultiClock.tsx` builds a `tallyProps` object once and spreads it on all three `<ClockCell>` invocations (grid, featured top, featured bottom).
 
 ## Scripts
 
