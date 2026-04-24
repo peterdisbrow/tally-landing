@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Plus, Monitor, Settings, Maximize, Minimize, Menu, Check } from "lucide-react";
+import { ArrowLeft, Plus, Monitor, Settings, Maximize, Minimize, Menu, Check, GripHorizontal } from "lucide-react";
 import ClockCell, { type ClockCellConfig } from "@/components/clock/ClockCell";
 import AuthPanel from "@/components/clock/AuthPanel";
 import LoginForm from "@/components/clock/LoginForm";
@@ -124,22 +124,35 @@ const MultiClock = () => {
     localStorage.setItem(FEATURED_HEIGHT_KEY, String(featuredHeight));
   }, [featuredHeight]);
 
-  const handleFeaturedDividerDown = useCallback((e: React.MouseEvent) => {
+  const handleFeaturedDividerDown = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     const container = featuredContainerRef.current;
     if (!container) return;
-    const onMove = (ev: MouseEvent) => {
+    const update = (clientY: number) => {
       const rect = container.getBoundingClientRect();
       if (rect.height <= 0) return;
-      const pct = ((ev.clientY - rect.top) / rect.height) * 100;
+      const pct = ((clientY - rect.top) / rect.height) * 100;
       setFeaturedHeight(Math.max(20, Math.min(80, pct)));
     };
-    const onUp = () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
+    const onMouseMove = (ev: MouseEvent) => update(ev.clientY);
+    const onTouchMove = (ev: TouchEvent) => {
+      if (ev.touches.length > 0) {
+        ev.preventDefault();
+        update(ev.touches[0].clientY);
+      }
     };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
+    const cleanup = () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", cleanup);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", cleanup);
+      window.removeEventListener("touchcancel", cleanup);
+    };
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", cleanup);
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("touchend", cleanup);
+    window.addEventListener("touchcancel", cleanup);
   }, []);
 
   useEffect(() => {
@@ -457,14 +470,19 @@ const MultiClock = () => {
             )}
           </div>
 
-          {/* Drag handle between featured and grid */}
+          {/* Drag handle between featured and grid — large hit area for touch */}
           <div
             onMouseDown={handleFeaturedDividerDown}
-            className="h-2 flex-shrink-0 cursor-ns-resize flex items-center justify-center group"
-            style={{ touchAction: "none" }}
+            onTouchStart={handleFeaturedDividerDown}
+            role="separator"
+            aria-orientation="horizontal"
+            aria-label="Resize featured clock"
+            className="flex-shrink-0 cursor-ns-resize flex items-center justify-center touch-none py-3 group select-none"
             title="Drag to resize"
           >
-            <div className="h-px w-16 bg-white/10 group-hover:bg-white/40 transition-colors" />
+            <div className="flex items-center justify-center px-4 py-1 rounded-full bg-white/5 border border-white/10 group-hover:bg-white/15 group-hover:border-white/30 group-active:bg-white/25 transition-colors">
+              <GripHorizontal size={16} className="text-white/40 group-hover:text-white/80 transition-colors" />
+            </div>
           </div>
 
           {/* Bottom — grid of remaining clocks (fills remaining space) */}
