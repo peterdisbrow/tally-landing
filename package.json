@@ -4,11 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:clock": "npm --prefix apps/clock run dev",
-    "build": "npm run build:clock && next build",
-    "build:clock": "npm --prefix apps/clock ci && npm --prefix apps/clock run build",
+    "build": "next build",
     "start": "next start",
-    "test": "vitest run"
+    "test": "vitest run",
+    "sync:tools": "./scripts/sync-tools.sh"
   },
   "dependencies": {
     "@upstash/ratelimit": "^2.0.8",
