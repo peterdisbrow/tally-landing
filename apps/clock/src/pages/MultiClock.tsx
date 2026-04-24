@@ -11,13 +11,11 @@ const MULTI_CLOCK_KEY = "broadcast-multi-clocks";
 const MULTI_LAYOUT_KEY = "broadcast-multi-layout";
 const MULTI_SCALE_KEY = "broadcast-multi-scale";
 
-type LayoutMode = "2x1" | "2x2" | "1x3" | "1x4" | "2x3" | "3x2" | "3x3" | "featured";
+type LayoutMode = "1x1" | "2x2" | "2x3" | "3x2" | "3x3" | "featured";
 
 const LAYOUTS: { mode: LayoutMode; label: string; max: number; cols: string; rows: string }[] = [
-  { mode: "2x1", label: "2 Wide", max: 2, cols: "grid-cols-2", rows: "grid-rows-1" },
+  { mode: "1x1", label: "Fullscreen", max: 1, cols: "grid-cols-1", rows: "grid-rows-1" },
   { mode: "2x2", label: "2×2 Grid", max: 4, cols: "grid-cols-2", rows: "grid-rows-2" },
-  { mode: "1x3", label: "3 Stack", max: 3, cols: "grid-cols-3", rows: "grid-rows-1" },
-  { mode: "1x4", label: "4 Stack", max: 4, cols: "grid-cols-4", rows: "grid-rows-1" },
   { mode: "2x3", label: "2×3 Grid", max: 6, cols: "grid-cols-2", rows: "grid-rows-3" },
   { mode: "3x2", label: "3×2 Grid", max: 6, cols: "grid-cols-3", rows: "grid-rows-2" },
   { mode: "3x3", label: "3×3 Grid", max: 9, cols: "grid-cols-3", rows: "grid-rows-3" },
@@ -38,8 +36,10 @@ const loadClocks = (): ClockCellConfig[] => {
 
 const loadLayout = (): LayoutMode => {
   try {
-    return (localStorage.getItem(MULTI_LAYOUT_KEY) as LayoutMode) || "2x1";
-  } catch { return "2x1"; }
+    const raw = localStorage.getItem(MULTI_LAYOUT_KEY) as LayoutMode | null;
+    if (raw && LAYOUTS.some(l => l.mode === raw)) return raw;
+    return "2x2";
+  } catch { return "2x2"; }
 };
 
 const loadScale = (): number => {
