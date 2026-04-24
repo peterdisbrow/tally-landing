@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, createContext, useContext, type ReactNode } from "react";
 
 const RELAY_URL = "https://api.tallyconnect.app";
 const WS_URL = "wss://api.tallyconnect.app";
@@ -81,7 +81,7 @@ export interface TallyConnectState {
   selectRoom: (roomId: string | null) => void;
 }
 
-export function useTallyConnect(): TallyConnectState {
+function useTallyConnectState(): TallyConnectState {
   const [token, setToken] = useState<string | null>(() => {
     try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
   });
@@ -410,4 +410,19 @@ export function useTallyConnect(): TallyConnectState {
     logout,
     selectRoom,
   };
+}
+
+const TallyConnectContext = createContext<TallyConnectState | null>(null);
+
+export function TallyConnectProvider({ children }: { children: ReactNode }) {
+  const state = useTallyConnectState();
+  return <TallyConnectContext.Provider value={state}>{children}</TallyConnectContext.Provider>;
+}
+
+export function useTallyConnect(): TallyConnectState {
+  const ctx = useContext(TallyConnectContext);
+  if (!ctx) {
+    throw new Error("useTallyConnect must be used within a TallyConnectProvider");
+  }
+  return ctx;
 }

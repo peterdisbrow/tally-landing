@@ -7,23 +7,26 @@ import Index from "./pages/Index";
 import Clock from "./pages/Clock";
 import MultiClock from "./pages/MultiClock";
 import NotFound from "./pages/NotFound";
+import { TallyConnectProvider } from "@/hooks/useTallyConnect";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/clock" element={<Clock />} />
-          <Route path="/multi-clock" element={<MultiClock />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <TallyConnectProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/clock" element={<Clock />} />
+            <Route path="/multi-clock" element={<MultiClock />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TallyConnectProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

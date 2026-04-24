@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Plus, Monitor, Settings } from "lucide-react";
@@ -58,7 +58,8 @@ const MultiClock = () => {
   const [globalScale, setGlobalScale] = useState<number>(() => loadScale());
   const [showGlobalSettings, setShowGlobalSettings] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [hovered, setHovered] = useState(false);
+  const [hovered, setHovered] = useState(true);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentLayout = LAYOUTS.find(l => l.mode === layout) || LAYOUTS[0];
 
@@ -67,29 +68,23 @@ const MultiClock = () => {
     return () => { document.title = "TallyConnect Production Clock"; };
   }, []);
 
-  if (!isAuthenticated) {
-    return (
-      <div className="h-screen w-screen bg-black flex items-center justify-center p-4">
-        <div className="w-full max-w-sm flex flex-col gap-4">
-          <div className="text-center">
-            <h1 className="text-white/80 text-lg font-mono uppercase tracking-widest">
-              TallyConnect Multi-Clock
-            </h1>
-            <p className="text-white/40 text-xs font-mono mt-2">
-              Sign in to access the multi-clock view
-            </p>
-          </div>
-          <LoginForm title="Sign In" />
-          <a
-            href="/"
-            className="text-white/30 hover:text-white/70 transition-colors text-[10px] font-mono uppercase tracking-wider text-center"
-          >
-            ← Back to home
-          </a>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const show = () => {
+      setHovered(true);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = setTimeout(() => setHovered(false), 2500);
+    };
+    show();
+    window.addEventListener("mousemove", show);
+    window.addEventListener("touchstart", show);
+    window.addEventListener("keydown", show);
+    return () => {
+      window.removeEventListener("mousemove", show);
+      window.removeEventListener("touchstart", show);
+      window.removeEventListener("keydown", show);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     localStorage.setItem(MULTI_CLOCK_KEY, JSON.stringify(clocks));
@@ -145,12 +140,32 @@ const MultiClock = () => {
     });
   }, []);
 
+  if (!isAuthenticated) {
+    return (
+      <div className="h-screen w-screen bg-black flex items-center justify-center p-4">
+        <div className="w-full max-w-sm flex flex-col gap-4">
+          <div className="text-center">
+            <h1 className="text-white/80 text-lg font-mono uppercase tracking-widest">
+              TallyConnect Multi-Clock
+            </h1>
+            <p className="text-white/40 text-xs font-mono mt-2">
+              Sign in to access the multi-clock view
+            </p>
+          </div>
+          <LoginForm title="Sign In" />
+          <a
+            href="/"
+            className="text-white/30 hover:text-white/70 transition-colors text-[10px] font-mono uppercase tracking-wider text-center"
+          >
+            ← Back to home
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div
-      className="h-screen w-screen bg-black flex flex-col overflow-hidden select-none"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div className="h-screen w-screen bg-black flex flex-col overflow-hidden select-none">
       {/* Toolbar */}
       <div
         className="absolute top-0 left-0 right-0 z-[60] flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/80 to-transparent transition-opacity duration-500 pointer-events-none"
