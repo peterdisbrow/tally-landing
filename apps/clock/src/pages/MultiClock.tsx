@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Plus, Monitor, Settings } from "lucide-react";
 import ClockCell, { type ClockCellConfig } from "@/components/clock/ClockCell";
 import AuthPanel from "@/components/clock/AuthPanel";
+import LoginForm from "@/components/clock/LoginForm";
+import { useTallyConnect } from "@/hooks/useTallyConnect";
 
 const MULTI_CLOCK_KEY = "broadcast-multi-clocks";
 const MULTI_LAYOUT_KEY = "broadcast-multi-layout";
@@ -50,6 +52,7 @@ const loadScale = (): number => {
 };
 
 const MultiClock = () => {
+  const { isAuthenticated } = useTallyConnect();
   const [clocks, setClocks] = useState<ClockCellConfig[]>(() => loadClocks());
   const [layout, setLayout] = useState<LayoutMode>(() => loadLayout());
   const [globalScale, setGlobalScale] = useState<number>(() => loadScale());
@@ -63,6 +66,30 @@ const MultiClock = () => {
     document.title = "TallyConnect Multi-Clock";
     return () => { document.title = "TallyConnect Production Clock"; };
   }, []);
+
+  if (!isAuthenticated) {
+    return (
+      <div className="h-screen w-screen bg-black flex items-center justify-center p-4">
+        <div className="w-full max-w-sm flex flex-col gap-4">
+          <div className="text-center">
+            <h1 className="text-white/80 text-lg font-mono uppercase tracking-widest">
+              TallyConnect Multi-Clock
+            </h1>
+            <p className="text-white/40 text-xs font-mono mt-2">
+              Sign in to access the multi-clock view
+            </p>
+          </div>
+          <LoginForm title="Sign In" />
+          <a
+            href="/"
+            className="text-white/30 hover:text-white/70 transition-colors text-[10px] font-mono uppercase tracking-wider text-center"
+          >
+            ← Back to home
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     localStorage.setItem(MULTI_CLOCK_KEY, JSON.stringify(clocks));
