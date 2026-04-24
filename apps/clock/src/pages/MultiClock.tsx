@@ -52,7 +52,16 @@ const loadScale = (): number => {
 };
 
 const MultiClock = () => {
-  const { isAuthenticated } = useTallyConnect();
+  const {
+    isAuthenticated,
+    isConnected: isTallyConnected,
+    status,
+    streamStartedAt,
+    recordingStartedAt,
+    atemRecordingStartedAt,
+    lastCueAt,
+    atemTimecode,
+  } = useTallyConnect();
   const [clocks, setClocks] = useState<ClockCellConfig[]>(() => loadClocks());
   const [layout, setLayout] = useState<LayoutMode>(() => loadLayout());
   const [globalScale, setGlobalScale] = useState<number>(() => loadScale());
@@ -139,6 +148,18 @@ const MultiClock = () => {
       return updated;
     });
   }, []);
+
+  const tallyProps = {
+    isTallyConnected,
+    proPresenter: status.proPresenter,
+    hyperdecks: status.hyperdecks,
+    atem: status.atem,
+    streamStartedAt,
+    recordingStartedAt,
+    atemRecordingStartedAt,
+    lastCueAt,
+    atemTimecode,
+  };
 
   if (!isAuthenticated) {
     return (
@@ -276,6 +297,7 @@ const MultiClock = () => {
               onDragEnd={() => setDragIndex(null)}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => handleDrop(index)}
+              {...tallyProps}
             />
           ))}
 
@@ -310,6 +332,7 @@ const MultiClock = () => {
                   onDragEnd={() => setDragIndex(null)}
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={() => handleDrop(0)}
+                  {...tallyProps}
                 />
                 {/* Featured badge */}
                 <span
@@ -354,6 +377,7 @@ const MultiClock = () => {
                     onDragEnd={() => setDragIndex(null)}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={() => handleDrop(index)}
+                    {...tallyProps}
                   />
                   {/* Subtle hint on hover */}
                   {hovered && (
