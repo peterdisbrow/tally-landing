@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Plus, Monitor, Settings } from "lucide-react";
+import { ArrowLeft, Plus, Monitor, Settings, Maximize, Minimize } from "lucide-react";
 import ClockCell, { type ClockCellConfig } from "@/components/clock/ClockCell";
 import AuthPanel from "@/components/clock/AuthPanel";
 import LoginForm from "@/components/clock/LoginForm";
@@ -11,10 +11,9 @@ const MULTI_CLOCK_KEY = "broadcast-multi-clocks";
 const MULTI_LAYOUT_KEY = "broadcast-multi-layout";
 const MULTI_SCALE_KEY = "broadcast-multi-scale";
 
-type LayoutMode = "1x1" | "2x2" | "2x3" | "3x2" | "3x3" | "featured";
+type LayoutMode = "2x2" | "2x3" | "3x2" | "3x3" | "featured";
 
 const LAYOUTS: { mode: LayoutMode; label: string; max: number; cols: string; rows: string }[] = [
-  { mode: "1x1", label: "Fullscreen", max: 1, cols: "grid-cols-1", rows: "grid-rows-1" },
   { mode: "2x2", label: "2×2 Grid", max: 4, cols: "grid-cols-2", rows: "grid-rows-2" },
   { mode: "2x3", label: "2×3 Grid", max: 6, cols: "grid-cols-2", rows: "grid-rows-3" },
   { mode: "3x2", label: "3×2 Grid", max: 6, cols: "grid-cols-3", rows: "grid-rows-2" },
@@ -68,6 +67,7 @@ const MultiClock = () => {
   const [showGlobalSettings, setShowGlobalSettings] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [hovered, setHovered] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentLayout = LAYOUTS.find(l => l.mode === layout) || LAYOUTS[0];
@@ -106,6 +106,21 @@ const MultiClock = () => {
   useEffect(() => {
     localStorage.setItem(MULTI_SCALE_KEY, String(Math.round(globalScale * 100)));
   }, [globalScale]);
+
+  useEffect(() => {
+    const sync = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", sync);
+    sync();
+    return () => document.removeEventListener("fullscreenchange", sync);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    } else {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  }, []);
 
   const handleUpdate = useCallback((updated: ClockCellConfig) => {
     setClocks(prev => prev.map(c => c.id === updated.id ? updated : c));
@@ -230,6 +245,15 @@ const MultiClock = () => {
               <span className="text-[10px] font-mono uppercase tracking-wider">Add</span>
             </button>
           )}
+
+          {/* Fullscreen toggle */}
+          <button
+            onClick={toggleFullscreen}
+            className="text-white/30 hover:text-white/70 transition-colors"
+            title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          >
+            {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
+          </button>
 
           {/* Global settings gear */}
           <button

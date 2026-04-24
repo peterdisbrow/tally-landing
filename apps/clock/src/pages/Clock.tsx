@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Info, X, Plus, Minus, Type, Globe, Palette, Save, FolderOpen, Trash2, LayoutGrid, Circle } from "lucide-react";
+import { ArrowLeft, Info, X, Plus, Minus, Type, Globe, Palette, Save, FolderOpen, Trash2, LayoutGrid, Circle, Maximize, Minimize } from "lucide-react";
 import AnalogClock from "@/components/clock/AnalogClock";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -149,6 +149,7 @@ const Clock = () => {
   const [showTenths, setShowTenths] = useState(saved?.showTenths ?? false);
   const [showMiniClock, setShowMiniClock] = useState(saved?.showMiniClock ?? false);
   const [showHelp, setShowHelp] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [paused, setPaused] = useState(false);
   const [countdownFrom, setCountdownFrom] = useState(300);
   const [countToTarget, setCountToTarget] = useState<number | null>(null);
@@ -219,6 +220,21 @@ const Clock = () => {
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     };
   }, [resetHideTimer]);
+
+  useEffect(() => {
+    const sync = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", sync);
+    sync();
+    return () => document.removeEventListener("fullscreenchange", sync);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    } else {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  }, []);
 
   // Persist settings on change
   useEffect(() => {
@@ -619,6 +635,14 @@ const Clock = () => {
           title="Toggle analog/digital display"
         >
           <Circle size={22} />
+        </button>
+        {/* Fullscreen toggle */}
+        <button
+          onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
+          className="text-white/30 hover:text-white/70 transition-colors"
+          title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+        >
+          {isFullscreen ? <Minimize size={22} /> : <Maximize size={22} />}
         </button>
         {/* Help */}
         <button
