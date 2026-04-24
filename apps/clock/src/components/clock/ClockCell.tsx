@@ -32,6 +32,7 @@ export type ClockCellConfig = {
   hyperdeckIndex?: number; // which hyperdeck (0-based)
   serviceStartTime?: number; // timestamp for service countdown mode
   sizeScale?: number; // 0.5 to 2.0, default 1.0
+  showSeconds?: boolean; // default true; when false, clock/countup/countdown/countto show HH:MM
 };
 
 const CLOCK_FONTS: ClockFont[] = [
@@ -91,17 +92,24 @@ const getTimeInZone = (date: Date, timezone: string) => {
   return { hours: parseInt(parts[0]) % 24, minutes: parseInt(parts[1]), seconds: parseInt(parts[2]) };
 };
 
-const formatTimer = (totalMs: number) => {
+const formatTimer = (totalMs: number, showSeconds: boolean = true) => {
   const negative = totalMs < 0;
   const abs = Math.abs(totalMs);
   const totalSec = Math.floor(abs / 1000);
-  const ms = Math.floor((abs % 1000) / 10);
   const h = Math.floor(totalSec / 3600);
   const m = Math.floor((totalSec % 3600) / 60);
   const s = totalSec % 60;
-  const text = h > 0
-    ? `${String(h)}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(ms).padStart(2, "0")}`
-    : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(ms).padStart(2, "0")}`;
+  let text: string;
+  if (showSeconds) {
+    const ms = Math.floor((abs % 1000) / 10);
+    text = h > 0
+      ? `${String(h)}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(ms).padStart(2, "0")}`
+      : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(ms).padStart(2, "0")}`;
+  } else {
+    text = h > 0
+      ? `${String(h)}:${String(m).padStart(2, "0")}`
+      : `00:${String(m).padStart(2, "0")}`;
+  }
   return { text, negative };
 };
 
@@ -146,6 +154,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
   const overtimeWarningColor = config.overtimeWarningColor || "#f59e0b";
   const allowOverrun = config.allowOverrun ?? true;
   const hyperdeckIndex = config.hyperdeckIndex ?? 0;
+  const showSeconds = config.showSeconds !== false;
 
   // Ms-precision timer tracking
   const timerStartRef = useRef<number | null>(null);
@@ -359,13 +368,13 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
       subtitleText = `${hdLabel} Offline`;
     }
   } else if (mode === "countup") {
-    const result = formatTimer(timerElapsedMs);
+    const result = formatTimer(timerElapsedMs, showSeconds);
     timeText = result.text; isNegative = result.negative;
     const totalSec = Math.floor(timerElapsedMs / 1000);
     analogHours = Math.floor(totalSec / 3600); analogMinutes = Math.floor((totalSec % 3600) / 60); analogSeconds = totalSec % 60;
   } else if (mode === "countdown") {
     const remainingMs = countdownFrom * 1000 - timerElapsedMs;
-    const result = formatTimer(remainingMs);
+    const result = formatTimer(remainingMs, showSeconds);
     timeText = result.text; isNegative = result.negative;
     const absSec = Math.floor(Math.abs(remainingMs) / 1000);
     analogHours = Math.floor(absSec / 3600); analogMinutes = Math.floor((absSec % 3600) / 60); analogSeconds = absSec % 60;
@@ -374,7 +383,11 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
     isNegative = diffMs < 0;
     const absSec = Math.floor(Math.abs(diffMs) / 1000);
     const h = Math.floor(absSec / 3600); const m = Math.floor((absSec % 3600) / 60); const s = absSec % 60;
-    timeText = h > 0 ? `${String(h)}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}` : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    if (showSeconds) {
+      timeText = h > 0 ? `${String(h)}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}` : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    } else {
+      timeText = h > 0 ? `${String(h)}:${String(m).padStart(2, "0")}` : `00:${String(m).padStart(2, "0")}`;
+    }
     analogHours = h; analogMinutes = m; analogSeconds = s;
   } else {
     const tz = getTimeInZone(now, config.timezone);
@@ -383,7 +396,9 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
     ampm = h >= 12 ? "PM" : "AM";
     if (!config.is24h && h > 12) h -= 12;
     if (!config.is24h && h === 0) h = 12;
-    timeText = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    timeText = showSeconds
+      ? `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+      : `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
   }
 
   const countdownRemainingMs = countdownFrom * 1000 - timerElapsedMs;
@@ -716,12 +731,21 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
               </div>
             )}
 
-            {/* 12/24h */}
-            {mode === "clock" && (
-              <button onClick={() => onUpdate({ ...config, is24h: !config.is24h })}
-                className="px-2 py-1 text-[10px] font-mono border border-white/10 self-start transition-colors"
-                style={{ color: config.clockColor }}
-              >{config.is24h ? "24H → 12H" : "12H → 24H"}</button>
+            {/* 12/24h + Show Seconds */}
+            {(mode === "clock" || mode === "countup" || mode === "countdown" || mode === "countto") && (
+              <div className="flex flex-wrap gap-1 self-start">
+                {mode === "clock" && (
+                  <button onClick={() => onUpdate({ ...config, is24h: !config.is24h })}
+                    className="px-2 py-1 text-[10px] font-mono border border-white/10 transition-colors"
+                    style={{ color: config.clockColor }}
+                  >{config.is24h ? "24H → 12H" : "12H → 24H"}</button>
+                )}
+                <button onClick={() => onUpdate({ ...config, showSeconds: !showSeconds })}
+                  className="px-2 py-1 text-[10px] font-mono border transition-colors"
+                  style={{ color: showSeconds ? config.clockColor : "rgba(255,255,255,0.3)", borderColor: showSeconds ? `${config.clockColor}60` : "rgba(255,255,255,0.1)" }}
+                  title="Toggle seconds display"
+                >Show Seconds: {showSeconds ? "ON" : "OFF"}</button>
+              </div>
             )}
 
             <button onClick={() => setShowSettings(false)}

@@ -10,6 +10,7 @@ import { useTallyConnect } from "@/hooks/useTallyConnect";
 const MULTI_CLOCK_KEY = "broadcast-multi-clocks";
 const MULTI_LAYOUT_KEY = "broadcast-multi-layout";
 const MULTI_SCALE_KEY = "broadcast-multi-scale";
+const FEATURED_HEIGHT_KEY = "broadcast-multi-featured-height";
 
 type LayoutMode = "2x2" | "2x3" | "3x2" | "3x3" | "featured";
 
@@ -22,8 +23,8 @@ const LAYOUTS: { mode: LayoutMode; label: string; max: number; cols: string; row
 ];
 
 const defaultClocks: ClockCellConfig[] = [
-  { id: "1", clockName: "New York", clockColor: "#ef4444", fontName: "dseg7", timezone: "America/New_York", is24h: false },
-  { id: "2", clockName: "London", clockColor: "#22c55e", fontName: "dseg7", timezone: "Europe/London", is24h: true },
+  { id: "1", clockName: "New York", clockColor: "#ef4444", fontName: "dseg7", timezone: "America/New_York", is24h: false, showSeconds: true },
+  { id: "2", clockName: "London", clockColor: "#22c55e", fontName: "dseg7", timezone: "Europe/London", is24h: true, showSeconds: true },
 ];
 
 const loadClocks = (): ClockCellConfig[] => {
@@ -50,6 +51,15 @@ const loadScale = (): number => {
   } catch { return 1; }
 };
 
+const loadFeaturedHeight = (): number => {
+  try {
+    const raw = localStorage.getItem(FEATURED_HEIGHT_KEY);
+    const n = raw ? parseFloat(raw) : 40;
+    if (isNaN(n)) return 40;
+    return Math.max(20, Math.min(80, n));
+  } catch { return 40; }
+};
+
 const MultiClock = () => {
   const {
     isAuthenticated,
@@ -64,11 +74,13 @@ const MultiClock = () => {
   const [clocks, setClocks] = useState<ClockCellConfig[]>(() => loadClocks());
   const [layout, setLayout] = useState<LayoutMode>(() => loadLayout());
   const [globalScale, setGlobalScale] = useState<number>(() => loadScale());
+  const [featuredHeight, setFeaturedHeight] = useState<number>(() => loadFeaturedHeight());
   const [showGlobalSettings, setShowGlobalSettings] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [hovered, setHovered] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const featuredContainerRef = useRef<HTMLDivElement>(null);
 
   const currentLayout = LAYOUTS.find(l => l.mode === layout) || LAYOUTS[0];
 
@@ -108,6 +120,28 @@ const MultiClock = () => {
   }, [globalScale]);
 
   useEffect(() => {
+    localStorage.setItem(FEATURED_HEIGHT_KEY, String(featuredHeight));
+  }, [featuredHeight]);
+
+  const handleFeaturedDividerDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    const container = featuredContainerRef.current;
+    if (!container) return;
+    const onMove = (ev: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      if (rect.height <= 0) return;
+      const pct = ((ev.clientY - rect.top) / rect.height) * 100;
+      setFeaturedHeight(Math.max(20, Math.min(80, pct)));
+    };
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }, []);
+
+  useEffect(() => {
     const sync = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", sync);
     sync();
@@ -139,6 +173,7 @@ const MultiClock = () => {
       fontName: "dseg7",
       timezone: "local",
       is24h: false,
+      showSeconds: true,
     };
     setClocks(prev => [...prev, newClock]);
   }, [clocks.length, currentLayout.max]);
@@ -340,9 +375,9 @@ const MultiClock = () => {
 
       {/* Featured + Grid layout */}
       {layout === "featured" && (
-        <div className="flex-1 flex flex-col gap-1 p-1 pt-12 overflow-hidden">
-          {/* Top 1/3 — featured clock (full width) */}
-          <div className="h-1/3 relative">
+        <div ref={featuredContainerRef} className="flex-1 flex flex-col p-1 pt-12 overflow-hidden">
+          {/* Top — featured clock (full width, resizable height) */}
+          <div className="relative flex-shrink-0" style={{ height: `${featuredHeight}%` }}>
             {clocks.length > 0 ? (
               <div className="relative h-full">
                 <ClockCell
@@ -376,8 +411,18 @@ const MultiClock = () => {
             )}
           </div>
 
-          {/* Bottom 2/3 — grid of remaining clocks */}
-          <div className="flex-1 grid grid-cols-2 gap-1">
+          {/* Drag handle between featured and grid */}
+          <div
+            onMouseDown={handleFeaturedDividerDown}
+            className="h-2 flex-shrink-0 cursor-ns-resize flex items-center justify-center group"
+            style={{ touchAction: "none" }}
+            title="Drag to resize"
+          >
+            <div className="h-px w-16 bg-white/10 group-hover:bg-white/40 transition-colors" />
+          </div>
+
+          {/* Bottom — grid of remaining clocks (fills remaining space) */}
+          <div className="flex-1 min-h-0 grid grid-cols-2 gap-1">
             {clocks.slice(1, currentLayout.max).map((clock, i) => {
               const index = i + 1; // actual array index
               return (
