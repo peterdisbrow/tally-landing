@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "dev:clock": "npm --prefix apps/clock run dev",
+    "build": "npm run build:clock && next build",
+    "build:clock": "npm --prefix apps/clock ci && npm --prefix apps/clock run build",
     "start": "next start",
     "test": "vitest run"
   },
