@@ -62,7 +62,7 @@ const QUESTIONS = [
       { text: "Yes — everything is visible from a single dashboard", score: 3 },
     ],
     riskText: "Production systems are siloed with no unified monitoring",
-    fixText: "Tally connects to 23+ devices (ATEM, OBS, vMix, ProPresenter, audio consoles) in one unified dashboard.",
+    fixText: "Tally connects to 25+ devices (ATEM, OBS, vMix, ProPresenter, audio consoles) in one unified dashboard.",
   },
   {
     category: "Equipment Monitoring",

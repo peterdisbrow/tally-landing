@@ -2,7 +2,7 @@ export const metadata = {
   manifest: '/manifest.json',
   title: 'Tally | Church Streaming Auto-Recovery & Production Monitoring',
   description:
-    'Your stream crashed. Tally already fixed it. Auto-recovery monitoring for church production teams. 23 integrations. Free trial.',
+    'Your stream crashed. Tally already fixed it. Auto-recovery monitoring for church production teams. 25 integrations. Free trial.',
   metadataBase: new URL('https://tallyconnect.app'),
   keywords: [
     'church streaming software',
@@ -19,7 +19,7 @@ export const metadata = {
   openGraph: {
     title: 'Tally | Church Streaming Auto-Recovery & Production Monitoring',
     description:
-      'Your stream crashed. Tally already fixed it. Automatic stream recovery, production monitoring, and AI-powered control for church tech teams. 23 integrations. Free 30-day trial.',
+      'Your stream crashed. Tally already fixed it. Automatic stream recovery, production monitoring, and AI-powered control for church tech teams. 25 integrations. Free 30-day trial.',
     url: 'https://tallyconnect.app',
     siteName: 'Tally',
     locale: 'en_US',
@@ -30,7 +30,7 @@ export const metadata = {
     site: '@tallyconnect',
     title: 'Tally | Church Streaming Auto-Recovery & Production Monitoring',
     description:
-      'Your stream crashed. Tally already fixed it. Auto-recovery monitoring for church production teams. 23 integrations. Free trial.',
+      'Your stream crashed. Tally already fixed it. Auto-recovery monitoring for church production teams. 25 integrations. Free trial.',
     images: ['https://tallyconnect.app/og-image.png'],
   },
   icons: {

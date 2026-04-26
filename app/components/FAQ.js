@@ -5,7 +5,7 @@ import { CARD_BG, BORDER, GREEN, WHITE, MUTED, DIM } from '../../lib/tokens';
 const FAQ_ITEMS = [
   {
     q: 'What equipment does Tally work with?',
-    a: <>ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen &amp; Heath via Companion, Yamaha CL/QL/TF), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Shelly smart plugs, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, Telegram, YouTube Live, and Facebook Live. 23 integrations and counting. <a href="/hardware" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 600 }}>See the full compatibility list &rarr;</a></>,
+    a: <>ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen &amp; Heath via Companion, Yamaha CL/QL/TF), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Shelly smart plugs, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, Telegram, YouTube Live, and Facebook Live. 25 integrations and counting. <a href="/hardware" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 600 }}>See the full compatibility list &rarr;</a></>,
   },
   {
     q: 'What happens if our internet goes down?',

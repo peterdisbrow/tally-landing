@@ -26,7 +26,7 @@ const jsonLd = {
       name: 'Tally',
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'macOS, Windows',
-      description: 'Church production monitoring, rundown planning, AI control, and auto-recovery. Full service rundown planner with live show mode, 7 output views, and collaborative editing. Monitor ATEM, OBS, vMix, audio consoles, encoders, and stream health from anywhere. 23 integrations.',
+      description: 'Church production monitoring, rundown planning, AI control, and auto-recovery. Full service rundown planner with live show mode, 7 output views, and collaborative editing. Monitor ATEM, OBS, vMix, audio consoles, encoders, and stream health from anywhere. 25 integrations.',
       url: 'https://tallyconnect.app',
       offers: {
         '@type': 'AggregateOffer',
@@ -50,7 +50,7 @@ const jsonLd = {
           name: 'What equipment does Tally work with?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen & Heath, Yamaha CL/QL), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Dante audio, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, Telegram, YouTube Live, Facebook Live, and Vimeo Live. 26 integrations and counting.',
+            text: 'ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen & Heath, Yamaha CL/QL/TF), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Shelly smart plugs, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, Telegram, YouTube Live, and Facebook Live. 25 integrations and counting.',
           },
         },
         {
