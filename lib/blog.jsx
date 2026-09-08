@@ -259,7 +259,7 @@ function VolunteerTraining() {
         <li>Who to text if something breaks</li>
         <li>Step-by-step power-down sequence</li>
       </ul>
-      <p style={p}>Keep it to one page. If it's longer, volunteers won't read it. Use screenshots from your actual setup, not generic diagrams.</p>
+      <p style={p}>Keep it to one page. If it's longer, volunteers won't read it. Use screenshots from your actual setup, not generic diagrams. The <a href="/blog/church-service-rundown-booth" style={a}>booth run-of-show guide</a> is a fuller template if you need clock times and stream-state rows.</p>
 
       <h2 style={h2}>Build a Troubleshooting Triage</h2>
       <p style={p}>When something goes wrong during service, volunteers panic. Give them a simple decision tree:</p>
@@ -298,7 +298,7 @@ function StreamingTroubleshooting() {
       <h2 style={h2}>1. Stream Dropped Mid-Service</h2>
       <p style={p}><strong style={strong}>Symptoms:</strong> Viewers see a frozen frame or "stream offline" message. Your encoder (OBS/vMix/hardware) may still show it's "live."</p>
       <p style={p}><strong style={strong}>Fix:</strong> Restart the stream in OBS (Stop Streaming → Start Streaming). If using an ATEM Mini Pro, press the ON AIR button off and back on. Check your internet connection — plug directly into the router if you're on a switch that might have lost link.</p>
-      <p style={p}><strong style={strong}>Prevention:</strong> <a href="/signup" style={a}>Tally detects stream drops within seconds</a> and can auto-restart your encoder before viewers notice.</p>
+      <p style={p}><strong style={strong}>Prevention:</strong> <a href="/signup" style={a}>Tally detects stream drops within seconds</a> and can auto-restart your encoder before viewers notice. For the in-service order of operations, use the <a href="/blog/church-stream-dropped-mid-sermon" style={a}>mid-sermon playbook</a>.</p>
 
       <h2 style={h2}>2. No Audio on the Stream</h2>
       <p style={p}><strong style={strong}>Symptoms:</strong> Video looks fine, but viewers hear nothing (or only hear room noise from a camera mic).</p>
@@ -317,7 +317,7 @@ function StreamingTroubleshooting() {
       <h2 style={h2}>5. OBS Crashes or Freezes</h2>
       <p style={p}><strong style={strong}>Symptoms:</strong> OBS window goes unresponsive, or the application closes entirely. Stream goes offline.</p>
       <p style={p}><strong style={strong}>Fix:</strong> Restart OBS and click "Start Streaming" again. If it happens repeatedly, check your computer's CPU and RAM usage — OBS may be running out of resources. Disable any browser sources you don't need. Lower your output resolution from 1080p to 720p.</p>
-      <p style={p}><strong style={strong}>Prevention:</strong> Keep the streaming computer dedicated to streaming. Don't run presentation software, email, or web browsers on the same machine.</p>
+      <p style={p}><strong style={strong}>Prevention:</strong> Keep the streaming computer dedicated to streaming. Don't run presentation software, email, or web browsers on the same machine. See <a href="/blog/obs-church-streaming-crash-recovery" style={a}>OBS crash recovery for church</a> for settings and a restart order.</p>
 
       <h2 style={h2}>6. ATEM Disconnects from Network</h2>
       <p style={p}><strong style={strong}>Symptoms:</strong> ATEM Software Control says "searching for switcher." Remote control stops working. The ATEM itself still works locally.</p>
@@ -748,8 +748,509 @@ function ChurchAudioStreaming() {
   );
 }
 
+/* ── Post 11 ── */
+function StreamFirstTenMinutes() {
+  return (
+    <>
+      <p style={p}>Most church stream failures happen before the sermon starts. The first ten minutes after you go live are when keys fail, audio is muted, bitrate collapses, and nobody is watching the encoder because they are still seating ushers.</p>
+      <p style={p}>A short pre-service checklist — run the same way every Sunday — catches those failures while there is still time to fix them. This is the booth version: what to check, in what order, and what “good” looks like.</p>
+
+      <h2 style={h2}>Why the First Ten Minutes Are Fragile</h2>
+      <p style={p}>The booth is busiest right when the stream is most fragile. Worship is starting, cameras are moving, and the encoder has just connected to YouTube or Facebook. That is also when these failures cluster:</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Stale stream key</strong> — The platform reset it, or last week’s private rehearsal key is still pasted in.</li>
+        <li><strong style={strong}>Silent first song</strong> — Aux send is down, ATEM audio is muted, or OBS is still on the camera mic.</li>
+        <li><strong style={strong}>Bitrate never climbs</strong> — The encoder connected, but upload is saturated by lobby Wi-Fi or a Windows update.</li>
+        <li><strong style={strong}>Wrong scene / black input</strong> — HDMI woke up late. Program is a black frame for the first two minutes.</li>
+        <li><strong style={strong}>Nobody is watching the stream</strong> — The only confirmation is a green “LIVE” badge on the encoder, which can lie.</li>
+      </ul>
+      <blockquote style={bq}>A stream that looks “live” on the encoder and is silent or black on the platform is already a failure. Confirm on a phone that is not on the church Wi-Fi.</blockquote>
+
+      <h2 style={h2}>T-30 to T-0: The Same Sequence Every Week</h2>
+      <p style={p}>Print this. Laminate it. Do not invent a new order when you are late.</p>
+
+      <h3 style={h3}>30 minutes out — Power and network</h3>
+      <ol style={ol}>
+        <li>Power the switcher, cameras, audio interface, and encoder in the documented order. Wait for each one to finish booting before you move on.</li>
+        <li>Confirm the AV switch has link lights. Ping the ATEM and encoder if you have a terminal handy.</li>
+        <li>Open the streaming software. Confirm the destination and stream key match this week’s event — not last week’s rehearsal.</li>
+      </ol>
+
+      <h3 style={h3}>15 minutes out — Picture and sound</h3>
+      <ol style={ol}>
+        <li>Frame cameras on their Sunday presets. Switch each input on the ATEM and confirm it is not black.</li>
+        <li>Send tone or a spoken mic through the stream mix. Watch meters on the board, the ATEM, and OBS. All three should move.</li>
+        <li>Start a 20-second test stream (unlisted or a test key). Watch it on a phone on cellular. Confirm video, audio, and lip sync, then stop it.</li>
+      </ol>
+
+      <h3 style={h3}>5 minutes out — Go-live gate</h3>
+      <ol style={ol}>
+        <li>Clear the test stream. Confirm the real event is selected on YouTube / Facebook / Vimeo.</li>
+        <li>Confirm recording is armed (USB on the ATEM, or the OBS recording path has free space).</li>
+        <li>Assign one person — not the camera op — to watch the public stream for the first two songs.</li>
+      </ol>
+
+      <h2 style={h2}>The 10-Minute Watch After You Go Live</h2>
+      <p style={p}>Going live is not the finish line. For the next ten minutes, that assigned person checks three things on a phone:</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Picture</strong> — Not black, not a frozen frame, not the wrong scene.</li>
+        <li><strong style={strong}>Sound</strong> — Vocals present, no echo from a second mic, no clipping.</li>
+        <li><strong style={strong}>Stability</strong> — Bitrate holds near your target (for most churches, 4,000–6,000 kbps at 1080p). If it keeps diving under 2,000, you have an upload problem.</li>
+      </ul>
+      <p style={p}>If any of those fail, fix it immediately — do not wait for the sermon. Restart the encoder, unmute the aux, or drop bitrate. The <a href="/blog/church-streaming-troubleshooting" style={a}>troubleshooting guide</a> covers the common repairs; the point here is to notice the problem while the room is still settling.</p>
+
+      <h2 style={h2}>What “Good” Looks Like on Paper</h2>
+      <p style={p}>A useful checklist is specific to your booth. Fill in the blanks once, then stop rewriting it every week:</p>
+      <ul style={ul}>
+        <li>ATEM IP: ________ (static — see the <a href="/blog/church-av-network-setup-guide" style={a}>AV network guide</a>)</li>
+        <li>Encoder / OBS machine: ________</li>
+        <li>Stream target: ________ kbps, 1080p, wired ethernet only</li>
+        <li>Audio path: board aux → ________ → ATEM / OBS</li>
+        <li>Who watches the first 10 minutes: ________</li>
+        <li>Who to text if it is red: ________</li>
+      </ul>
+      <p style={p}>If a volunteer cannot finish this list without you, the list is not done yet. Pair it with the <a href="/blog/church-production-volunteer-training" style={a}>volunteer training playbook</a> so the same person is not the only one who knows the sequence.</p>
+
+      <h2 style={h2}>The Failure You Cannot See From the Booth</h2>
+      <p style={p}>The booth monitors program. They do not tell you whether YouTube is actually ingesting. A phone in the lobby on church Wi-Fi is also a weak check — it often shares the same congested uplink.</p>
+      <p style={p}>Use cellular, or a monitor that reads encoder health and platform status. <a href="/signup" style={a}>Tally</a> runs a device check about 30 minutes before the scheduled service and watches bitrate, audio presence, and stream health after you go live. If the first song is silent or the ingest drops, the on-call TD gets a Slack or Telegram alert instead of a text 20 minutes later.</p>
+
+      <h2 style={h2}>Sunday Takeaway</h2>
+      <p style={p}>Pick one person. Give them this list. Have them watch the public stream for ten minutes after go-live, every week, even when nothing is wrong. The weeks nothing is wrong are how you find the weeks something is.</p>
+      <p style={p}>If you want that first-ten-minutes watch to happen even when the assigned volunteer is late, <a href="/signup" style={a}>start a free Tally trial</a> and put the pre-service check on a schedule.</p>
+    </>
+  );
+}
+
+/* ── Post 12 ── */
+function StreamDroppedMidSermon() {
+  return (
+    <>
+      <p style={p}>The pastor is 12 minutes into the sermon and a text comes in: “Stream is offline.” Do not rebuild the booth. Do not explain RTMP to the room. You need a short playbook that gets picture and sound back, then a debrief after amen.</p>
+      <p style={p}>This is the mid-service incident path — what to do in the first 60 seconds, what to try next, and what to leave alone until the service ends.</p>
+
+      <h2 style={h2}>First 60 Seconds: Confirm, Then Restart</h2>
+      <p style={p}>One person talks. Everyone else stays on their job (cameras, lyrics, audio). Panic is a second outage.</p>
+      <ol style={ol}>
+        <li><strong style={strong}>Confirm on the platform, not the encoder.</strong> Open YouTube Studio or Facebook Live Producer on a phone. Frozen preview plus “offline” is real. A green OBS button with a dead platform is still a real outage.</li>
+        <li><strong style={strong}>Tell the room once.</strong> If you have comms: “Stream is down. Restarting. Do not change cameras.” If you do not have comms, a sticky note on the confidence monitor is enough. The pastor does not need a play-by-play.</li>
+        <li><strong style={strong}>Restart the stream only.</strong> In OBS: Stop Streaming → wait 5 seconds → Start Streaming. On an ATEM Mini Pro: ON AIR off, then on. On a hardware encoder: stop / start the publish, not a full reboot — yet.</li>
+      </ol>
+      <p style={p}>Most mid-sermon drops come back on that first restart. Watch the platform for 20–30 seconds. If viewers return, stay put. Do not keep clicking.</p>
+
+      <h2 style={h2}>If the Restart Does Not Hold</h2>
+      <p style={p}>Work the chain from the internet toward the camera. Change one thing at a time.</p>
+
+      <h3 style={h3}>1. Upload path</h3>
+      <ul style={ul}>
+        <li>Confirm the ethernet link light on the encoder. If you are on Wi-Fi, you already found the problem — plug in if a cable exists.</li>
+        <li>Drop bitrate one step (6,000 → 4,500 → 3,000 kbps) and start again. A stream that holds at 3,000 is better than one that dies at 6,000.</li>
+        <li>Close anything else using the uplink: lobby livestream on a laptop, cloud backup, a phone hotspot sharing the same modem.</li>
+      </ul>
+
+      <h3 style={h3}>2. Encoder</h3>
+      <ul style={ul}>
+        <li>If OBS is frozen, force-quit and reopen. Start streaming before you restore extra browser sources.</li>
+        <li>If a Teradek, YoloBox, or AJA HELO will not republish, power-cycle that box only. Leave the ATEM and the soundboard running.</li>
+        <li>Confirm the stream key did not change. A mid-service “invalid key” usually means someone opened the wrong event on a phone.</li>
+      </ul>
+
+      <h3 style={h3}>3. Picture and sound into the encoder</h3>
+      <ul style={ul}>
+        <li>If the encoder is live but the platform is black, cut to a known-good camera. Troubleshoot the dead input after service.</li>
+        <li>If the platform is live but silent, check the board aux and the ATEM audio mixer — not the pastor’s handheld. See the <a href="/blog/church-audio-live-streaming-guide" style={a}>stream mix guide</a>.</li>
+      </ul>
+      <p style={p}>The longer <a href="/blog/church-streaming-troubleshooting" style={a}>10-problem troubleshooting list</a> is for after you have picture back. During the sermon, your only job is a stable encode.</p>
+
+      <h2 style={h2}>What Not to Do While the Pastor Is Talking</h2>
+      <ul style={ul}>
+        <li><strong style={strong}>Do not reboot the ATEM</strong> unless program is already dead in the room. A switcher reboot drops IMAG and the stream together.</li>
+        <li><strong style={strong}>Do not “fix” ProPresenter</strong> unless lyrics are the outage. A crash-restart of slides in the middle of a point is a second incident.</li>
+        <li><strong style={strong}>Do not announce it from the stage</strong> unless the outage will last the rest of the service. Online viewers already know. The room does not need to.</li>
+        <li><strong style={strong}>Do not keep a failed destination open.</strong> If YouTube will not ingest after two clean restarts, start a new event or fail over to the backup destination you already tested. Do not invent a new platform on the fly.</li>
+      </ul>
+
+      <h2 style={h2}>Roles So One Volunteer Is Not the Whole Plan</h2>
+      <p style={p}>Write three names on the run sheet. If a name is empty, that is the real risk — not the encoder.</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Booth lead</strong> — Restarts the encoder. Speaks on comms.</li>
+        <li><strong style={strong}>Watcher</strong> — Stays on the public stream (cellular if possible) and says when it is actually back.</li>
+        <li><strong style={strong}>On-call TD</strong> — Gets the text / Slack / Telegram. Decides whether to walk to the booth or talk someone through it.</li>
+      </ul>
+      <p style={p}>If the TD is in the congregation, they should not learn about the outage from a Facebook comment. That is an alerts problem, not a courage problem. <a href="/signup" style={a}>Tally</a> watches ingest and encoder health and can restart OBS, vMix, or a hardware encoder after it confirms a real drop — then notifies Slack or Telegram with what it did.</p>
+
+      <h2 style={h2}>After Amen: 10-Minute Debrief</h2>
+      <p style={p}>Write four lines before anyone powers down:</p>
+      <ol style={ol}>
+        <li>What viewers saw (black, freeze, silent, offline).</li>
+        <li>What you changed (stop/start, bitrate, power cycle, new event).</li>
+        <li>When it returned (or did not).</li>
+        <li>What you will test on Tuesday (cable, ISP, stream key process, backup destination).</li>
+      </ol>
+      <p style={p}>If this was a holiday or a one-time overflow venue, a 72-hour Event monitor ($99) is enough to cover rehearsal through the last service. Do not buy a new encoder to avoid writing the debrief.</p>
+
+      <h2 style={h2}>Sunday Takeaway</h2>
+      <p style={p}>Confirm on the platform. Restart once. Drop bitrate if it will not hold. Leave the switcher and the sermon alone. Write down what happened before you shut the rack off.</p>
+      <p style={p}>If you want the restart to happen before the text thread starts, <a href="/signup" style={a}>try Tally on a free trial</a> and set recovery to auto-restart after a verified drop.</p>
+    </>
+  );
+}
+
+/* ── Post 13 ── */
+function OBSChurchCrashRecovery() {
+  return (
+    <>
+      <p style={p}>OBS is free, flexible, and in a lot of church booths. It is also a desktop app sharing a machine with ProPresenter, Chrome, and last night’s Windows update. When it freezes on Sunday, you need a recovery path that does not require a forum thread.</p>
+      <p style={p}>This guide is what to watch before service, how to come back from a crash mid-stream, and which OBS settings actually matter in a sanctuary — not a gaming PC.</p>
+
+      <h2 style={h2}>Give OBS a Boring Computer</h2>
+      <p style={p}>The highest-leverage OBS change is not a plugin. It is a dedicated machine.</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Streaming computer does one job.</strong> No email, no Planning Center in Chrome, no lyric software on the same box if you can avoid it.</li>
+        <li><strong style={strong}>Never sleep. Never auto-update during the service window.</strong> Pause Windows Update, turn off macOS automatic restarts, disable “put hard disks to sleep.”</li>
+        <li><strong style={strong}>Wired ethernet only.</strong> OBS on Wi-Fi will look fine in rehearsal and fail when 200 phones join the lobby network.</li>
+        <li><strong style={strong}>Close browser sources you are not using.</strong> A hidden browser source still burns CPU. Duplicate docks and leftover scoreboard URLs are a common Sunday crash.</li>
+      </ul>
+      <p style={p}>If you must run ProPresenter and OBS on one computer, treat that as a known risk: lower canvas resolution, and have a hardware encoder or ATEM Mini Pro as the backup path. The <a href="/blog/church-live-stream-setup-guide" style={a}>live stream setup guide</a> covers that split.</p>
+
+      <h2 style={h2}>Settings That Keep Church Streams Alive</h2>
+      <p style={p}>Open Settings and lock these in once. Volunteers should not discover them at 10:54.</p>
+
+      <h3 style={h3}>Output</h3>
+      <ul style={ul}>
+        <li><strong style={strong}>Encoder:</strong> Hardware (NVENC, QuickSync, or Apple VT) if the GPU exists. x264 on a tired laptop is how you get a slideshow.</li>
+        <li><strong style={strong}>Rate control:</strong> CBR. Churches need a predictable uplink, not a quality spike during the loudest song.</li>
+        <li><strong style={strong}>Bitrate:</strong> Start at 4,500 kbps for 1080p30. Only go to 6,000 if a Sunday speed test shows at least 12 Mbps upload with headroom.</li>
+        <li><strong style={strong}>Keyframe interval:</strong> 2 seconds. Platforms expect it. Longer intervals make a reconnect look broken for longer.</li>
+      </ul>
+
+      <h3 style={h3}>Advanced</h3>
+      <ul style={ul}>
+        <li>Enable <strong style={strong}>Dynamically change bitrate</strong> only if your ISP is unstable and you have already dropped the target. It is a safety net, not a substitute for ethernet.</li>
+        <li>Set a <strong style={strong}>reconnect</strong> timeout you will actually wait through — 10 seconds is enough. Do not stack three destinations that all retry forever on a dead uplink.</li>
+        <li>Recording path on a different drive than the OS if you record locally. A full C: drive kills OBS and the stream together.</li>
+      </ul>
+
+      <h2 style={h2}>What to Watch While You Are Live</h2>
+      <p style={p}>The OBS status bar is the booth instrument cluster. Glance at it the way you glance at audio meters:</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Dropped frames (network)</strong> — Climbing numbers mean the uplink, not the sermon. Drop bitrate or find the machine using the WAN.</li>
+        <li><strong style={strong}>Skipped frames (encoding)</strong> — The computer cannot encode in time. Kill browser sources, switch to hardware encode, or drop to 720p.</li>
+        <li><strong style={strong}>CPU</strong> — Sustained 80%+ is a crash preview. Something else is running.</li>
+        <li><strong style={strong}>Audio meters</strong> — If they freeze, OBS is frozen even if the preview still shows a last frame.</li>
+      </ul>
+      <blockquote style={bq}>A still preview is not proof of life. Confirm the platform ingest or an encoder health view. The preview can sit on the last good frame after the process has wedged.</blockquote>
+
+      <h2 style={h2}>Crash Recovery Without Making It Worse</h2>
+      <ol style={ol}>
+        <li>Wait five seconds. If the window is “Not Responding,” do not keep clicking Start Streaming.</li>
+        <li>Force-quit OBS. Reopen it. It should reload the last scene collection.</li>
+        <li>Check audio meters first. Then Start Streaming. Then Start Recording if you use it.</li>
+        <li>Confirm on the platform (phone, cellular). If the event ended, start the same event again or a new one — do not paste a second key into a still-open session.</li>
+        <li>Leave extra docks and browser sources off until the encode is stable.</li>
+      </ol>
+      <p style={p}>If OBS crashes twice in one service, fail over. ATEM Mini Pro ethernet stream, a Teradek, or a YoloBox that is already keyed is better than a third reboot. After service, check the crash report in Help → Crash Reports and the Windows Reliability Monitor. Repeated crashes after an OS update are usually the update.</p>
+
+      <h2 style={h2}>A Small Scene Collection Beats a Clever One</h2>
+      <p style={p}>Church OBS scenes fail when they try to be a TV truck:</p>
+      <ul style={ul}>
+        <li>One <strong style={strong}>Program</strong> scene that receives the ATEM (or the single camera).</li>
+        <li>One <strong style={strong}>Holding / countdown</strong> scene.</li>
+        <li>One <strong style={strong}>Lower-third or lyrics</strong> scene if you key in OBS instead of the ATEM.</li>
+        <li>No nested collections, no weekly “Easter 2019 leftover,” no untested plugin.</li>
+      </ul>
+      <p style={p}>Export the profile and scene collection after a good Sunday. That file is the restore path when a volunteer “cleaned up” the scenes. Store it next to the <a href="/blog/church-stream-first-10-minutes-checklist" style={a}>pre-service checklist</a>.</p>
+
+      <h2 style={h2}>When a Reliability Layer Helps</h2>
+      <p style={p}>OBS will not page you when it dies. Someone has to be looking. <a href="/signup" style={a}>Tally</a> watches OBS status, CPU, bitrate, and whether the stream is actually up. If the process exits or ingest drops, it can restart the stream and send Slack or Telegram with the diagnosis so the TD is not guessing from the pew.</p>
+      <p style={p}>That does not replace a dedicated machine. It replaces hoping a volunteer notices the status bar.</p>
+
+      <h2 style={h2}>Sunday Takeaway</h2>
+      <p style={p}>Dedicated PC, CBR, hardware encode, 2-second keyframes, one person watching dropped frames. If OBS wedges: force-quit, start stream, confirm on the platform, stop adding sources.</p>
+      <p style={p}><a href="/signup" style={a}>Start a free trial of Tally</a> if you want OBS health on the same dashboard as the ATEM.</p>
+    </>
+  );
+}
+
+/* ── Post 14 ── */
+function EncoderRtmpReliability() {
+  return (
+    <>
+      <p style={p}>Your switcher can be perfect and the stream still dies. The encoder — OBS, a Teradek, YoloBox, Epiphan, or an AJA HELO — is the device that has to keep an RTMP session alive for 70 minutes on a church uplink that was never designed for that.</p>
+      <p style={p}>This is a reliability guide: bitrate math, reconnect behavior, and how to know the encoder failed before viewers start commenting.</p>
+
+      <h2 style={h2}>RTMP Is a Long Handshake, Not a File Upload</h2>
+      <p style={p}>RTMP (and the SRT/RTMPS variants many boxes now speak) is a persistent connection. If the session drops, viewers do not get a graceful “we will be right back” unless you built one. They get a freeze, then offline.</p>
+      <ul style={ul}>
+        <li><strong style={strong}>The platform must keep receiving packets.</strong> A 15-second gap is often enough for YouTube to end the event.</li>
+        <li><strong style={strong}>Reconnect is not instant.</strong> DNS, auth, and keyframe wait can take 10–30 seconds even when the box says “live.”</li>
+        <li><strong style={strong}>Two destinations double the failure modes.</strong> Dual-streaming to YouTube and Facebook from one box is fine only if the uplink can carry both bitrates plus 50% headroom.</li>
+      </ul>
+
+      <h2 style={h2}>Bitrate: Pick a Number You Can Defend</h2>
+      <p style={p}>Run a wired speed test from the encoder network — not a phone on guest Wi-Fi — on a Sunday-shaped morning (lobby already filling). Then:</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Available upload ÷ 2 = your max total encode.</strong> If the test says 20 Mbps, you do not get a 12 Mbps stream. You get ~8–10 Mbps of total encode, split across destinations.</li>
+        <li><strong style={strong}>1080p30 church speech:</strong> 4,000–6,000 kbps is enough. Going to 8,000 rarely looks better on a phone and fails more often.</li>
+        <li><strong style={strong}>720p30:</strong> 2,500–4,000 kbps. Use this when the ISP is the weak link, not when you are ashamed of 720.</li>
+        <li><strong style={strong}>CBR, not VBR,</strong> on hardware encoders that offer both. Worship dynamics plus VBR is how you spike the modem during the loudest chorus.</li>
+      </ul>
+      <p style={p}>Write the target bitrate on the encoder and in the booth checklist. Volunteers should not “turn it up because it looked soft last week.” Soft is a lighting and camera problem. See the <a href="/blog/best-ptz-cameras-for-church" style={a}>PTZ guide</a> before you tax the WAN.</p>
+
+      <h2 style={h2}>Hardware vs Software: Failure Modes Differ</h2>
+      <h3 style={h3}>Software (OBS, vMix, Ecamm)</h3>
+      <p style={p}>Fails when the OS is busy. You get skipped frames, a frozen UI, or a process exit. Recovery is restart the app and republish. Keep a <a href="/blog/obs-church-streaming-crash-recovery" style={a}>crash path for OBS</a> on the wall.</p>
+
+      <h3 style={h3}>Hardware (Teradek, YoloBox, Epiphan, AJA HELO, ATEM Mini Pro)</h3>
+      <p style={p}>Fails when the session drops and the box sits on a stale “connected” state, or when the HDMI input blinks and the encode keeps sending black. Recovery is often:</p>
+      <ol style={ol}>
+        <li>Stop / start the publish (do not reboot first).</li>
+        <li>Confirm the destination URL and key — especially after a firmware update that cleared presets.</li>
+        <li>Power-cycle the encoder only if stop/start failed twice. Leave the switcher up.</li>
+      </ol>
+      <p style={p}>Give every hardware encoder a static IP and a label on the rack. If you cannot open its web UI from the booth PC, you cannot fix it from the pew either. The <a href="/blog/church-av-network-setup-guide" style={a}>AV network setup guide</a> is the prerequisite.</p>
+
+      <h2 style={h2}>Reconnect Settings Worth Setting Once</h2>
+      <ul style={ul}>
+        <li><strong style={strong}>Auto-reconnect on.</strong> Off is how a 4-second ISP blip becomes a 40-minute outage.</li>
+        <li><strong style={strong}>Limited retries.</strong> Infinite retry on a dead key just delays the moment you notice.</li>
+        <li><strong style={strong}>Backup destination.</strong> A second RTMP target (even unlisted YouTube) that you tested on a weeknight. Mid-service is a bad time to create a Facebook Live identity.</li>
+        <li><strong style={strong}>Bonding / dual-SIM</strong> on Teradek-class units only if you have actually failed the primary WAN in rehearsal. An untested bonded path is a second unknown.</li>
+      </ul>
+
+      <h2 style={h2}>How You Know the Encoder Failed</h2>
+      <p style={p}>Do not trust a glowing LED. Check, in this order:</p>
+      <ol style={ol}>
+        <li>Platform ingest (Studio / Live Producer) — seconds of delay, but it is ground truth for viewers.</li>
+        <li>Encoder stats — bitrate, dropped packets, last keyframe. If bitrate is 0 and the LED is green, believe the number.</li>
+        <li>Input lock — HDMI/SDI “unlocked” means you are encoding black.</li>
+      </ol>
+      <p style={p}><a href="/signup" style={a}>Tally</a> reads those encoder metrics (OBS, vMix, and hardware boxes including Teradek, YoloBox, Epiphan, and AJA HELO) with green/yellow/red thresholds. When bitrate falls off or the session ends, it can restart the publish and alert Slack or Telegram instead of waiting for a comment.</p>
+
+      <h2 style={h2}>A Simple Encoder Standard</h2>
+      <ul style={ul}>
+        <li>One primary encoder, one documented backup path.</li>
+        <li>Same destination names and key storage location every week (password manager, not a text file on the desktop).</li>
+        <li>Firmware updates on Tuesday, never Saturday night.</li>
+        <li>A recorded 10-minute encode to disk every month so you know the box still writes files if the WAN dies.</li>
+      </ul>
+      <p style={p}>Special services (Easter, Christmas, a conference in the gym) are when you add a second encoder, not when you change brands. If you only need coverage for that weekend, Event monitoring is $99 for 72 hours — cheaper than a panic-buy that nobody can configure at 11 p.m.</p>
+
+      <h2 style={h2}>Sunday Takeaway</h2>
+      <p style={p}>Half your measured upload is your bitrate budget. CBR. Auto-reconnect on. Confirm ingest, not LEDs. Power-cycle the encoder last, not first.</p>
+      <p style={p}><a href="/signup" style={a}>Start a free Tally trial</a> to put encoder bitrate and stream health next to the rest of the booth.</p>
+    </>
+  );
+}
+
+/* ── Post 15 ── */
+function ServiceRundownBooth() {
+  return (
+    <>
+      <p style={p}>A Planning Center plan tells the room what happens next. The booth needs a different document: when to cut, when to roll the stream, when lyrics come down, and who speaks if something breaks. That is a run of show — not a sermon outline.</p>
+      <p style={p}>Build one page the volunteer can follow with a finger. Then run it the same way every Sunday so the stream and the room stay in the same service.</p>
+
+      <h2 style={h2}>What Belongs on a Booth Rundown</h2>
+      <p style={p}>If a row does not change a button, a camera, or a stream state, it does not belong here. Keep the pastor’s notes in Planning Center.</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Clock time</strong> — Hard starts only (10:00 welcome, 10:24 sermon). Soft song lengths stay as “~4 min,” not fake precision.</li>
+        <li><strong style={strong}>Program look</strong> — Wide, pastor close-up, lyrics key, full-screen graphic, announcement loop.</li>
+        <li><strong style={strong}>Stream state</strong> — Countdown, go live, holding slide, stop. Write the go-live row in bold. That is the row people miss.</li>
+        <li><strong style={strong}>Audio note</strong> — Worship aux vs sermon (ambient mics down). One line is enough.</li>
+        <li><strong style={strong}>Owner</strong> — Initials. A row with no owner is how two people cut at once.</li>
+      </ul>
+
+      <h2 style={h2}>A Service That Fits on One Page</h2>
+      <p style={p}>Adapt the times. Do not add a second page until this one is boring.</p>
+      <ol style={ol}>
+        <li><strong style={strong}>9:30</strong> — Power-on and <a href="/blog/church-stream-first-10-minutes-checklist" style={a}>pre-service checks</a>. Stream is not live.</li>
+        <li><strong style={strong}>9:50</strong> — Countdown / welcome loop on program. Cameras on presets. Stream still not live unless you publish the countdown on purpose.</li>
+        <li><strong style={strong}>9:58</strong> — Go live. Watcher on cellular for picture and sound.</li>
+        <li><strong style={strong}>10:00</strong> — Welcome. Wide shot. Lyrics key off.</li>
+        <li><strong style={strong}>10:04</strong> — Worship. Wide + lyrics key (or ProPresenter input). See the <a href="/blog/propresenter-atem-integration-guide" style={a}>ProPresenter + ATEM guide</a> if that key is still a weekly fight.</li>
+        <li><strong style={strong}>10:22</strong> — Seat / transition. Key off. Hold wide.</li>
+        <li><strong style={strong}>10:24</strong> — Sermon. Pastor close-up. Ambient mics down. No surprise graphics unless they are on the plan.</li>
+        <li><strong style={strong}>After amen</strong> — Closing song look. Then holding slide. Stop stream. Stop record. Do not power-cycle until files are saved.</li>
+      </ol>
+      <blockquote style={bq}>If the booth rundown and the Planning Center order disagree, Planning Center wins for the room — and you update the booth page on Tuesday, not during the welcome.</blockquote>
+
+      <h2 style={h2}>Cues Volunteers Can Hit Under Pressure</h2>
+      <p style={p}>Translate “looks” into the buttons you actually have:</p>
+      <ul style={ul}>
+        <li><strong style={strong}>ATEM macros</strong> named Worship, Sermon, Announcements — not Macro 3.</li>
+        <li><strong style={strong}>Companion pages</strong> that match those names if you use a Stream Deck. One button, one look.</li>
+        <li><strong style={strong}>ProPresenter look + ATEM input</strong> as a single cue, not two people counting down “three, two, one.”</li>
+      </ul>
+      <p style={p}>The volunteer should be able to run the service by moving down the page and pressing the named button for that row. If they need a paragraph of explanation, the cue is too clever.</p>
+
+      <h2 style={h2}>Timing Without a Stopwatch Cult</h2>
+      <p style={p}>Services run long. The rundown still helps:</p>
+      <ul style={ul}>
+        <li>Mark <strong style={strong}>hard starts</strong> (sermon, baptism, dismissal) and let worship flex.</li>
+        <li>Put a <strong style={strong}>latest go-live</strong> time on the page. If you are not live by then, the watcher says so out loud.</li>
+        <li>After service, jot actual times in the margin once. Three weeks of margins tell you whether the sermon start is fantasy.</li>
+      </ul>
+      <p style={p}>If you already build the order in a doc, you do not have to retype it. Tally’s rundown planner can import a PDF or Word file and run live show mode with elapsed / remaining timers — useful when the booth and a confidence monitor need the same clock. Use it if it replaces a spreadsheet you already fight. Do not add a third plan.</p>
+
+      <h2 style={h2}>When the Plan Breaks Mid-Service</h2>
+      <p style={p}>The rundown is not in charge of incidents. Point to the <a href="/blog/church-stream-dropped-mid-sermon" style={a}>mid-sermon playbook</a> in the footer of the page:</p>
+      <ul style={ul}>
+        <li>Stream offline → restart encoder, do not rebuild the rundown.</li>
+        <li>Dead camera → cut to the wide you already have. Stay on the current row.</li>
+        <li>Skipped song → skip the row. Do not invent a new look.</li>
+      </ul>
+      <p style={p}>Autopilot — advancing looks on a timer — only helps if the room is actually following that clock. Start with manual GO / Back and one trained lead. Add timer-advance later for the predictable stretches (countdown, sermon hold), not for worship.</p>
+
+      <h2 style={h2}>Sunday Takeaway</h2>
+      <p style={p}>One page. Clock, look, stream state, owner. Named macros, not essays. Update it on Tuesday when it disagrees with Planning Center.</p>
+      <p style={p}>If you want that rundown on the same system that already watches the encoder, <a href="/signup" style={a}>try Tally</a> and use the planner for the booth clock — not as a second source of truth.</p>
+    </>
+  );
+}
+
+/* ── Post 16 ── */
+function CompanionBoothReliability() {
+  return (
+    <>
+      <p style={p}>Bitfocus Companion turns a Stream Deck into the church booth’s muscle memory: one button for the worship look, one for sermon, one to start the stream. It also becomes a single point of failure if the machine sleeps, the page is unnamed, or nobody knows what the red button does.</p>
+      <p style={p}>Treat Companion like part of the signal path. This is how to keep it useful on Sunday without turning the deck into a second job.</p>
+
+      <h2 style={h2}>What Companion Should Do in a Church Booth</h2>
+      <p style={p}>Companion is a translator. It should fire the same actions you already trust in ATEM, OBS, ProPresenter, and the audio console — not invent a parallel show.</p>
+      <ul style={ul}>
+        <li><strong style={strong}>Looks, not novelty.</strong> Worship (wide + lyrics key), Sermon (close-up, key off), Announcements (graphic), Emergency wide.</li>
+        <li><strong style={strong}>Stream start / stop</strong> on a page that requires a long press or a confirm button. Accidental “Stop Streaming” during the sermon is a real outage.</li>
+        <li><strong style={strong}>PTZ presets</strong> you already named on the camera. Companion should recall “Pastor Close,” not “Preset 7.”</li>
+        <li><strong style={strong}>Mute / unmute stream mix</strong> only if FOH has agreed. A deck mute the board does not know about will create a silent stream you cannot explain.</li>
+      </ul>
+      <p style={p}>If a button does not map to a row on the <a href="/blog/church-service-rundown-booth" style={a}>booth rundown</a>, it does not belong on the Sunday page.</p>
+
+      <h2 style={h2}>Build a Sunday Page That Survives Volunteers</h2>
+      <ol style={ol}>
+        <li><strong style={strong}>One page named Sunday.</strong> Everything else lives on Setup or Rehearsal pages. Volunteers should never see your experimental MIDI page.</li>
+        <li><strong style={strong}>Labels in the language of the service.</strong> “Sermon,” not “Cam2 + DSK off + Macro 4.”</li>
+        <li><strong style={strong}>Color = state.</strong> Green idle, yellow armed, red live / dangerous. Pick a rule and keep it.</li>
+        <li><strong style={strong}>A documented safe button.</strong> Wide shot, lyrics off, stream still live. When someone hits the wrong look, they go here — not into menus.</li>
+        <li><strong style={strong}>Export the config after every good change.</strong> Companion → Settings → Export. Date the file. That export is your rewind when a firmware update or a helpful intern resets the deck.</li>
+      </ol>
+
+      <h2 style={h2}>The Reliability Checklist</h2>
+      <ul style={ul}>
+        <li><strong style={strong}>Companion machine does not sleep.</strong> Same rule as OBS. USB decks vanish when the OS sleeps, and they do not always come back clean.</li>
+        <li><strong style={strong}>Static IP on the Companion computer</strong> if anything else (a second deck, a satellite surface, or monitoring) talks to it over the network.</li>
+        <li><strong style={strong}>Connections use the same IPs as the rest of the booth.</strong> If the ATEM is 192.168.1.10 in Companion and 192.168.1.47 in real life, the buttons will fail after the next DHCP refresh. Fix the network first — <a href="/blog/church-av-network-setup-guide" style={a}>static IPs</a>.</li>
+        <li><strong style={strong}>Module versions are pinned on purpose.</strong> Update Companion on a weeknight and press every Sunday button once. Do not update at 10:40.</li>
+        <li><strong style={strong}>A paper backup.</strong> The three macros on the ATEM hardware still work if the deck dies. Write that on the rundown.</li>
+      </ul>
+      <blockquote style={bq}>Companion should make the reliable path faster. If the only way to cut to camera 1 is a Stream Deck, you do not have a switcher — you have a USB dependency.</blockquote>
+
+      <h2 style={h2}>When Buttons Lie</h2>
+      <p style={p}>A lit button is feedback from Companion’s view of the world, not always from the device.</p>
+      <ul style={ul}>
+        <li>If the ATEM button stays on the old camera, check the network before you mash the deck harder.</li>
+        <li>If OBS start is “on” and YouTube is offline, believe the platform. Then use the <a href="/blog/church-stream-dropped-mid-sermon" style={a}>mid-sermon playbook</a>.</li>
+        <li>If ProPresenter does not advance, look at the ProPresenter computer — Companion cannot wake a sleeping display output.</li>
+      </ul>
+      <p style={p}>Train volunteers: one press, then look at program. A second press is a new decision, not a better first one.</p>
+
+      <h2 style={h2}>Keep Companion and Monitoring on the Same Side</h2>
+      <p style={p}>Companion fires actions. It does not tell you the stream held. Someone still has to watch ingest, audio, and whether the ATEM is reachable.</p>
+      <p style={p}><a href="/signup" style={a}>Tally</a> talks to Companion as a control surface and watches the devices those buttons are supposed to move. If a module loses the ATEM or OBS exits, the TD gets Slack or Telegram — useful when the person with the deck is new and the person who built the page is in the second row.</p>
+      <p style={p}>Use remote commands for the same named looks you already put on the deck. Do not build a second naming scheme for your phone.</p>
+
+      <h2 style={h2}>Sunday Takeaway</h2>
+      <p style={p}>One Sunday page, named looks, a safe wide, exported config, hardware macros as backup. Update modules on Tuesday. If the deck dies, you should still be able to cut a camera.</p>
+      <p style={p}><a href="/signup" style={a}>Start a free Tally trial</a> if you want Companion, ATEM, and the encoder on one status view — with alerts when a button’s destination is actually offline.</p>
+    </>
+  );
+}
+
 /* ─── All posts ─── */
 export const BLOG_POSTS = [
+  {
+    slug: 'church-stream-first-10-minutes-checklist',
+    title: 'Why Church Streams Die in the First 10 Minutes',
+    metaTitle: 'Church Stream First 10 Minutes Checklist — Tally',
+    metaDescription: 'Most church stream failures happen just after go-live. A practical pre-service checklist and first-10-minutes watch for the booth.',
+    excerpt: 'Keys fail, audio is muted, and bitrate never climbs — usually in the first ten minutes. Here is the Sunday checklist that catches it while you can still fix it.',
+    date: '2026-09-04',
+    author: 'Tally Team',
+    authorRole: 'Tally Connect',
+    readTime: '9 min read',
+    tags: ['Live Streaming', 'Setup Guide'],
+    keywords: ['church stream checklist', 'pre-service streaming checklist', 'church live stream failed', 'go live church stream', 'church streaming first minutes'],
+    content: StreamFirstTenMinutes,
+  },
+  {
+    slug: 'church-stream-dropped-mid-sermon',
+    title: 'Stream Dropped Mid-Sermon: A Church Booth Playbook',
+    metaTitle: 'Church Stream Dropped Mid-Sermon Playbook — Tally',
+    metaDescription: 'What to do in the first 60 seconds when the church live stream drops during the sermon — restart order, what not to touch, and a short debrief.',
+    excerpt: 'Confirm on the platform, restart once, drop bitrate if it will not hold, and leave the sermon alone. A mid-service playbook for the booth.',
+    date: '2026-08-13',
+    author: 'Tally Team',
+    authorRole: 'Tally Connect',
+    readTime: '8 min read',
+    tags: ['Troubleshooting', 'Live Streaming'],
+    keywords: ['church stream dropped', 'live stream down during service', 'church streaming outage', 'restart church stream', 'mid-service stream failure'],
+    content: StreamDroppedMidSermon,
+  },
+  {
+    slug: 'obs-church-streaming-crash-recovery',
+    title: 'OBS for Church: Crash Recovery and What to Watch',
+    metaTitle: 'OBS Church Streaming Crash Recovery — Tally',
+    metaDescription: 'How churches keep OBS stable on Sunday: dedicated machine, CBR settings, status-bar watch, and a clean crash-recovery order.',
+    excerpt: 'OBS is in a lot of church booths. Here is what to watch while you are live, and the exact order to recover when the app freezes mid-service.',
+    date: '2026-07-08',
+    author: 'Tally Team',
+    authorRole: 'Tally Connect',
+    readTime: '9 min read',
+    tags: ['Live Streaming', 'Troubleshooting'],
+    keywords: ['OBS church streaming', 'OBS crash church', 'OBS settings church live stream', 'OBS reconnect church', 'church OBS dedicated computer'],
+    content: OBSChurchCrashRecovery,
+  },
+  {
+    slug: 'church-encoder-rtmp-reliability',
+    title: 'Church Encoder Reliability: RTMP, Bitrate, and Reconnect',
+    metaTitle: 'Church Encoder RTMP Reliability Guide — Tally',
+    metaDescription: 'Keep church encoders online: bitrate math, Teradek and hardware reconnect, and how to tell a real RTMP drop from a green LED.',
+    excerpt: 'The switcher can be fine and the stream still dies. Bitrate budget, reconnect settings, and a simple encoder standard for Sunday.',
+    date: '2026-06-03',
+    author: 'Tally Team',
+    authorRole: 'Tally Connect',
+    readTime: '9 min read',
+    tags: ['Live Streaming', 'Setup Guide'],
+    keywords: ['church encoder', 'RTMP church streaming', 'Teradek church', 'church stream bitrate', 'hardware encoder reconnect'],
+    content: EncoderRtmpReliability,
+  },
+  {
+    slug: 'church-service-rundown-booth',
+    title: 'Sunday Morning Run of Show for the Church Booth',
+    metaTitle: 'Church Booth Run of Show / Service Rundown — Tally',
+    metaDescription: 'Build a one-page booth rundown: clock, camera look, stream state, and owner — so volunteers can run Sunday without a second document.',
+    excerpt: 'Planning Center is for the room. The booth needs a one-page run of show: when to go live, which look to hit, and who owns each row.',
+    date: '2026-05-07',
+    author: 'Tally Team',
+    authorRole: 'Tally Connect',
+    readTime: '8 min read',
+    tags: ['Team Management', 'Setup Guide'],
+    keywords: ['church service rundown', 'church booth run of show', 'church production cues', 'Sunday service tech rundown', 'church livestream rundown'],
+    content: ServiceRundownBooth,
+  },
+  {
+    slug: 'bitfocus-companion-church-booth',
+    title: 'Bitfocus Companion for a Reliable Church Booth',
+    metaTitle: 'Bitfocus Companion Church Booth Guide — Tally',
+    metaDescription: 'Use Bitfocus Companion on Sunday without creating a USB single point of failure — Sunday page, named looks, exports, and hardware backup.',
+    excerpt: 'A Stream Deck should make the reliable path faster. How to build a Sunday Companion page, export the config, and keep ATEM macros as backup.',
+    date: '2026-04-02',
+    author: 'Tally Team',
+    authorRole: 'Tally Connect',
+    readTime: '8 min read',
+    tags: ['Setup Guide', 'Monitoring'],
+    keywords: ['Bitfocus Companion church', 'Stream Deck church production', 'Companion ATEM church', 'church booth Stream Deck', 'Companion reliability'],
+    content: CompanionBoothReliability,
+  },
   {
     slug: 'multisite-church-av-multiple-campuses',
     title: 'Multisite Church AV: How to Run Production Across Campuses Without Losing Your Mind',
@@ -765,6 +1266,48 @@ export const BLOG_POSTS = [
     content: MultisiteChurchAV,
   },
   {
+    slug: 'best-ptz-cameras-for-church',
+    title: 'Best PTZ Cameras for Church Live Streaming in 2026',
+    metaTitle: 'Best PTZ Cameras for Church (2026 Buying Guide) — Tally',
+    metaDescription: 'The best PTZ cameras for church production at every budget. Covers optical zoom, low-light performance, SDI vs NDI, mounting tips, and how many cameras your church actually needs.',
+    excerpt: 'PTZ cameras are the workhorse of church production. This guide breaks down which cameras to buy at every budget, how many you need, and how to get the most out of them.',
+    date: '2026-03-06',
+    author: 'Tally Team',
+    authorRole: 'Tally Connect',
+    readTime: '9 min read',
+    tags: ['Cameras', 'Setup Guide'],
+    keywords: ['best PTZ cameras for church', 'church PTZ camera 2026', 'PTZ camera buying guide church', 'PTZOptics church', 'church camera setup', 'how many cameras church streaming'],
+    content: PTZCameraBuyingGuide,
+  },
+  {
+    slug: 'propresenter-atem-integration-guide',
+    title: 'ProPresenter + ATEM: Complete Integration Guide for Churches',
+    metaTitle: 'ProPresenter ATEM Integration Guide for Churches — Tally',
+    metaDescription: 'How to connect ProPresenter to your Blackmagic ATEM for church production. Covers HDMI setup, luma keying lyrics over cameras, macros, and troubleshooting.',
+    excerpt: 'Connect ProPresenter to your ATEM Mini for seamless lyrics, overlays, and automated production workflows. Step-by-step integration guide for churches.',
+    date: '2026-03-04',
+    author: 'Tally Team',
+    authorRole: 'Tally Connect',
+    readTime: '10 min read',
+    tags: ['ProPresenter', 'ATEM'],
+    keywords: ['ProPresenter ATEM setup', 'ProPresenter ATEM Mini', 'church ProPresenter integration', 'ATEM luma key ProPresenter', 'ProPresenter church production'],
+    content: ProPresenterATEMGuide,
+  },
+  {
+    slug: 'church-audio-live-streaming-guide',
+    title: 'Church Audio for Live Streaming: Getting Your Mix Right',
+    metaTitle: 'Church Audio for Live Streaming — Mix Guide (2026) — Tally',
+    metaDescription: 'How to get great audio on your church live stream. Covers stream mix vs FOH, audio routing to OBS and ATEM, EQ tips, and the most common audio mistakes churches make.',
+    excerpt: 'Viewers will tolerate shaky video but leave immediately for bad audio. Here\'s how to get your church stream mix right — from soundboard routing to final output levels.',
+    date: '2026-03-02',
+    author: 'Tally Team',
+    authorRole: 'Tally Connect',
+    readTime: '11 min read',
+    tags: ['Audio', 'Live Streaming'],
+    keywords: ['church audio live stream', 'church streaming audio setup', 'stream mix vs FOH', 'church audio interface streaming', 'live stream audio church', 'church soundboard to OBS'],
+    content: ChurchAudioStreaming,
+  },
+  {
     slug: 'church-live-stream-setup-guide',
     title: 'Complete Guide to Church Live Streaming in 2026',
     metaTitle: 'Church Live Stream Setup Guide (2026) — Tally',
@@ -777,6 +1320,20 @@ export const BLOG_POSTS = [
     tags: ['Live Streaming', 'Setup Guide'],
     keywords: ['church live stream setup', 'church streaming guide 2026', 'how to stream church service', 'church live streaming equipment'],
     content: ChurchLiveStreamGuide,
+  },
+  {
+    slug: 'church-av-network-setup-guide',
+    title: 'Church AV Network Setup: Static IPs, Switches, and Reliability',
+    metaTitle: 'Church AV Network Setup Guide — Tally',
+    metaDescription: 'How to set up a reliable network for your church production gear. Covers static IPs, dedicated switches, VLANs, and the network mistakes that ruin Sunday services.',
+    excerpt: 'The #1 reason church production fails on Sunday isn\'t bad equipment — it\'s bad networking. Here\'s how to set it up right.',
+    date: '2026-02-28',
+    author: 'Tally Team',
+    authorRole: 'Tally Connect',
+    readTime: '10 min read',
+    tags: ['Networking', 'Setup Guide'],
+    keywords: ['church AV network setup', 'static IP church production', 'church network switch', 'ATEM network configuration', 'church production network guide'],
+    content: NetworkSetupGuide,
   },
   {
     slug: 'atem-mini-church-production-setup',
@@ -833,62 +1390,6 @@ export const BLOG_POSTS = [
     tags: ['Monitoring', 'Remote Control'],
     keywords: ['remote church production monitoring', 'monitor church stream remotely', 'church production monitoring system', 'church AV monitoring'],
     content: RemoteMonitoring,
-  },
-  {
-    slug: 'church-av-network-setup-guide',
-    title: 'Church AV Network Setup: Static IPs, Switches, and Reliability',
-    metaTitle: 'Church AV Network Setup Guide — Tally',
-    metaDescription: 'How to set up a reliable network for your church production gear. Covers static IPs, dedicated switches, VLANs, and the network mistakes that ruin Sunday services.',
-    excerpt: 'The #1 reason church production fails on Sunday isn\'t bad equipment — it\'s bad networking. Here\'s how to set it up right.',
-    date: '2026-02-28',
-    author: 'Tally Team',
-    authorRole: 'Tally Connect',
-    readTime: '10 min read',
-    tags: ['Networking', 'Setup Guide'],
-    keywords: ['church AV network setup', 'static IP church production', 'church network switch', 'ATEM network configuration', 'church production network guide'],
-    content: NetworkSetupGuide,
-  },
-  {
-    slug: 'best-ptz-cameras-for-church',
-    title: 'Best PTZ Cameras for Church Live Streaming in 2026',
-    metaTitle: 'Best PTZ Cameras for Church (2026 Buying Guide) — Tally',
-    metaDescription: 'The best PTZ cameras for church production at every budget. Covers optical zoom, low-light performance, SDI vs NDI, mounting tips, and how many cameras your church actually needs.',
-    excerpt: 'PTZ cameras are the workhorse of church production. This guide breaks down which cameras to buy at every budget, how many you need, and how to get the most out of them.',
-    date: '2026-03-06',
-    author: 'Tally Team',
-    authorRole: 'Tally Connect',
-    readTime: '9 min read',
-    tags: ['Cameras', 'Setup Guide'],
-    keywords: ['best PTZ cameras for church', 'church PTZ camera 2026', 'PTZ camera buying guide church', 'PTZOptics church', 'church camera setup', 'how many cameras church streaming'],
-    content: PTZCameraBuyingGuide,
-  },
-  {
-    slug: 'propresenter-atem-integration-guide',
-    title: 'ProPresenter + ATEM: Complete Integration Guide for Churches',
-    metaTitle: 'ProPresenter ATEM Integration Guide for Churches — Tally',
-    metaDescription: 'How to connect ProPresenter to your Blackmagic ATEM for church production. Covers HDMI setup, luma keying lyrics over cameras, macros, and troubleshooting.',
-    excerpt: 'Connect ProPresenter to your ATEM Mini for seamless lyrics, overlays, and automated production workflows. Step-by-step integration guide for churches.',
-    date: '2026-03-04',
-    author: 'Tally Team',
-    authorRole: 'Tally Connect',
-    readTime: '10 min read',
-    tags: ['ProPresenter', 'ATEM'],
-    keywords: ['ProPresenter ATEM setup', 'ProPresenter ATEM Mini', 'church ProPresenter integration', 'ATEM luma key ProPresenter', 'ProPresenter church production'],
-    content: ProPresenterATEMGuide,
-  },
-  {
-    slug: 'church-audio-live-streaming-guide',
-    title: 'Church Audio for Live Streaming: Getting Your Mix Right',
-    metaTitle: 'Church Audio for Live Streaming — Mix Guide (2026) — Tally',
-    metaDescription: 'How to get great audio on your church live stream. Covers stream mix vs FOH, audio routing to OBS and ATEM, EQ tips, and the most common audio mistakes churches make.',
-    excerpt: 'Viewers will tolerate shaky video but leave immediately for bad audio. Here\'s how to get your church stream mix right — from soundboard routing to final output levels.',
-    date: '2026-03-02',
-    author: 'Tally Team',
-    authorRole: 'Tally Connect',
-    readTime: '11 min read',
-    tags: ['Audio', 'Live Streaming'],
-    keywords: ['church audio live stream', 'church streaming audio setup', 'stream mix vs FOH', 'church audio interface streaming', 'live stream audio church', 'church soundboard to OBS'],
-    content: ChurchAudioStreaming,
   },
 ];
 
