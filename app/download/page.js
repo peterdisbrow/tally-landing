@@ -4,7 +4,7 @@ import Footer from '../components/Footer';
 
 export const metadata = {
   title: 'Download Tally — Desktop App for Mac & Windows',
-  description: 'Download the Tally desktop app for macOS and Windows. Signed and notarized by Apple. Works with Apple Silicon, Intel Macs, and Windows PCs.',
+  description: 'Download the Tally desktop app for macOS and Windows. Works with Apple Silicon, Intel Macs, and Windows PCs.',
   openGraph: {
     title: 'Download Tally',
     description: 'Get the Tally desktop app for macOS and Windows.',
@@ -15,6 +15,19 @@ export const metadata = {
 const GITHUB_REPO = 'peterdisbrow/tally';
 const GITHUB_LATEST = `https://github.com/${GITHUB_REPO}/releases/latest/download`;
 
+function formatMb(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return null;
+  return `~${Math.round(bytes / (1024 * 1024))} MB`;
+}
+
+function macVersionFromAssets(assets) {
+  for (const asset of assets) {
+    const match = asset.name.match(/^Tally-(\d+\.\d+\.\d+)-(?:arm64-)?mac\.zip$/);
+    if (match) return match[1];
+  }
+  return null;
+}
+
 async function getLatestRelease() {
   try {
     const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`, {
@@ -22,9 +35,20 @@ async function getLatestRelease() {
     });
     if (!res.ok) return null;
     const data = await res.json();
+    const assets = Array.isArray(data.assets) ? data.assets : [];
+    const version = data.tag_name?.replace(/^v/, '') || null;
+    const windows = version
+      ? assets.find((a) => a.name === `Tally-Setup-${version}.exe`)
+      : null;
+    const macArm = assets.find((a) => a.name === 'Tally-arm64.dmg');
+    const macIntel = assets.find((a) => a.name === 'Tally-x64.dmg');
     return {
-      version: data.tag_name?.replace(/^v/, '') || null,
+      version,
       publishedAt: data.published_at,
+      windowsSize: windows?.size ?? null,
+      macArmSize: macArm?.size ?? null,
+      macIntelSize: macIntel?.size ?? null,
+      macVersion: macVersionFromAssets(assets),
     };
   } catch {
     return null;
@@ -33,12 +57,17 @@ async function getLatestRelease() {
 
 export default async function DownloadPage() {
   const release = await getLatestRelease();
-  const version = release?.version || '1.1.38';
+  const windowsVersion = release?.version || '1.1.67';
+  const macVersion = release?.macVersion || '1.1.66';
+  const macIsCarryForward = macVersion !== windowsVersion;
   const releaseDate = release?.publishedAt
     ? new Date(release.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
     : null;
 
-  const windowsUrl = `${GITHUB_LATEST}/Tally-Setup-${version}.exe`;
+  const windowsUrl = `${GITHUB_LATEST}/Tally-Setup-${windowsVersion}.exe`;
+  const windowsSize = formatMb(release?.windowsSize) || '~228 MB';
+  const macArmSize = formatMb(release?.macArmSize);
+  const macIntelSize = formatMb(release?.macIntelSize);
 
   return (
     <>
@@ -58,9 +87,44 @@ export default async function DownloadPage() {
           <h1 style={{ fontSize: 36, fontWeight: 800, marginTop: 40, marginBottom: 8 }}>
             Download Tally
           </h1>
-          <p style={{ color: MUTED, fontSize: 15, marginBottom: 40 }}>
-            v{version}{releaseDate ? ` \u00b7 ${releaseDate}` : ''} &middot; macOS 12+ / Windows 10+
+          <p style={{ color: MUTED, fontSize: 15, marginBottom: 16 }}>
+            Windows v{windowsVersion}
+            {macIsCarryForward ? ` \u00b7 Mac v${macVersion}` : ''}
+            {releaseDate ? ` \u00b7 ${releaseDate}` : ''} &middot; macOS 12+ / Windows 10+
           </p>
+
+          <div
+            style={{
+              background: CARD,
+              border: `1px solid ${BORDER}`,
+              borderRadius: 14,
+              padding: '18px 22px',
+              marginBottom: 32,
+              textAlign: 'left',
+            }}
+          >
+            <p style={{
+              fontFamily: 'ui-monospace, monospace', fontSize: 11,
+              fontWeight: 700, letterSpacing: '0.1em', color: GREEN,
+              margin: '0 0 8px',
+            }}>CURRENT CHANNEL</p>
+            <p style={{ color: MUTED, fontSize: 13, lineHeight: 1.6, margin: 0 }}>
+              {macIsCarryForward ? (
+                <>
+                  Windows <strong style={{ color: WHITE }}>v{windowsVersion}</strong> is the latest installer
+                  and is <strong style={{ color: WHITE }}>unsigned</strong> &mdash; SmartScreen may warn; that&apos;s expected.
+                  Mac downloads are the last signed <strong style={{ color: WHITE }}>v{macVersion}</strong> builds,
+                  carried forward so auto-update stays on {macVersion} until a new signed Mac build ships.
+                </>
+              ) : (
+                <>
+                  Windows <strong style={{ color: WHITE }}>v{windowsVersion}</strong> is unsigned &mdash;
+                  SmartScreen may warn; that&apos;s expected. We don&apos;t claim Apple signing or notarization
+                  for the current download channel.
+                </>
+              )}
+            </p>
+          </div>
 
           {/* Download Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 40 }}>
@@ -94,7 +158,10 @@ export default async function DownloadPage() {
               >
                 Download .dmg
               </a>
-              <p style={{ color: MUTED, fontSize: 11, marginTop: 10 }}>~130 MB</p>
+              <p style={{ color: MUTED, fontSize: 11, marginTop: 10 }}>
+                v{macVersion}{macArmSize ? ` \u00b7 ${macArmSize}` : ''}
+                {macIsCarryForward ? ' \u00b7 last signed Mac build' : ''}
+              </p>
             </div>
 
             {/* Intel */}
@@ -128,7 +195,10 @@ export default async function DownloadPage() {
               >
                 Download .dmg
               </a>
-              <p style={{ color: MUTED, fontSize: 11, marginTop: 10 }}>~140 MB</p>
+              <p style={{ color: MUTED, fontSize: 11, marginTop: 10 }}>
+                v{macVersion}{macIntelSize ? ` \u00b7 ${macIntelSize}` : ''}
+                {macIsCarryForward ? ' \u00b7 last signed Mac build' : ''}
+              </p>
             </div>
 
             {/* Windows */}
@@ -161,7 +231,9 @@ export default async function DownloadPage() {
               >
                 Download .exe
               </a>
-              <p style={{ color: MUTED, fontSize: 11, marginTop: 10 }}>~90 MB</p>
+              <p style={{ color: MUTED, fontSize: 11, marginTop: 10 }}>
+                v{windowsVersion} \u00b7 {windowsSize} \u00b7 unsigned
+              </p>
             </div>
           </div>
 
@@ -178,15 +250,21 @@ export default async function DownloadPage() {
           >
             <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>Not sure which Mac you have?</h3>
             <p style={{ color: MUTED, fontSize: 13, lineHeight: 1.6, margin: 0 }}>
-              Click the Apple menu () &rarr; <strong style={{ color: WHITE }}>About This Mac</strong>. If you see &ldquo;Apple M1&rdquo; or &ldquo;Apple M2&rdquo; (or later), choose <strong style={{ color: GREEN }}>Apple Silicon</strong>. If you see &ldquo;Intel&rdquo;, choose <strong style={{ color: WHITE }}>Intel</strong>.
+              Click the Apple menu ({'\uF8FF'}) &rarr; <strong style={{ color: WHITE }}>About This Mac</strong>. If you see &ldquo;Apple M1&rdquo; or &ldquo;Apple M2&rdquo; (or later), choose <strong style={{ color: GREEN }}>Apple Silicon</strong>. If you see &ldquo;Intel&rdquo;, choose <strong style={{ color: WHITE }}>Intel</strong>.
             </p>
           </div>
 
-          {/* Security & Trust */}
+          {/* Security & Trust — honest for the current channel */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 40 }}>
-            <TrustItem icon="\u2705" title="Signed" desc="Apple Developer ID" />
-            <TrustItem icon="\uD83D\uDEE1\uFE0F" title="Notarized" desc="Scanned by Apple" />
-            <TrustItem icon="\uD83D\uDD12" title="Secure" desc="HTTPS + encrypted relay" />
+            <TrustItem icon="\uD83D\uDD12" title="Encrypted" desc="HTTPS + encrypted relay" />
+            <TrustItem icon="\u{1FA9F}" title="Windows" desc="Unsigned — SmartScreen may warn" />
+            <TrustItem
+              icon="\uF8FF"
+              title="macOS"
+              desc={macIsCarryForward
+                ? `Auto-update stays on ${macVersion} for now`
+                : 'No notarization claim on this channel'}
+            />
           </div>
 
           {/* System Requirements */}
@@ -205,14 +283,17 @@ export default async function DownloadPage() {
               <li>macOS 12 Monterey or later / Windows 10 or later</li>
               <li>Apple Silicon (M1+), Intel processor, or 64-bit Windows</li>
               <li>4 GB RAM minimum</li>
-              <li>200 MB free disk space</li>
+              <li>500 MB free disk space</li>
               <li>Internet connection for relay communication</li>
               <li>ATEM Switcher on the same network (for ATEM features)</li>
             </ul>
           </div>
 
           {/* Links */}
-          <div style={{ marginBottom: 60, display: 'flex', justifyContent: 'center', gap: 24 }}>
+          <div style={{ marginBottom: 60, display: 'flex', justifyContent: 'center', gap: 24, flexWrap: 'wrap' }}>
+            <a href={`https://github.com/${GITHUB_REPO}/releases/latest`} style={{ color: GREEN, fontSize: 14, textDecoration: 'none' }}>
+              GitHub release notes &rarr;
+            </a>
             <a href="/changelog" style={{ color: GREEN, fontSize: 14, textDecoration: 'none' }}>
               View changelog &rarr;
             </a>

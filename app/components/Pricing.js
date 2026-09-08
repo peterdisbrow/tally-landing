@@ -209,8 +209,13 @@ export default function Pricing() {
             borderRadius: 6, padding: '4px 12px', whiteSpace: 'nowrap',
           }}>ONE-TIME</div>
           <div style={{ flex: 1, minWidth: 220 }}>
-            <span style={{ fontWeight: 800, color: WHITE, fontSize: '1rem' }}>Event &mdash; $99</span>
-            <span style={{ color: DIM, fontSize: '0.88rem', marginLeft: 12 }}>72-hour monitoring for conferences, Easter, weddings. No subscription.</span>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+              <span style={{ fontWeight: 800, color: WHITE, fontSize: '1rem' }}>Event</span>
+              <span style={{ fontWeight: 800, color: GREEN, fontSize: '1rem' }}>$99 one-time</span>
+            </div>
+            <p style={{ color: DIM, fontSize: '0.88rem', margin: '6px 0 0' }}>
+              72-hour monitoring for conferences, Easter, weddings. No subscription.
+            </p>
           </div>
           <a href="mailto:sales@tallyconnect.app" style={{
             padding: '10px 22px', fontSize: '0.88rem', fontWeight: 700,
