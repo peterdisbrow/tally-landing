@@ -255,7 +255,7 @@ export default async function DownloadPage() {
           </div>
 
           {/* Security & Trust — honest for the current channel */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 40 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16, marginBottom: 40 }}>
             <TrustItem icon="\uD83D\uDD12" title="Encrypted" desc="HTTPS + encrypted relay" />
             <TrustItem icon="\u{1FA9F}" title="Windows" desc="Unsigned — SmartScreen may warn" />
             <TrustItem
