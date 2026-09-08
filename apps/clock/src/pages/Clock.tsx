@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Info, X, Plus, Minus, Type, Globe, Palette, Save, FolderOpen, Trash2, LayoutGrid, Circle, Maximize, Minimize } from "lucide-react";
 import AnalogClock from "@/components/clock/AnalogClock";
-import { supabase } from "@/integrations/supabase/client";
+import { syncServerTime } from "@/lib/timeSync";
 
 type ClockMode = "clock" | "countup" | "countdown" | "countto";
 type DisplayStyle = "digital" | "analog";
@@ -173,6 +173,7 @@ const Clock = () => {
   const [showFontPicker, setShowFontPicker] = useState(false);
   const [ntpOffset, setNtpOffset] = useState(0);
   const [syncStatus, setSyncStatus] = useState<"syncing" | "synced" | "local">("syncing");
+  const [syncLabel, setSyncLabel] = useState("Syncing...");
   
   const [enteringTime, setEnteringTime] = useState(false);
   const [timeInput, setTimeInput] = useState("");
@@ -245,44 +246,15 @@ const Clock = () => {
     });
   }, [clockName, clockColor, selectedFont, timezone, is24h, mode, showTenths, showMiniClock, hideLeadingZero, fontSize, autoSize, displayStyle, overtimeWarningColor, allowOverrun]);
 
-  // Time sync — edge function first, then external APIs as fallback
+  // Time sync — Tally /api/time first, then optional public NTP, then local
   const syncTime = useCallback(async () => {
-    // Primary: our own edge function (consistent across all clients)
-    try {
-      const before = Date.now();
-      const { data, error } = await supabase.functions.invoke("time-sync");
-      const after = Date.now();
-      if (!error && data?.timestamp) {
-        const roundTrip = (after - before) / 2;
-        setNtpOffset(data.timestamp - (before + roundTrip));
-        setSyncStatus("synced");
-        return;
-      }
-    } catch { /* fall through to external APIs */ }
-
-    // Fallback: external time APIs
-    const apis = [
-      { url: "https://timeapi.io/api/time/current/zone?timeZone=UTC", parse: (d: any) => new Date(d.dateTime + "Z").getTime() },
-      { url: "https://worldtimeapi.org/api/timezone/UTC", parse: (d: any) => new Date(d.utc_datetime).getTime() },
-    ];
-    for (const api of apis) {
-      try {
-        const before = Date.now();
-        const res = await fetch(api.url);
-        if (!res.ok) continue;
-        const after = Date.now();
-        const data = await res.json();
-        const serverTime = api.parse(data);
-        if (isNaN(serverTime)) continue;
-        const roundTrip = (after - before) / 2;
-        setNtpOffset(serverTime - (before + roundTrip));
-        setSyncStatus("synced");
-        return;
-      } catch { continue; }
+    const result = await syncServerTime();
+    setNtpOffset(result.offsetMs);
+    setSyncLabel(result.label);
+    setSyncStatus(result.source === "local" ? "local" : "synced");
+    if (result.source === "local") {
+      console.warn("Time sync failed, using local clock");
     }
-    setNtpOffset(0);
-    setSyncStatus("local");
-    console.warn("Time sync failed, using local clock");
   }, []);
 
   useEffect(() => { syncTime(); const id = setInterval(syncTime, 60000); return () => clearInterval(id); }, [syncTime]);
@@ -547,12 +519,12 @@ const Clock = () => {
         {syncStatus === "synced" ? (
           <span className="flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-green-500/60 inline-block" />
-            NTP synced ({ntpOffset > 0 ? "+" : ""}{ntpOffset}ms)
+            {syncLabel} ({ntpOffset > 0 ? "+" : ""}{Math.round(ntpOffset)}ms)
           </span>
         ) : syncStatus === "local" ? (
           <span className="flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-white/40 inline-block" />
-            Local clock
+            {syncLabel || "Local clock"}
           </span>
         ) : (
           <span className="flex items-center gap-1">

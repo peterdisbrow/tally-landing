@@ -58,11 +58,47 @@ const nextConfig = {
         destination: '/tools/clock/index.html',
       },
       {
+        source: '/quote',
+        destination: '/tools/clock/index.html',
+      },
+      {
+        source: '/quote/',
+        destination: '/tools/clock/index.html',
+      },
+      {
+        source: '/services',
+        destination: '/tools/clock/index.html',
+      },
+      {
+        source: '/services/',
+        destination: '/tools/clock/index.html',
+      },
+      {
         source: '/multi-clock',
         destination: '/tools/clock/index.html',
       },
       {
         source: '/multi-clock/',
+        destination: '/tools/clock/index.html',
+      },
+      {
+        source: '/tools/clock',
+        destination: '/tools/clock/index.html',
+      },
+      {
+        source: '/tools/clock/clock',
+        destination: '/tools/clock/index.html',
+      },
+      {
+        source: '/tools/clock/quote',
+        destination: '/tools/clock/index.html',
+      },
+      {
+        source: '/tools/clock/services',
+        destination: '/tools/clock/index.html',
+      },
+      {
+        source: '/tools/clock/multi-clock',
         destination: '/tools/clock/index.html',
       },
       {

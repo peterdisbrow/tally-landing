@@ -8,6 +8,7 @@ import Clock from "./pages/Clock";
 import MultiClock from "./pages/MultiClock";
 import NotFound from "./pages/NotFound";
 import { TallyConnectProvider } from "@/hooks/useTallyConnect";
+import { getRouterBasename } from "@/lib/clockBasename";
 
 const queryClient = new QueryClient();
 
@@ -17,10 +18,12 @@ const App = () => (
       <TallyConnectProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter basename={getRouterBasename()}>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Clock />} />
             <Route path="/clock" element={<Clock />} />
+            <Route path="/quote" element={<Index />} />
+            <Route path="/services" element={<Index />} />
             <Route path="/multi-clock" element={<MultiClock />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

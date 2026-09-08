@@ -14,6 +14,12 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
+    proxy: {
+      "/api/time": {
+        target: "https://api.tallyconnect.app",
+        changeOrigin: true,
+      },
+    },
   },
   plugins: [react()],
   resolve: {

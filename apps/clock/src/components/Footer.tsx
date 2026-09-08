@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const Footer = () => {
   return (
     <footer className="border-t border-border py-10 bg-secondary">
@@ -35,12 +37,12 @@ const Footer = () => {
 
 
 
-          <a
-            href="/clock"
+          <Link
+            to="/"
             className="font-display text-xs tracking-wider text-muted-foreground hover:text-primary transition-colors uppercase">
 
             Production Clock
-          </a>
+          </Link>
         </div>
         <p className="text-muted-foreground text-xs">
           © {new Date().getFullYear()} Disbrow Productions. All rights reserved.

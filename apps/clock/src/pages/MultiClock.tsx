@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Plus, Monitor, Settings, Maximize, Minimize, Menu, Check, GripHorizontal } from "lucide-react";
+import { Plus, Monitor, Settings, Maximize, Minimize, Menu, Check, GripHorizontal } from "lucide-react";
 import ClockCell, { type ClockCellConfig } from "@/components/clock/ClockCell";
 import AuthPanel from "@/components/clock/AuthPanel";
 import LoginForm from "@/components/clock/LoginForm";
@@ -238,12 +238,12 @@ const MultiClock = () => {
             </p>
           </div>
           <LoginForm title="Sign In" />
-          <a
-            href="/"
+          <Link
+            to="/"
             className="text-white/30 hover:text-white/70 transition-colors text-[10px] font-mono uppercase tracking-wider text-center"
           >
-            ← Back to home
-          </a>
+            ← Back to clock
+          </Link>
         </div>
       </div>
     );
@@ -257,13 +257,10 @@ const MultiClock = () => {
         style={{ opacity: hovered ? 1 : 0 }}
       >
         <div className="flex items-center gap-4 pointer-events-auto">
-          <Link to="/clock" className="text-white/30 hover:text-white/70 transition-colors flex items-center gap-2">
+          <Link to="/" className="text-white/30 hover:text-white/70 transition-colors flex items-center gap-2">
             <Monitor size={18} />
             <span className="text-xs font-mono uppercase tracking-widest">Single</span>
           </Link>
-          <a href="/" className="text-white/30 hover:text-white/70 transition-colors">
-            <ArrowLeft size={20} />
-          </a>
         </div>
 
         <div className="flex items-center gap-3 pointer-events-auto">

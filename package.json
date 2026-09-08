@@ -11,7 +11,9 @@
     "start": "next start",
     "test": "vitest run",
     "typecheck:clock": "cd apps/clock && npx --no-install tsc --noEmit -p tsconfig.app.json",
-    "sync:tools": "./scripts/sync-tools.sh"
+    "test:clock": "npm --prefix apps/clock test",
+    "sync:tools": "./scripts/sync-tools.sh",
+    "publish:clock": "./scripts/publish-clock-to-tally.sh"
   },
   "dependencies": {
     "@upstash/ratelimit": "^2.0.8",
