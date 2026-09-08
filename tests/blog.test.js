@@ -81,6 +81,41 @@ describe('BLOG_POSTS data', () => {
       expect(post.readTime).toMatch(/^\d+ min read$/);
     }
   });
+
+  it('lists posts newest-first by date', () => {
+    const dates = BLOG_POSTS.map(p => p.date);
+    const sorted = [...dates].sort((a, b) => (a < b ? 1 : a > b ? -1 : 0));
+    expect(dates).toEqual(sorted);
+  });
+
+  it('has unique titles and meta titles', () => {
+    const titles = BLOG_POSTS.map(p => p.title);
+    const metaTitles = BLOG_POSTS.map(p => p.metaTitle);
+    expect(new Set(titles).size).toBe(titles.length);
+    expect(new Set(metaTitles).size).toBe(metaTitles.length);
+  });
+
+  it('keeps meta titles and descriptions in a sensible range', () => {
+    for (const post of BLOG_POSTS) {
+      expect(post.metaTitle.length, post.slug).toBeGreaterThanOrEqual(30);
+      expect(post.metaTitle.length, post.slug).toBeLessThanOrEqual(70);
+      expect(post.metaDescription.length, post.slug).toBeGreaterThanOrEqual(70);
+      expect(post.metaDescription.length, post.slug).toBeLessThanOrEqual(185);
+    }
+  });
+
+  it('includes the 2026 production-ops posts', () => {
+    const slugs = BLOG_POSTS.map(p => p.slug);
+    expect(slugs).toEqual(expect.arrayContaining([
+      'church-stream-first-10-minutes-checklist',
+      'church-stream-dropped-mid-sermon',
+      'obs-church-streaming-crash-recovery',
+      'church-encoder-rtmp-reliability',
+      'church-service-rundown-booth',
+      'bitfocus-companion-church-booth',
+    ]));
+    expect(BLOG_POSTS.length).toBeGreaterThanOrEqual(16);
+  });
 });
 
 // ── getPostBySlug ────────────────────────────────────────────────────────────
