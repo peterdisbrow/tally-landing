@@ -239,7 +239,7 @@ const MultiClock = () => {
           </div>
           <LoginForm title="Sign In" />
           <Link
-            to="/"
+            to="/clock"
             className="text-white/30 hover:text-white/70 transition-colors text-[10px] font-mono uppercase tracking-wider text-center"
           >
             ← Back to clock
@@ -257,7 +257,7 @@ const MultiClock = () => {
         style={{ opacity: hovered ? 1 : 0 }}
       >
         <div className="flex items-center gap-4 pointer-events-auto">
-          <Link to="/" className="text-white/30 hover:text-white/70 transition-colors flex items-center gap-2">
+          <Link to="/clock" className="text-white/30 hover:text-white/70 transition-colors flex items-center gap-2">
             <Monitor size={18} />
             <span className="text-xs font-mono uppercase tracking-widest">Single</span>
           </Link>

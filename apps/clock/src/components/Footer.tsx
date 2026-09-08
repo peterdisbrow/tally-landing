@@ -38,7 +38,7 @@ const Footer = () => {
 
 
           <Link
-            to="/"
+            to="/clock"
             className="font-display text-xs tracking-wider text-muted-foreground hover:text-primary transition-colors uppercase">
 
             Production Clock
