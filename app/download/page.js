@@ -256,10 +256,10 @@ export default async function DownloadPage() {
 
           {/* Security & Trust — honest for the current channel */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16, marginBottom: 40 }}>
-            <TrustItem icon="\uD83D\uDD12" title="Encrypted" desc="HTTPS + encrypted relay" />
-            <TrustItem icon="\u{1FA9F}" title="Windows" desc="Unsigned — SmartScreen may warn" />
+            <TrustItem icon={'\uD83D\uDD12'} title="Encrypted" desc="HTTPS + encrypted relay" />
+            <TrustItem icon={'\u26A0\uFE0F'} title="Windows" desc="Unsigned — SmartScreen may warn" />
             <TrustItem
-              icon="\uF8FF"
+              icon={'\u2139\uFE0F'}
               title="macOS"
               desc={macIsCarryForward
                 ? `Auto-update stays on ${macVersion} for now`
