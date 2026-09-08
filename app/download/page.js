@@ -232,7 +232,7 @@ export default async function DownloadPage() {
                 Download .exe
               </a>
               <p style={{ color: MUTED, fontSize: 11, marginTop: 10 }}>
-                v{windowsVersion} \u00b7 {windowsSize} \u00b7 unsigned
+                {`v${windowsVersion} \u00b7 ${windowsSize} \u00b7 unsigned`}
               </p>
             </div>
           </div>
