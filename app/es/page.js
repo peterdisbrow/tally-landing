@@ -121,7 +121,7 @@ const FEATURES_ES = [
   { tag: 'MULTI-SEDE',          name: 'Diseñado para Multi-Sala',                       desc: 'Comienza con una sala en Connect, escala a 3 en Plus, 5 en Pro, o ilimitadas en Enterprise — sin complicar tu domingo.' },
   { tag: 'MULTI-ENCODER',       name: 'Cualquier Encoder, Cualquier Flujo de Trabajo',  desc: 'OBS, vMix, Ecamm, Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO — Tally monitorea cualquier encoder que uses.' },
   { tag: 'PRÓXIMAMENTE',        name: 'Vista Previa de Video en Vivo',                  desc: 'Ve tu señal de programa desde cualquier lugar. Stream de monitoreo H.264 enrutado de forma segura — requiere un encoder de hardware Tally Box. En desarrollo.' },
-  { tag: 'GUÍAS',               name: '15 Guías de Configuración Paso a Paso',          desc: 'Guías en lenguaje claro con resúmenes de inicio rápido, niveles de dificultad y secciones avanzadas que puedes expandir cuando las necesites. Escritas para voluntarios, no para ingenieros.' },
+  { tag: 'GUÍAS',               name: '16 Guías de Configuración Paso a Paso',          desc: 'Guías en lenguaje claro con resúmenes de inicio rápido, niveles de dificultad y secciones avanzadas que puedes expandir cuando las necesites. Escritas para voluntarios, no para ingenieros.' },
   { tag: 'PROTECCIÓN',          name: 'Protecciones para Comandos en Vivo',             desc: 'Tally advierte antes de ejecutar comandos peligrosos mientras estás en vivo — como detener un stream o cambiar fuentes. Confirma con tu DT antes de que ocurra algo arriesgado.' },
   { tag: 'CONTROL DE AUDIO',    name: 'Control total de tu consola de audio',           desc: 'EQ, compresión, gates, faders, mute/solo — maneja cada canal de tu consola Allen & Heath, Behringer, Midas o Yamaha directo desde Telegram.' },
   { tag: 'BIBLIOTECA DE PRESETS', name: 'Recall de Presets con Un Toque',              desc: 'Guarda configuraciones complejas de múltiples dispositivos y recupéralas al instante. Escenas del mezclador, macros del ATEM, colecciones de OBS — un toque para cambiar toda tu configuración de producción.' },
@@ -1086,8 +1086,13 @@ function PricingEs() {
             borderRadius: 6, padding: '4px 12px', whiteSpace: 'nowrap',
           }}>ÚNICO</div>
           <div style={{ flex: 1, minWidth: 220 }}>
-            <span style={{ fontWeight: 800, color: WHITE, fontSize: '1rem' }}>Evento &mdash; $99</span>
-            <span style={{ color: DIM, fontSize: '0.88rem', marginLeft: 12 }}>72 horas de monitoreo para conferencias, Pascua, bodas. Sin suscripción.</span>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+              <span style={{ fontWeight: 800, color: WHITE, fontSize: '1rem' }}>Evento</span>
+              <span style={{ fontWeight: 800, color: GREEN, fontSize: '1rem' }}>$99 pago único</span>
+            </div>
+            <p style={{ color: DIM, fontSize: '0.88rem', margin: '6px 0 0' }}>
+              72 horas de monitoreo para conferencias, Pascua, bodas. Sin suscripción.
+            </p>
           </div>
           <a href="mailto:sales@tallyconnect.app" style={{
             padding: '10px 22px', fontSize: '0.88rem', fontWeight: 700,

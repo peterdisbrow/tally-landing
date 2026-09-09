@@ -44,6 +44,11 @@ describe('FEATURES', () => {
     const names = FEATURES.map(f => f.name);
     expect(new Set(names).size).toBe(names.length);
   });
+
+  it('how-to guide count matches the live catalog (16)', () => {
+    const guides = FEATURES.find(f => f.tag === 'SETUP GUIDES');
+    expect(guides?.name).toMatch(/^16 /);
+  });
 });
 
 // ── INTEGRATIONS ─────────────────────────────────────────────────────────────
