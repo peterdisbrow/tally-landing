@@ -22,8 +22,8 @@ const CAPTIONS = {
   ],
   engineer: [
     { icon: '\u2705', label: 'Go / No-Go status', desc: 'One glance tells you if every system is ready for service' },
-    { icon: '\ud83e\udde0', label: 'AI diagnostics', desc: 'Ask questions in plain English \u2014 Tally Engineer checks your gear and answers' },
-    { icon: '\ud83d\udcdd', label: 'Action plans', desc: 'Prioritized steps to fix issues before they become problems on Sunday' },
+    { icon: '\ud83e\udde0', label: 'AI diagnostics', desc: 'Optional assist \u2014 ask in plain English; Tally Engineer can check gear and suggest next steps' },
+    { icon: '\ud83d\udcdd', label: 'Action plans', desc: 'Suggested follow-ups. Monitoring, alerts, and auto-recovery still run if AI is unavailable.' },
   ],
 };
 

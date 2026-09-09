@@ -25,7 +25,7 @@ export default function BoldStatement() {
           lineHeight: 0.95, letterSpacing: '-0.04em', color: WHITE, margin: '0 0 48px',
         }}>YOUR RULES.</p>
         <p style={{ color: MUTED, fontSize: 'clamp(1rem, 2vw, 1.2rem)', maxWidth: 580, margin: '0 auto 48px', lineHeight: 1.7 }}>
-          Talk to your production like you talk to your team. &ldquo;Cut to camera 2. Start recording. What&apos;s on preview?&rdquo; Tally understands plain English.
+          Talk to your production like you talk to your team. &ldquo;Cut to camera 2. Start recording. What&apos;s on preview?&rdquo; Natural-language commands are on Plus and above. Monitoring and auto-recovery still run without them.
         </p>
         <a href="/signup" style={{
           display: 'inline-block', padding: '15px 40px', fontSize: '1rem', fontWeight: 700,

@@ -329,14 +329,14 @@ const CAPTIONS_ES = {
     { label: 'Alertas de auto-recuperación', desc: 'Tally arregla problemas antes de que los notes — luego te muestra qué pasó' },
   ],
   equipment: [
-    { label: 'Detecta dispositivos automáticamente', desc: 'Encuentra tu ATEM, OBS, Companion, ProPresenter, HyperDecks y cámaras PTZ' },
+    { label: 'Conecta tus dispositivos', desc: 'Ingresa las IPs de tu ATEM, OBS, vMix, Companion, ProPresenter, VideoHub, HyperDecks y cámaras PTZ. Los enchufes Shelly se descubren solos por mDNS.' },
     { label: 'Configuración de una sola vez', desc: 'Ingresa las IPs una vez, prueba conexiones, guarda — listo en 10 minutos' },
     { label: 'Audio + video',             desc: 'Cámaras PTZ, HyperDecks, consolas de audio — todo desde la misma pantalla' },
   ],
   engineer: [
     { label: 'Estado Listo / No Listo',  desc: 'Un vistazo te dice si todos los sistemas están listos para el servicio' },
-    { label: 'Diagnósticos con IA',      desc: 'Haz preguntas en español — Tally Engineer revisa tu equipo y responde' },
-    { label: 'Planes de acción',          desc: 'Pasos priorizados para solucionar problemas antes de que se conviertan en crisis el domingo' },
+    { label: 'Diagnósticos con IA',      desc: 'Asistencia opcional — pregunta en español; Tally Engineer puede revisar el equipo y sugerir pasos' },
+    { label: 'Planes de acción',          desc: 'Sugerencias. El monitoreo, las alertas y la auto-recuperación siguen funcionando si la IA no está disponible.' },
   ],
 };
 
@@ -653,6 +653,7 @@ const PRICING_ES = [
       'Rotación de DT de guardia',
       'Tokens de acceso para DT invitado',
       'Comandos IA en lenguaje natural',
+      'Piloto Automático IA (5 reglas de automatización)',
       'Asistente de Configuración IA (auto-configurar desde listas de patch)',
       'Soporte prioritario por email',
     ],
@@ -717,7 +718,7 @@ const FC_ROWS_ES = [
   { feature: 'Tokens de DT Invitado', values: [false, true, true, true] },
   { feature: 'Comandos IA en Lenguaje Natural', values: [false, true, true, true] },
   { feature: 'Asistente de Configuración IA', values: [false, true, true, true] },
-  { feature: 'Reglas de Piloto Automático IA', values: [false, false, '10', '25'] },
+  { feature: 'Reglas de Piloto Automático IA', values: [false, '5', '10', '25'] },
   { feature: 'Sincronización + Escritura en Planning Center', values: [false, false, true, true] },
   { feature: 'Informes Mensuales de Salud', values: [false, false, true, true] },
   { feature: 'Onboarding Dedicado', values: [false, false, false, true] },
@@ -747,7 +748,7 @@ function FeatureComparisonEs() {
         color: WHITE,
       }}>Compara los planes lado a lado</h3>
       <p style={{ color: DIM, textAlign: 'center', marginBottom: 40, fontSize: '0.88rem' }}>
-        Cada plan comienza con una prueba gratuita de 30 días. Todas las funciones incluidas.
+        Cada plan comienza con una prueba gratuita de 30 días de ese nivel.
       </p>
 
       {/* Desktop table */}
@@ -1076,33 +1077,6 @@ function PricingEs() {
 
 // ─── Spanish Testimonials ─────────────────────────────────────────────────────
 
-const FALLBACK_REVIEWS_ES = [
-  {
-    id: 'fallback-es-1',
-    rating: 5,
-    body: 'Nuestro stream se cayó a mitad del sermón un Domingo de Pascua el año pasado. Este año Tally detectó y recuperó la caída en 8 segundos. Nadie en la congregación se dio cuenta.',
-    reviewer_name: 'Marcus T.',
-    reviewer_role: 'Director Técnico',
-    church_name: 'Grace Community Church',
-  },
-  {
-    id: 'fallback-es-2',
-    rating: 5,
-    body: 'Pasamos de necesitar un técnico pagado cada domingo a tener voluntarios manejando toda la producción con confianza. Tally se encarga de los problemas para que ellos puedan concentrarse en cámaras y diapositivas.',
-    reviewer_name: 'Sarah K.',
-    reviewer_role: 'Pastora de Alabanza',
-    church_name: 'Harvest Fellowship',
-  },
-  {
-    id: 'fallback-es-3',
-    rating: 5,
-    body: 'Solo la verificación previa al servicio ya vale la suscripción. Cada domingo por la mañana recibimos luz verde 30 minutos antes del servicio. Se acabaron los recorridos frenéticos por la cabina.',
-    reviewer_name: 'David R.',
-    reviewer_role: 'Líder de Producción',
-    church_name: 'New Life Church',
-  },
-];
-
 function TestimonialsEs() {
   const [reviews, setReviews] = useState([]);
 
@@ -1113,7 +1087,9 @@ function TestimonialsEs() {
       .catch(() => {});
   }, []);
 
-  const displayReviews = reviews.length > 0 ? reviews : FALLBACK_REVIEWS_ES;
+  if (reviews.length === 0) return null;
+
+  const displayReviews = reviews;
 
   return (
     <section id="testimonials" style={{ padding: '96px 5%' }}>
@@ -1129,7 +1105,7 @@ function TestimonialsEs() {
           letterSpacing: '-0.02em', color: WHITE,
           textAlign: 'center', marginBottom: 48, lineHeight: 1.15,
         }}>
-          Con la confianza de equipos de producción<br />en todo el país
+          Reseñas de equipos de producción
         </h2>
 
         <div style={{

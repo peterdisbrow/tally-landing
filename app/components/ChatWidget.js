@@ -97,7 +97,7 @@ function buildSetupResponse() {
 }
 
 function buildTrialResponse() {
-  return `**Free for 30 days** — full access, cancel anytime. You pick a plan later.\n\n[CTA:Get Started Free:/signup]\n\nTell me about your setup and I'll help you get the most out of it.`;
+  return `**Free for 30 days** — full access to the plan you pick, cancel anytime. Stripe Checkout may ask for a payment method; billing starts after the trial unless you cancel.\n\n[CTA:Get Started Free:/signup]`;
 }
 
 function buildSupportResponse() {
@@ -105,7 +105,7 @@ function buildSupportResponse() {
 }
 
 function buildWhatIsTallyResponse() {
-  return `**Tally** monitors every device in your church booth — ATEM, OBS, audio, encoders, ProPresenter — and fixes problems before anyone notices.\n\n• **Auto-recovery** — restarts your stream automatically\n• **AI commands** — type "cut to camera 2" in plain English\n• **Remote control** — from your phone or Telegram\n\n10-minute setup. Runs on your existing computer.\n\n[CTA:Get Started Free:/signup]\n\nWant to see pricing or try a live demo?`;
+  return `**Tally** monitors every device in your church booth — ATEM, OBS, audio, encoders, ProPresenter — and can auto-recover a dropped stream.\n\n• **Auto-recovery** — restarts your stream automatically\n• **Alerts** — Slack or Telegram with what to do next\n• **AI (optional)** — plain-English commands on Plus+; Sunday core works without it\n\n10-minute setup. Runs on your existing computer.\n\n[CTA:Get Started Free:/signup]\n\nWant to see pricing or try a live demo?`;
 }
 
 function buildAutoRecoveryResponse() {
@@ -159,11 +159,11 @@ function buildPlanningCenterResponse() {
 }
 
 function buildAutopilotResponse() {
-  return `**AI Autopilot** — create step-by-step production rundowns that auto-advance on a timer during service.\n\n• **Pro** ($149/mo) — 10 steps\n• **Enterprise** (custom pricing) — 25 steps\n\n[CTA:Get Started Free:/signup]\n\nWant to hear about a specific use case?`;
+  return `**AI Autopilot** — optional timed rundown steps. Sunday monitoring and auto-recovery do not depend on it.\n\n• **Plus** ($99/mo) — 5 rules\n• **Pro** ($149/mo) — 10 rules\n• **Enterprise** (custom pricing) — 25 rules\n\n[CTA:Get Started Free:/signup]`;
 }
 
 function buildRecommendPlanResponse() {
-  return `Quick guide:\n\n• **1 room, basic** → Connect $49/mo\n• **2-3 rooms, AI features** → Plus $99/mo\n• **Multi-room, automation** → Pro $149/mo *(most popular)*\n• **Multi-site** → Enterprise (custom pricing)\n• **One-time event** → Event $99\n\nAll include **30 days free**.\n\n[CTA:Get Started Free:/signup]\n\nTell me about your setup — I'll narrow it down!`;
+  return `Quick guide:\n\n• **1 room, basic** → Connect $49/mo\n• **2-3 rooms, AI features** → Plus $99/mo\n• **Multi-room, automation** → Pro $149/mo *(most popular)*\n• **Multi-site** → Enterprise (custom pricing)\n• **One-time event** → Event $99 for 72 hours\n\nSubscriptions include a **30-day trial**. Event is one-time, not a trial.\n\n[CTA:Get Started Free:/signup]\n\nTell me about your setup — I'll narrow it down!`;
 }
 
 function buildSecurityResponse() {
@@ -171,7 +171,7 @@ function buildSecurityResponse() {
 }
 
 function buildEventResponse() {
-  return `**Tally Event** — **$99 one-time** for 72 hours of full monitoring. Perfect for Easter, conferences, weddings.\n\nAll integrations, auto-recovery, alerts, and a post-event report.\n\n[CTA:Get Event Pass:/signup?plan=event]\n\nTell me about your event!`;
+  return `**Tally Event** — **$99 one-time** for 72 hours of full monitoring. Easter, conferences, weddings. No subscription.\n\nAll integrations, auto-recovery, alerts, and a post-event report.\n\n[CTA:Book Event:mailto:sales@tallyconnect.app]\n\nTell me about your event!`;
 }
 
 function buildDemoIntro() {

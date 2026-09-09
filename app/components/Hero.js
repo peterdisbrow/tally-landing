@@ -48,7 +48,7 @@ export default function Hero() {
         color: DIM, fontSize: '0.9rem', margin: '0 auto 52px',
         fontFamily: 'ui-monospace, monospace', letterSpacing: '0.04em',
       }}>
-        Works with 23+ devices (tier-dependent) &middot; Automatic recovery &middot; AI natural language control &middot; Self-service church portal
+        Works with 23+ devices (tier-dependent) &middot; Automatic recovery &middot; AI commands on Plus+ &middot; Self-service church portal
       </p>
 
       {/* CTAs */}

@@ -45,18 +45,18 @@ export default function EarlyAccessForm() {
           <p style={{
             fontFamily: 'ui-monospace, monospace', fontSize: '0.72rem',
             fontWeight: 700, letterSpacing: '0.15em', color: GREEN, marginBottom: 20,
-          }}>EARLY ACCESS &mdash; LIMITED SPOTS</p>
+          }}>GET STARTED</p>
 
           <h2 style={{
             fontSize: 'clamp(2rem, 5vw, 3.2rem)', fontWeight: 900,
             letterSpacing: '-0.03em', margin: '0 0 16px', color: WHITE,
-          }}>JOIN THE FOUNDING CHURCHES.</h2>
+          }}>START A 30-DAY TRIAL.</h2>
 
           <p style={{ color: MUTED, marginBottom: 16, lineHeight: 1.7, fontSize: '1rem' }}>
-            Early access churches get 30 days free, locked-in pricing, and dedicated onboarding support.
+            Leave your details and we&apos;ll send a setup link. Every plan includes a 30-day trial.
           </p>
           <p style={{ color: DIM, marginBottom: 48, lineHeight: 1.7, fontSize: '0.9rem' }}>
-            No credit card required. Setup takes 10 minutes.
+            Setup takes about 10 minutes. Cancel anytime.
           </p>
 
           {submitted ? (
@@ -111,11 +111,11 @@ export default function EarlyAccessForm() {
                   opacity: submitting ? 0.7 : 1, marginTop: 4,
                 }}
               >
-                {submitting ? 'Sending...' : 'Request Early Access \u2014 Free for 30 Days \u2192'}
+                {submitting ? 'Sending...' : 'Request a setup link \u2014 30-day trial \u2192'}
               </button>
 
               <p style={{ color: DIM, fontSize: '0.82rem', margin: 0, marginTop: 4 }}>
-                Limited spots. No credit card. Cancel anytime.
+                30-day trial. Cancel anytime.
               </p>
             </form>
           )}

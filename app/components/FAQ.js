@@ -29,7 +29,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What does the AI do?',
-    a: 'Three things. First, AI natural language commands let your TDs type plain English like "cut to camera 2 and start recording" instead of navigating menus. Second, AI Autopilot lets you create step-by-step production rundowns that auto-advance on a timer during service. Third, the AI Setup Assistant auto-configures your mixer channels and ATEM input labels from a patch list, camera plot, or photo \u2014 using AI vision to parse whatever format you have. Available on Plus and above.',
+    a: 'AI is assistive \u2014 not required to run Sunday. Monitoring, alerts, and auto-recovery work without it. On Plus and above, three optional tools help when you want them: natural language commands ("cut to camera 2 and start recording"), Autopilot rundowns that auto-advance on a timer, and a Setup Assistant that can read a patch list, camera plot, or photo. Review what it proposes before you go live.',
   },
   {
     q: 'What is the Church Portal?',
@@ -53,7 +53,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'How do we justify this cost to leadership?',
-    a: <>One prevented streaming outage during a Sunday service pays for Tally for an entire year. Consider this: a single visible stream failure can mean lost online viewers, frustrated members, and hours of troubleshooting. Many churches also spend $200-500 per service paying experienced techs to be on-call &ldquo;just in case.&rdquo; Tally replaces that safety net at a fraction of the cost &mdash; 24/7 monitoring, automatic recovery, and instant alerts so volunteers can run production confidently without an expensive specialist standing by. Most churches see ROI within the first month. <a href="#pricing" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 600 }}>Compare plans &rarr;</a></>,
+    a: <>A visible stream failure can mean lost online viewers, a long Monday debrief, and emergency tech time. Some churches also pay $200&ndash;500 per service for an on-call specialist &ldquo;just in case.&rdquo; Tally is the monitoring, auto-recovery, and alert layer so volunteer teams have that safety net without someone standing by. Whether it pays for itself depends on your setup &mdash; compare the plan against what you already spend. <a href="#pricing" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 600 }}>Compare plans &rarr;</a></>,
   },
 ];
 

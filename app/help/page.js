@@ -139,7 +139,7 @@ export default function HelpPage() {
             <ol style={olStyle}>
               <li>Create your account at <a href="https://tallyconnect.app/signup" style={linkStyle}>tallyconnect.app/signup</a></li>
               <li>Choose your plan (30-day free trial included)</li>
-              <li>Download the Tally desktop app from the portal</li>
+              <li>Download the Tally desktop app from <a href="/download" style={linkStyle}>tallyconnect.app/download</a>. Mac and Windows version numbers can differ; that page lists the current builds.</li>
               <li>Enter your registration code in the app</li>
               <li>Enter the IP addresses for your ATEM switcher, OBS, and other equipment</li>
               <li>Your church appears live on the dashboard within minutes</li>
@@ -293,7 +293,7 @@ export default function HelpPage() {
 
           <AccordionItem title="AI Autopilot rules" hidden={!match('AI Autopilot rules')}>
             <p style={paraStyle}>
-              <span style={badgeStyleAlt}>Pro</span> <span style={badgeStyleAlt}>Enterprise</span> — Create automation rules that run during services. Three trigger types:
+              <span style={badgeStyleAlt}>Plus</span> <span style={badgeStyleAlt}>Pro</span> <span style={badgeStyleAlt}>Enterprise</span> — Optional automation rules that run during services. Sunday monitoring, alerts, and auto-recovery do not depend on Autopilot or Claude.
             </p>
             <ul style={ulStyle}>
               <li>
@@ -307,7 +307,7 @@ export default function HelpPage() {
               </li>
             </ul>
             <p style={{ ...paraStyle, marginTop: 12 }}>
-              Limits: Pro tier can have up to 10 rules, Enterprise up to 25. Each rule fires at most once per service session.
+              Limits: Plus up to 5 rules, Pro up to 10, Enterprise up to 25. Each rule fires at most once per service session.
             </p>
           </AccordionItem>
 
