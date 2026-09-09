@@ -55,7 +55,7 @@ export default function FeatureComparison() {
         color: WHITE,
       }}>Compare plans side-by-side</h3>
       <p style={{ color: DIM, textAlign: 'center', marginBottom: 40, fontSize: '0.88rem' }}>
-        Every plan starts with a 30-day free trial. All features included.
+        Every subscription starts with a 30-day free trial of that tier.
       </p>
 
       {/* Desktop table */}

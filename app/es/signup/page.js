@@ -203,6 +203,9 @@ export default function SignupEsPage() {
             <p style={{ color: MUTED, lineHeight: 1.55, marginBottom: 10 }}>
               Comienza tu prueba gratuita de 30 días. Inicia sesión en la aplicación de escritorio con tu correo y contraseña.
             </p>
+            <p style={{ fontSize: 12, color: MUTED, lineHeight: 1.55, marginBottom: 10 }}>
+              El pago lo procesa Stripe y puede pedir un método de pago. La facturación empieza después de la prueba, salvo que canceles.
+            </p>
             <p style={{ fontSize: 12, color: MUTED, lineHeight: 1.55, marginBottom: 18, padding: '8px 12px', background: 'rgba(148,163,184,0.06)', borderRadius: 6, borderLeft: `2px solid ${BORDER}` }}>
               <strong style={{ color: WHITE }}>Canales de alerta:</strong> Tally envía alertas por Slack y/o Telegram.
               Después del registro recibirás un código para conectar a tu equipo al bot de Telegram <strong style={{ color: WHITE }}>@tallybot</strong> — o configura Slack en su lugar. Ambos son opcionales.
@@ -272,7 +275,7 @@ export default function SignupEsPage() {
                 })}
               </div>
               {form.tier === 'connect' && (
-                <p style={{ fontSize: 11, color: MUTED, marginTop: 6 }}>Precio para iglesias — $49/mes</p>
+                <p style={{ fontSize: 11, color: MUTED, marginTop: 6 }}>Connect es $49/mes</p>
               )}
             </div>
 

@@ -50,7 +50,7 @@ const jsonLd = {
           name: 'What equipment does Tally work with?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen & Heath, Yamaha CL/QL), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Dante audio, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, Telegram, YouTube Live, Facebook Live, and Vimeo Live. Works with 23+ devices (availability depends on plan).',
+            text: 'ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen & Heath via Companion, Yamaha CL/QL/TF), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Shelly smart plugs, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, Telegram, YouTube Live, and Facebook Live. Works with 23+ devices — Connect includes 3 core (ATEM, OBS, vMix); Plus and above include the full set.',
           },
         },
         {
@@ -66,7 +66,7 @@ const jsonLd = {
           name: 'How long does setup take?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'About 10 minutes. Download the app on your booth computer, sign in with your registration code, and Tally auto-discovers your ATEM, OBS, and other gear on the network. No port forwarding, no complex configuration.',
+            text: 'About 10 minutes. Download the app on your booth computer, sign in with your registration code, and enter the IP addresses for your ATEM, OBS, and other gear on the network. No port forwarding, no complex configuration.',
           },
         },
         {
@@ -83,6 +83,14 @@ const jsonLd = {
           acceptedAnswer: {
             '@type': 'Answer',
             text: 'A full service planning and live show control tool built into Tally. Build rundowns with drag-and-drop, set hard start times, and go live with cue-by-cue GO/Back navigation. It includes 7 output views — confidence monitor, studio clock, teleprompter, speaker timer, public view, show control, and post-show report — all shareable via link with no login required. Multiple team members can edit simultaneously with real-time presence indicators. You can import existing service plans from PDF, Word, or PowerPoint using AI, or save and reuse templates. Included in all plans.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What does the AI do?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'AI is assistive — not required to run Sunday. Monitoring, alerts, and auto-recovery work without it. On Plus and above, optional tools include natural language commands, Autopilot rundowns, and a Setup Assistant. Review what it proposes before you go live.',
           },
         },
         {
@@ -114,7 +122,7 @@ const jsonLd = {
           name: 'How do we justify this cost to leadership?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'One prevented streaming outage during a Sunday service pays for Tally for an entire year. Many churches also spend $200–500 per service paying experienced techs to be on-call "just in case." Tally replaces that safety net at a fraction of the cost — 24/7 monitoring, automatic recovery, and instant alerts so volunteers can run production confidently.',
+            text: 'A visible stream failure can mean lost online viewers, a long Monday debrief, and emergency tech time. Some churches also pay $200–500 per service for an on-call specialist. Tally is the monitoring, auto-recovery, and alert layer so volunteer teams have that safety net without someone standing by. Whether it pays for itself depends on your setup.',
           },
         },
       ],

@@ -11,10 +11,7 @@ const AMBER = '#f59e0b';
 const AMBER_BG = 'rgba(245,158,11,0.08)';
 const AMBER_BORDER = 'rgba(245,158,11,0.3)';
 
-// Always points to the latest published release — no hardcoded version number
-const DOWNLOAD_BASE = 'https://github.com/tallyconnect/tally/releases/latest/download';
-const DOWNLOAD_MAC_URL = `${DOWNLOAD_BASE}/Tally.dmg`;
-const DOWNLOAD_WIN_URL = `${DOWNLOAD_BASE}/Tally-Setup.exe`;
+const DOWNLOAD_URL = '/download';
 const PORTAL_URL = '/portal';
 const HELP_URL = '/help';
 
@@ -64,13 +61,13 @@ export default function SignupSuccessPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
-              <a href={DOWNLOAD_MAC_URL} target="_blank" rel="noopener noreferrer" style={downloadBtn}>
-                ↓ Mac (Apple Silicon)
-              </a>
-              <a href={DOWNLOAD_WIN_URL} target="_blank" rel="noopener noreferrer" style={downloadBtnSecondary}>
-                ↓ Windows
+              <a href={DOWNLOAD_URL} style={downloadBtn}>
+                Download Tally
               </a>
             </div>
+            <p style={{ color: DIM, fontSize: 12, margin: '8px 0 0', lineHeight: 1.45 }}>
+              Mac and Windows installers, with current version notes, are on the download page.
+            </p>
           </div>
 
           {/* Step 2: Sign In */}
@@ -193,18 +190,6 @@ const downloadBtn = {
   color: '#000',
   textDecoration: 'none',
   borderRadius: 8,
-};
-
-const downloadBtnSecondary = {
-  display: 'inline-block',
-  padding: '10px 20px',
-  fontSize: 13,
-  fontWeight: 600,
-  background: 'transparent',
-  color: MUTED,
-  textDecoration: 'none',
-  borderRadius: 8,
-  border: `1px solid ${BORDER}`,
 };
 
 const linkBtn = {
