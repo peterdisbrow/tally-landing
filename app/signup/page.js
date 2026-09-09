@@ -6,10 +6,10 @@ import Nav from '../components/Nav';
 import Footer from '../components/Footer';
 
 const TIERS = [
-  { value: 'connect',  name: 'Connect',    monthlyPrice: 49,  annualPrice: 37 },
-  { value: 'plus',     name: 'Plus',        monthlyPrice: 99,  annualPrice: 74 },
-  { value: 'pro',      name: 'Pro',         monthlyPrice: 149, annualPrice: 112 },
-  { value: 'managed',  name: 'Enterprise',  monthlyPrice: 499, annualPrice: 374 },
+  { value: 'connect',  name: 'Connect',    monthlyPrice: 49,  annualTotal: 588 },
+  { value: 'plus',     name: 'Plus',        monthlyPrice: 99,  annualTotal: 1188 },
+  { value: 'pro',      name: 'Pro',         monthlyPrice: 149, annualTotal: 1788 },
+  { value: 'managed',  name: 'Enterprise',  customPricing: true },
 ];
 
 const VALID_PLANS = TIERS.map(t => t.value);
@@ -206,7 +206,7 @@ export default function SignupPage() {
         <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 24 }}>
           <h1 style={{ fontSize: 28, marginBottom: 8 }}>Create Your Tally Account</h1>
           <p style={{ color: MUTED, lineHeight: 1.55, marginBottom: 10 }}>
-            Start your free trial — no credit card required. Log into the desktop app with your email and password.
+            Start your 30-day free trial. Log into the desktop app with your email and password.
           </p>
           <p style={{ fontSize: 12, color: MUTED, lineHeight: 1.55, marginBottom: 18, padding: '8px 12px', background: 'rgba(148,163,184,0.06)', borderRadius: 6, borderLeft: `2px solid ${BORDER}` }}>
             <strong style={{ color: WHITE }}>Alert channels:</strong> Tally sends alerts via Slack and/or Telegram.
@@ -257,15 +257,19 @@ export default function SignupPage() {
                       cursor: 'pointer',
                     }}
                   >
-                    {interval === 'monthly' ? 'Monthly' : 'Annual (save 25%)'}
+                    {interval === 'monthly' ? 'Monthly' : 'Annual (12×)'}
                   </button>
                 ))}
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {TIERS.map(tier => {
-                const price = form.billingInterval === 'annual' ? tier.annualPrice : tier.monthlyPrice;
                 const isSelected = form.tier === tier.value;
+                const priceLabel = tier.customPricing
+                  ? 'Contact sales'
+                  : (form.billingInterval === 'annual'
+                    ? `$${tier.annualTotal.toLocaleString()}/yr`
+                    : `$${tier.monthlyPrice}/mo`);
                 return (
                   <button
                     key={tier.value}
@@ -280,15 +284,15 @@ export default function SignupPage() {
                   >
                     <div style={{ fontSize: 13, fontWeight: 700, color: isSelected ? GREEN : WHITE }}>{tier.name}</div>
                     <div style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>
-                      {tier.value === 'managed' ? 'Contact us' : `$${price}/mo`}
+                      {priceLabel}
                     </div>
                   </button>
                 );
               })}
             </div>
             {form.tier === 'connect' && (
-              <p style={{ fontSize: 11, color: GREEN, marginTop: 6 }}>
-                ★ Founding Church Rate — limited spots at $49/mo
+              <p style={{ fontSize: 11, color: MUTED, marginTop: 6 }}>
+                Early church pricing — $49/mo
               </p>
             )}
           </div>
@@ -396,21 +400,41 @@ export default function SignupPage() {
               </span>
             </label>
 
-            <button type="submit" disabled={!canContinue} style={{
-              marginTop: 16,
-              width: '100%',
-              border: 0,
-              borderRadius: 8,
-              padding: '11px 14px',
-              fontSize: 14,
-              fontWeight: 700,
-              background: GREEN,
-              color: '#03140A',
-              cursor: canContinue ? 'pointer' : 'default',
-              opacity: canContinue ? 1 : 0.6,
-            }}>
-              {submitting ? 'Creating account…' : 'Create Account & Start Free Trial'}
-            </button>
+            {form.tier === 'managed' ? (
+              <a href="mailto:sales@tallyconnect.app" style={{
+                marginTop: 16,
+                display: 'block',
+                textAlign: 'center',
+                width: '100%',
+                border: 0,
+                borderRadius: 8,
+                padding: '11px 14px',
+                fontSize: 14,
+                fontWeight: 700,
+                background: GREEN,
+                color: '#03140A',
+                textDecoration: 'none',
+                boxSizing: 'border-box',
+              }}>
+                Contact Sales — sales@tallyconnect.app
+              </a>
+            ) : (
+              <button type="submit" disabled={!canContinue} style={{
+                marginTop: 16,
+                width: '100%',
+                border: 0,
+                borderRadius: 8,
+                padding: '11px 14px',
+                fontSize: 14,
+                fontWeight: 700,
+                background: GREEN,
+                color: '#03140A',
+                cursor: canContinue ? 'pointer' : 'default',
+                opacity: canContinue ? 1 : 0.6,
+              }}>
+                {submitting ? 'Creating account…' : 'Create Account & Start Free Trial'}
+              </button>
+            )}
           </form>
 
           {success && !success.checkoutUrl && (

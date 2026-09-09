@@ -49,7 +49,7 @@ export default function Integrations() {
           textAlign: 'center', color: DIM, fontSize: '0.9rem',
           marginTop: 36, fontStyle: 'italic',
         }}>
-          23 integrations and counting. If it&apos;s in your booth, Tally monitors it.
+          Works with 23+ devices. Connect includes 3 core (ATEM, OBS, vMix); Plus and above include the full set.
         </p>
       </div>
     </section>

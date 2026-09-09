@@ -397,7 +397,7 @@ function RemoteMonitoring() {
 
       <h2 style={h2}>Getting Started</h2>
       <ol style={ol}>
-        <li><a href="/signup" style={a}>Sign up for a free trial</a> — no credit card required</li>
+        <li><a href="/signup" style={a}>Sign up for a free trial</a></li>
         <li>Install the Tally desktop app on your booth computer (10 minutes)</li>
         <li>Enter the IP addresses for your ATEM, OBS, and other equipment</li>
         <li>Connect Slack or Telegram for alerts</li>

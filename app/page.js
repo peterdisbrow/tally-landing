@@ -26,14 +26,14 @@ const jsonLd = {
       name: 'Tally',
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'macOS, Windows',
-      description: 'Church production monitoring, rundown planning, AI control, and auto-recovery. Full service rundown planner with live show mode, 7 output views, and collaborative editing. Monitor ATEM, OBS, vMix, audio consoles, encoders, and stream health from anywhere. 23 integrations.',
+      description: 'Church production monitoring, rundown planning, AI control, and auto-recovery. Full service rundown planner with live show mode, 7 output views, and collaborative editing. Monitor ATEM, OBS, vMix, audio consoles, encoders, and stream health from anywhere. Works with 23+ devices (tier-dependent).',
       url: 'https://tallyconnect.app',
       offers: {
         '@type': 'AggregateOffer',
-        lowPrice: '49',  // Founding Church Rate (monthly). Free trial available but no free tier.
-        highPrice: '499',
+        lowPrice: '49',
+        highPrice: '149',
         priceCurrency: 'USD',
-        offerCount: 4,
+        offerCount: 3,
       },
     },
     {
@@ -50,7 +50,7 @@ const jsonLd = {
           name: 'What equipment does Tally work with?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen & Heath, Yamaha CL/QL), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Dante audio, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, Telegram, YouTube Live, Facebook Live, and Vimeo Live. 26 integrations and counting.',
+            text: 'ATEM switchers, OBS Studio, vMix, Ecamm Live, ProPresenter, Bitfocus Companion, audio consoles (Behringer X32, Midas M32, Allen & Heath, Yamaha CL/QL), HyperDeck recorders, PTZ cameras, Resolume Arena, Video Hub routers, Dante audio, hardware encoders (Blackmagic, Teradek, YoloBox, Epiphan, AJA HELO), Planning Center, Slack, Telegram, YouTube Live, Facebook Live, and Vimeo Live. Works with 23+ devices (availability depends on plan).',
           },
         },
         {

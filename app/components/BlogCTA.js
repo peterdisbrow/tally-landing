@@ -34,7 +34,7 @@ export default function BlogCTA() {
         Start Free — 30 Days &rarr;
       </a>
       <p style={{ color: DIM, fontSize: 12, marginTop: 10, marginBottom: 0 }}>
-        No credit card required.
+        30-day free trial.
       </p>
     </div>
   );

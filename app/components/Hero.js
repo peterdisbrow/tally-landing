@@ -48,7 +48,7 @@ export default function Hero() {
         color: DIM, fontSize: '0.9rem', margin: '0 auto 52px',
         fontFamily: 'ui-monospace, monospace', letterSpacing: '0.04em',
       }}>
-        23 integrations &middot; Automatic recovery &middot; AI natural language control &middot; Self-service church portal
+        Works with 23+ devices (tier-dependent) &middot; Automatic recovery &middot; AI natural language control &middot; Self-service church portal
       </p>
 
       {/* CTAs */}
@@ -71,7 +71,7 @@ export default function Hero() {
 
       {/* Trust line */}
       <p style={{ color: DIM, fontSize: '0.8rem', marginBottom: 60 }}>
-        &#10003; Free 30-day trial &nbsp;&middot;&nbsp; &#10003; No credit card required &nbsp;&middot;&nbsp; &#10003; Cancel anytime
+        &#10003; Free 30-day trial &nbsp;&middot;&nbsp; &#10003; Cancel anytime
       </p>
 
       {/* scrolling device strip */}

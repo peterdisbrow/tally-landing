@@ -109,30 +109,50 @@ describe('PRICING', () => {
     expect(PRICING.length).toBe(4);
   });
 
-  it('tiers are in ascending price order', () => {
-    for (let i = 1; i < PRICING.length; i++) {
-      expect(PRICING[i].monthlyPrice).toBeGreaterThan(PRICING[i - 1].monthlyPrice);
+  it('listed monthly prices are in ascending order', () => {
+    const listed = PRICING.filter(t => !t.customPricing);
+    for (let i = 1; i < listed.length; i++) {
+      expect(listed[i].monthlyPrice).toBeGreaterThan(listed[i - 1].monthlyPrice);
     }
   });
 
-  it('annual price is always less than 12x monthly', () => {
-    for (const tier of PRICING) {
-      expect(tier.annualPrice).toBeLessThan(tier.monthlyPrice * 12);
+  it('annual price matches 12× monthly (no advertised discount)', () => {
+    for (const tier of PRICING.filter(t => !t.customPricing)) {
+      expect(tier.annualPrice).toBe(tier.monthlyPrice * 12);
     }
+  });
+
+  it('Enterprise is custom pricing with a sales CTA', () => {
+    const enterprise = PRICING.find(t => t.plan === 'managed');
+    expect(enterprise.customPricing).toBe(true);
+    expect(enterprise.monthlyPrice).toBeUndefined();
+    expect(enterprise.ctaHref).toMatch(/^mailto:sales@/);
+  });
+
+  it('Connect is $49/mo with no founding/scarcity fields', () => {
+    const connect = PRICING.find(t => t.plan === 'connect');
+    expect(connect.monthlyPrice).toBe(49);
+    expect(connect.foundingMonthlyPrice).toBeUndefined();
+    expect(connect.foundingAnnualPrice).toBeUndefined();
   });
 
   it('every tier has required fields', () => {
     for (const tier of PRICING) {
       expect(typeof tier.name).toBe('string');
       expect(typeof tier.plan).toBe('string');
-      expect(typeof tier.monthlyPrice).toBe('number');
-      expect(typeof tier.annualPrice).toBe('number');
       expect(typeof tier.desc).toBe('string');
       expect(typeof tier.featured).toBe('boolean');
       expect(typeof tier.cta).toBe('string');
       expect(typeof tier.ctaHref).toBe('string');
       expect(Array.isArray(tier.features)).toBe(true);
       expect(tier.features.length).toBeGreaterThan(0);
+      if (tier.customPricing) {
+        expect(tier.monthlyPrice).toBeUndefined();
+        expect(tier.annualPrice).toBeUndefined();
+      } else {
+        expect(typeof tier.monthlyPrice).toBe('number');
+        expect(typeof tier.annualPrice).toBe('number');
+      }
     }
   });
 

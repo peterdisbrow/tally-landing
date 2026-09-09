@@ -82,7 +82,7 @@ export default function TermsPage() {
             Tally is offered under the following subscription tiers:
             <ul style={ulStyle}>
               <li>
-                <strong>Connect</strong> — $79/month ($49/month for founding members during early access)
+                <strong>Connect</strong> — $49/month
               </li>
               <li>
                 <strong>Plus</strong> — $99/month
@@ -141,9 +141,9 @@ export default function TermsPage() {
           </Section>
 
           <Section title="5. Free Trial">
-            All new accounts receive a 30-day free trial with full access to the selected tier. No
-            credit card is required to start the trial. At trial end, if you do not subscribe, your
-            account is placed on hold and retained for 30 days before deletion.
+            All new accounts receive a 30-day free trial with full access to the selected tier. At trial
+            end, if you do not subscribe, your account is placed on hold and retained for 30 days before
+            deletion. Checkout is hosted by Stripe.
           </Section>
 
           <Section title="6. Acceptable Use">
