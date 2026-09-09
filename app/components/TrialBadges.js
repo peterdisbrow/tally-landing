@@ -6,9 +6,8 @@ const BADGES = [
     text: 'All features included during trial',
   },
   {
-    icon: '\u2717',
-    prefix: 'No credit card',
-    text: 'No credit card required',
+    icon: '\u2713',
+    text: '30-day free trial',
   },
   {
     icon: '\u21e9',

@@ -483,7 +483,7 @@ export default function HelpPage() {
             </p>
             <ul style={ulStyle}>
               <li>Full access to all features in your tier during the trial</li>
-              <li>No credit card required to start (but needed before trial ends)</li>
+              <li>30-day free trial. Checkout is hosted by Stripe and may ask for a payment method. Billing starts after the trial unless you cancel.</li>
               <li>When your trial ends, subscribe to continue or your service will be paused</li>
               <li>Data is retained for 30 days after trial expiration</li>
             </ul>

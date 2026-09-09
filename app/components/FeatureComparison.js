@@ -83,9 +83,7 @@ export default function FeatureComparison() {
                     color: tier === 'Pro' ? GREEN : DIM,
                     marginTop: 2,
                   }}>
-                    {tier === 'Connect' ? (
-                      <><span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$79</span> {TIER_PRICES[i]}/mo</>
-                    ) : tier === 'Enterprise' ? (
+                    {tier === 'Enterprise' ? (
                       <>{TIER_PRICES[i]}</>
                     ) : (
                       <>{TIER_PRICES[i]}/mo</>
@@ -155,7 +153,7 @@ export default function FeatureComparison() {
               listStyle: 'none',
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
-              <span>{tier} <span style={{ fontWeight: 600, fontSize: '0.85rem', color: DIM, marginLeft: 8 }}>{tier === 'Connect' ? <><span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$79</span> {TIER_PRICES[ti]}/mo</> : tier === 'Enterprise' ? <>{TIER_PRICES[ti]}</> : <>{TIER_PRICES[ti]}/mo</>}</span></span>
+              <span>{tier} <span style={{ fontWeight: 600, fontSize: '0.85rem', color: DIM, marginLeft: 8 }}>{tier === 'Enterprise' ? <>{TIER_PRICES[ti]}</> : <>{TIER_PRICES[ti]}/mo</>}</span></span>
               <span style={{ color: MUTED, fontSize: '0.8rem' }}>tap to expand</span>
             </summary>
             <div style={{ padding: '0 20px 16px' }}>

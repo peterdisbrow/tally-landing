@@ -11,10 +11,10 @@ const COST_OPTIONS = [
 
 /* Map services/week to a recommended plan & annual price */
 function recommendedPlan(services) {
-  if (services <= 2) return { name: 'Connect', annual: 490, monthly: 49 };
-  if (services <= 5) return { name: 'Plus', annual: 990, monthly: 99 };
-  if (services <= 8) return { name: 'Pro', annual: 1490, monthly: 149 };
-  return { name: 'Enterprise', annual: 4990, monthly: 499 };
+  if (services <= 2) return { name: 'Connect', annual: 588, monthly: 49 };
+  if (services <= 5) return { name: 'Plus', annual: 1188, monthly: 99 };
+  if (services <= 8) return { name: 'Pro', annual: 1788, monthly: 149 };
+  return { name: 'Enterprise', custom: true };
 }
 
 export default function ROICalculator() {
@@ -33,9 +33,9 @@ export default function ROICalculator() {
     const effectiveSavings = Math.round(incidents * failCost * audienceFactor);
 
     const plan = recommendedPlan(services);
-    const tallyCost = plan.annual;
-    const net = effectiveSavings - tallyCost;
-    const roi = tallyCost > 0 ? Math.round((net / tallyCost) * 100) : 0;
+    const tallyCost = plan.custom ? null : plan.annual;
+    const net = tallyCost == null ? null : effectiveSavings - tallyCost;
+    const roi = tallyCost > 0 ? Math.round((net / tallyCost) * 100) : null;
 
     return { incidents, effectiveSavings, tallyCost, net, roi, plan };
   }, [services, viewers, failCost]);
@@ -245,7 +245,9 @@ export default function ROICalculator() {
                     TALLY COST ({calc.plan.name})
                   </div>
                   <div style={{ fontSize: '1.3rem', fontWeight: 800, color: WHITE }}>
-                    ${calc.tallyCost.toLocaleString()}<span style={{ fontSize: '0.8rem', color: DIM }}>/yr</span>
+                    {calc.plan.custom
+                      ? 'Custom'
+                      : <>${calc.tallyCost.toLocaleString()}<span style={{ fontSize: '0.8rem', color: DIM }}>/yr</span></>}
                   </div>
                 </div>
                 <div>
@@ -254,15 +256,15 @@ export default function ROICalculator() {
                   </div>
                   <div style={{
                     fontSize: '1.3rem', fontWeight: 800,
-                    color: calc.roi > 0 ? GREEN : '#ef4444',
+                    color: calc.plan.custom ? WHITE : (calc.roi > 0 ? GREEN : '#ef4444'),
                   }}>
-                    {calc.roi > 0 ? '+' : ''}{calc.roi}%
+                    {calc.plan.custom ? '—' : `${calc.roi > 0 ? '+' : ''}${calc.roi}%`}
                   </div>
                 </div>
               </div>
             </div>
 
-            <a href="/signup" style={{
+            <a href={calc.plan.custom ? 'mailto:sales@tallyconnect.app' : '/signup'} style={{
               display: 'block', textAlign: 'center',
               padding: '16px 24px', fontSize: '1.05rem', fontWeight: 800,
               borderRadius: 10, textDecoration: 'none',
@@ -270,7 +272,7 @@ export default function ROICalculator() {
               boxShadow: '0 4px 20px rgba(34,197,94,0.3)',
               transition: 'transform .15s, box-shadow .15s',
             }}>
-              Start saving &rarr; Free trial
+              {calc.plan.custom ? 'Contact sales \u2192' : 'Start saving \u2192 Free trial'}
             </a>
           </div>
         </div>

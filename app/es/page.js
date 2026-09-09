@@ -174,7 +174,7 @@ function FeaturesEs() {
 
         <div style={{ textAlign: 'center', marginTop: 48 }}>
           <p style={{ color: DIM, fontSize: '0.9rem', marginBottom: 14 }}>
-            Compatible con más de 23 integraciones: mezcladores, codificadores, audio y software de presentación.
+            Compatible con 23+ dispositivos (según el plan): mezcladores, codificadores, audio y software de presentación.
           </p>
           <a href="/hardware" style={{
             display: 'inline-block', padding: '12px 28px', fontSize: '0.9rem', fontWeight: 700,
@@ -537,7 +537,7 @@ function IntegrationsEs() {
           textAlign: 'center', color: DIM, fontSize: '0.9rem',
           marginTop: 36, fontStyle: 'italic',
         }}>
-          23 integraciones y contando. Si está en tu cabina, Tally lo monitorea.
+          Compatible con 23+ dispositivos. Connect incluye 3 núcleo (ATEM, OBS, vMix); Plus y superiores incluyen el conjunto completo.
         </p>
       </div>
     </section>
@@ -617,10 +617,8 @@ const PRICING_ES = [
   {
     name: 'Connect',
     plan: 'connect',
-    monthlyPrice: 79,
-    annualPrice: 711,
-    foundingMonthlyPrice: 49,
-    foundingAnnualPrice: 441,
+    monthlyPrice: 49,
+    annualPrice: 588,
     desc: 'Monitoreo, alertas y control remoto para una sola sala.',
     featured: false,
     cta: 'Iniciar Prueba Gratuita \u2192',
@@ -641,7 +639,7 @@ const PRICING_ES = [
     name: 'Plus',
     plan: 'plus',
     monthlyPrice: 99,
-    annualPrice: 891,
+    annualPrice: 1188,
     desc: 'Integraciones completas, comandos de IA y soporte multi-sala para equipos en crecimiento.',
     featured: false,
     cta: 'Iniciar Prueba Gratuita \u2192',
@@ -663,7 +661,7 @@ const PRICING_ES = [
     name: 'Pro',
     plan: 'pro',
     monthlyPrice: 149,
-    annualPrice: 1341,
+    annualPrice: 1788,
     desc: 'Piloto automático con IA, sincronización con Planning Center e informes mensuales para operaciones multi-sala.',
     featured: true,
     cta: 'Iniciar Prueba Gratuita \u2192',
@@ -713,7 +711,7 @@ const FC_ROWS_ES = [
   { feature: 'Cronología Post-Servicio', values: [true, true, true, true] },
   { feature: 'Portal de Iglesia', values: [true, true, true, true] },
   { feature: 'Cambio de Señal (Failover)', values: [false, true, true, true] },
-  { feature: 'Las 23 Integraciones', values: [false, true, true, true] },
+  { feature: 'Las 23 Integraciones', values: ['3 núcleo', true, true, true] },
   { feature: 'Control Profundo de ProPresenter', values: [false, true, true, true] },
   { feature: 'Rotación de DT de Guardia', values: [false, true, true, true] },
   { feature: 'Tokens de DT Invitado', values: [false, true, true, true] },
@@ -773,9 +771,7 @@ function FeatureComparisonEs() {
                     fontWeight: 600, fontSize: '0.75rem',
                     color: tier === 'Pro' ? GREEN : DIM, marginTop: 2,
                   }}>
-                    {tier === 'Connect' ? (
-                      <><span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$79</span> {FC_TIER_PRICES[i]}/mes</>
-                    ) : tier === 'Enterprise' ? (
+                    {tier === 'Enterprise' ? (
                       <>{FC_TIER_PRICES[i]}</>
                     ) : (
                       <>{FC_TIER_PRICES[i]}/mes</>
@@ -843,7 +839,7 @@ function FeatureComparisonEs() {
               listStyle: 'none',
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
-              <span>{tier} <span style={{ fontWeight: 600, fontSize: '0.85rem', color: DIM, marginLeft: 8 }}>{tier === 'Connect' ? <><span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$79</span> {FC_TIER_PRICES[ti]}/mes</> : tier === 'Enterprise' ? <>{FC_TIER_PRICES[ti]}</> : <>{FC_TIER_PRICES[ti]}/mes</>}</span></span>
+              <span>{tier} <span style={{ fontWeight: 600, fontSize: '0.85rem', color: DIM, marginLeft: 8 }}>{tier === 'Enterprise' ? <>{FC_TIER_PRICES[ti]}</> : <>{FC_TIER_PRICES[ti]}/mes</>}</span></span>
               <span style={{ color: MUTED, fontSize: '0.8rem' }}>toca para expandir</span>
             </summary>
             <div style={{ padding: '0 20px 16px' }}>
@@ -867,7 +863,7 @@ function FeatureComparisonEs() {
 function TrialBadgesEs() {
   const badges = [
     { icon: '\u2713', text: 'Todas las funciones incluidas durante la prueba' },
-    { icon: '\u2717', text: 'No se requiere tarjeta de crédito' },
+    { icon: '\u2713', text: 'Prueba gratuita de 30 días' },
     { icon: '\u21e9', text: 'Conserva tus datos si cancelas' },
   ];
 
@@ -914,7 +910,7 @@ function PricingEs() {
           color: WHITE,
         }}>Precios simples y honestos.</h2>
         <p style={{ color: DIM, textAlign: 'center', marginBottom: 36, fontSize: '0.95rem' }}>
-          Prueba gratuita de 30 días para cada iglesia &mdash; sin tarjeta de crédito. Cancela cuando quieras.
+          Prueba gratuita de 30 días para cada iglesia. Cancela cuando quieras.
         </p>
 
         {/* Monthly / Annual toggle */}
@@ -949,11 +945,11 @@ function PricingEs() {
           {annual && (
             <span style={{
               fontFamily: 'ui-monospace, monospace', fontSize: '0.7rem',
-              fontWeight: 700, letterSpacing: '0.08em', color: GREEN,
-              background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
+              fontWeight: 700, letterSpacing: '0.08em', color: MUTED,
+              background: 'rgba(148,163,184,0.08)', border: `1px solid ${BORDER}`,
               borderRadius: 20, padding: '5px 14px', whiteSpace: 'nowrap',
             }}>
-              AHORRA 3 MESES
+              FACTURADO AL AÑO (12×)
             </span>
           )}
         </div>
@@ -964,14 +960,10 @@ function PricingEs() {
           gap: 16, marginBottom: 32,
         }}>
           {PRICING_ES.map((plan, i) => {
-            const isFounding = plan.plan === 'connect' && plan.foundingMonthlyPrice;
             const isCustom = plan.customPricing;
             const displayPrice = isCustom ? 'Consultar' : (annual
               ? `$${Math.round(plan.annualPrice / 12)}`
               : `$${plan.monthlyPrice}`);
-            const foundingDisplayPrice = isFounding
-              ? (annual ? `$${Math.round(plan.foundingAnnualPrice / 12)}` : `$${plan.foundingMonthlyPrice}`)
-              : null;
             const period = isCustom ? '' : '/mes';
             const ctaHref = plan.plan === 'managed'
               ? plan.ctaHref
@@ -1000,38 +992,12 @@ function PricingEs() {
                 <p style={{ color: DIM, fontSize: '0.82rem', margin: '0 0 24px', lineHeight: 1.5 }}>{plan.desc}</p>
 
                 <div style={{ marginBottom: 28 }}>
-                  {isFounding ? (
-                    <>
-                      <div style={{ marginBottom: 6 }}>
-                        <span style={{ fontSize: '3rem', fontWeight: 900, color: GREEN, letterSpacing: '-0.03em' }}>{foundingDisplayPrice}</span>
-                        <span style={{ fontSize: '0.95rem', color: DIM }}>/mes</span>
-                        <span style={{ fontSize: '0.82rem', color: DIM, marginLeft: 10, textDecoration: 'line-through' }}>{displayPrice}</span>
-                      </div>
-                      <div style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 6,
-                        background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)',
-                        borderRadius: 20, padding: '4px 12px', marginBottom: 4,
-                        fontFamily: 'ui-monospace, monospace', fontSize: '0.68rem',
-                        fontWeight: 700, letterSpacing: '0.08em', color: GREEN,
-                      }}>
-                        PRECIO IGLESIA FUNDADORA — CUPOS LIMITADOS
-                      </div>
-                      {annual && (
-                        <div style={{ fontSize: '0.78rem', color: MUTED, marginTop: 4 }}>
-                          ${plan.foundingAnnualPrice}/año &mdash; facturado anualmente
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <span style={{ fontSize: '3rem', fontWeight: 900, color: WHITE, letterSpacing: '-0.03em' }}>{displayPrice}</span>
-                      <span style={{ fontSize: '0.95rem', color: DIM }}>{period}</span>
-                      {annual && !isCustom && (
-                        <div style={{ fontSize: '0.78rem', color: MUTED, marginTop: 4 }}>
-                          ${plan.annualPrice}/año &mdash; facturado anualmente
-                        </div>
-                      )}
-                    </>
+                  <span style={{ fontSize: '3rem', fontWeight: 900, color: WHITE, letterSpacing: '-0.03em' }}>{displayPrice}</span>
+                  <span style={{ fontSize: '0.95rem', color: DIM }}>{period}</span>
+                  {annual && !isCustom && (
+                    <div style={{ fontSize: '0.78rem', color: MUTED, marginTop: 4 }}>
+                      ${plan.annualPrice.toLocaleString()}/año &mdash; facturado al año (12× mensual)
+                    </div>
                   )}
                 </div>
 
@@ -1255,7 +1221,7 @@ function FooterEs() {
 const FAQ_ES = [
   {
     q: '¿Funciona con mi equipo actual?',
-    a: 'Sí. Tally es compatible con más de 23 dispositivos incluyendo ATEM, OBS, vMix, ProPresenter, Blackmagic, Ecamm, Teradek, y más. No necesitas reemplazar nada.',
+    a: 'Sí. Tally es compatible con 23+ dispositivos incluyendo ATEM, OBS, vMix, ProPresenter, Blackmagic, Ecamm, Teradek, y más. Connect incluye 3 núcleo (ATEM, OBS, vMix); Plus y superiores incluyen el conjunto completo. No necesitas reemplazar nada.',
   },
   {
     q: '¿Necesito saber programar para usarlo?',
@@ -1271,7 +1237,7 @@ const FAQ_ES = [
   },
   {
     q: '¿Cuánto cuesta?',
-    a: 'El plan Connect empieza en $49/mes e incluye monitoreo básico y recuperación automática. Hay una prueba gratuita de 30 días. No se requiere tarjeta de crédito para empezar.',
+    a: 'El plan Connect empieza en $49/mes e incluye monitoreo básico y recuperación automática. Hay una prueba gratuita de 30 días.',
   },
   {
     q: '¿Puedo cancelar cuando quiera?',

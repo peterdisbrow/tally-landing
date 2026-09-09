@@ -70,8 +70,11 @@ const DEMO_STAGES = [
 /* ─── Static responses — no AI tokens needed ─── */
 
 function buildPricingResponse() {
-  const lines = PRICING.map(p => `**${p.name}** — $${p.monthlyPrice}/mo · ${p.desc}`);
-  return `${lines.join('\n')}\n\nAll plans include **30 days free** — no credit card.\n\n[CTA:Get Started Free:/signup]\n\nHow many rooms are you running? I can narrow it down.`;
+  const lines = PRICING.map(p => {
+    const price = p.customPricing ? 'Custom — contact sales' : `$${p.monthlyPrice}/mo`;
+    return `**${p.name}** — ${price} · ${p.desc}`;
+  });
+  return `${lines.join('\n')}\n\nAll plans include a **30-day free trial**. Annual is billed yearly at 12× monthly.\n\n[CTA:Get Started Free:/signup]\n\nHow many rooms are you running? I can narrow it down.`;
 }
 
 function buildFeaturesResponse() {
@@ -94,7 +97,7 @@ function buildSetupResponse() {
 }
 
 function buildTrialResponse() {
-  return `**Free for 30 days** — no credit card, full access, cancel anytime. You pick a plan later.\n\n[CTA:Get Started Free:/signup]\n\nTell me about your setup and I'll help you get the most out of it.`;
+  return `**Free for 30 days** — full access, cancel anytime. You pick a plan later.\n\n[CTA:Get Started Free:/signup]\n\nTell me about your setup and I'll help you get the most out of it.`;
 }
 
 function buildSupportResponse() {
