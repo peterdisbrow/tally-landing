@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, Trash2, GripVertical, Play, Pause, RotateCcw } from "lucide-react";
 import AnalogClock from "./AnalogClock";
-import { supabase } from "@/integrations/supabase/client";
+import { syncServerTime } from "@/lib/timeSync";
 import type { ProPresenterStatus, HyperDeckStatus, AtemStatus } from "@/hooks/useTallyConnect";
 
 type ClockFont = {
@@ -175,15 +175,10 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
     timerAccRef.current = 0; timerStartRef.current = andStart ? Date.now() : null; setTimerElapsedMs(0); setPaused(!andStart);
   }, []);
 
-  // NTP sync
+  // Time sync — Tally /api/time first (shared with the single clock)
   const syncTime = useCallback(async () => {
-    try {
-      const before = Date.now();
-      const { data, error } = await supabase.functions.invoke("time-sync");
-      const after = Date.now();
-      if (!error && data?.timestamp) { setNtpOffset(data.timestamp - (before + (after - before) / 2)); return; }
-    } catch {}
-    setNtpOffset(0);
+    const result = await syncServerTime();
+    setNtpOffset(result.offsetMs);
   }, []);
 
   useEffect(() => { syncTime(); const id = setInterval(syncTime, 60000); return () => clearInterval(id); }, [syncTime]);
@@ -432,13 +427,19 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
     { value: "service", label: "Service" },
   ];
   if (isTallyConnected) {
-    availableModes.push({ value: "propresenter", label: "ProPresenter" });
-    availableModes.push({ value: "hyperdeck", label: "HyperDeck" });
+    if (proPresenter?.connected) {
+      availableModes.push({ value: "propresenter", label: "ProPresenter" });
+      availableModes.push({ value: "lastcue", label: "Last Cue" });
+    }
+    if (hyperdecks?.some((deck) => deck.connected)) {
+      availableModes.push({ value: "hyperdeck", label: "HyperDeck" });
+    }
     availableModes.push({ value: "streamtime", label: "Stream Time" });
     availableModes.push({ value: "recordtime", label: "Recording" });
-    availableModes.push({ value: "lastcue", label: "Last Cue" });
-    availableModes.push({ value: "atemrecord", label: "ATEM Rec" });
-    availableModes.push({ value: "atemtimecode", label: "ATEM Timecode" });
+    if (atem?.connected) {
+      availableModes.push({ value: "atemrecord", label: "ATEM Rec" });
+      availableModes.push({ value: "atemtimecode", label: "ATEM Timecode" });
+    }
   }
 
   return (

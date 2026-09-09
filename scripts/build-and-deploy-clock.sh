@@ -1,14 +1,5 @@
-#!/bin/bash
-# Build the clock tool from broadcast-brilliance-studio and deploy to tally-landing
-# Run this from the tally-landing directory: bash scripts/build-and-deploy-clock.sh
-set -e
-CLOCK_SOURCE="/Users/andrewdisbrow/Documents/TallyConnect/broadcast-brilliance-studio"
-CLOCK_DEST="$(pwd)/public/tools/clock"
-echo "Building clock from $CLOCK_SOURCE..."
-cd "$CLOCK_SOURCE"
-npm run build
-echo "Copying dist to tally-landing..."
-rm -rf "$CLOCK_DEST"
-cp -r dist/ "$CLOCK_DEST"
-echo "Done. Review changes with: git diff --stat"
-echo "Then: git add public/tools/clock && git commit -m 'feat(clock): ...' && git push"
+#!/usr/bin/env bash
+# Deprecated path — clock source now lives in this repo at apps/clock/.
+# Use: ./scripts/publish-clock-to-tally.sh
+set -euo pipefail
+exec "$(cd "$(dirname "$0")" && pwd)/publish-clock-to-tally.sh" "$@"
