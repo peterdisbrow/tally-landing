@@ -40,7 +40,7 @@ export default function PrivacyPage() {
         >
           <h1 style={{ fontSize: 28, marginBottom: 8 }}>Privacy Policy</h1>
           <p style={{ color: MUTED, fontSize: 13, marginBottom: 32 }}>
-            Last updated: March 2026
+            Last updated: September 2026
           </p>
 
           <Section title="Who we are">
@@ -120,17 +120,24 @@ export default function PrivacyPage() {
               <li>
                 <strong>Third-party cookies:</strong> Stripe may set functional cookies during
                 checkout to prevent fraud. These are strictly necessary for payment processing
-                and are not used for tracking or advertising. Our analytics solution (Plausible)
-                is cookieless.
+                and are not used for tracking or advertising. Site analytics (Vercel Web Analytics,
+                and Plausible if configured) are cookieless.
               </li>
             </ul>
           </Section>
 
           <Section title="Analytics">
-            We use Plausible Analytics, a privacy-friendly service that does not use cookies, does
-            not track individuals, and is fully GDPR-compliant. No personal data is collected by our
-            analytics. All data is aggregated — we see page view counts and referral sources, not
-            individual visitor behavior.
+            <p style={pStyle}>
+              We use Vercel Web Analytics for privacy-friendly pageviews on tallyconnect.app. It does
+              not set advertising cookies, does not build a cross-site advertising profile, and reports
+              aggregated visit data (such as page views and referrers) rather than individual visitor
+              behavior.
+            </p>
+            <p style={{ ...pStyle, marginBottom: 0 }}>
+              We may also load Plausible Analytics when it is configured for this site. Plausible is
+              similarly cookieless and GDPR-oriented. If it is not configured, its script is not loaded
+              and it does not receive data.
+            </p>
           </Section>
 
           <Section title="Third-party services">
@@ -144,8 +151,9 @@ export default function PrivacyPage() {
                 <a href="https://stripe.com/privacy" style={{ color: GREEN }}>stripe.com/privacy</a>.
               </li>
               <li>
-                <strong>Plausible Analytics</strong> (analytics) — receives anonymized, aggregate
-                page view data. No personal data is transmitted. Their data policy:{' '}
+                <strong>Plausible Analytics</strong> (optional analytics) — if configured, receives
+                anonymized, aggregate page view data. No personal data is transmitted. Their data
+                policy:{' '}
                 <a href="https://plausible.io/data-policy" style={{ color: GREEN }}>plausible.io/data-policy</a>.
               </li>
               <li>
@@ -174,8 +182,9 @@ export default function PrivacyPage() {
                 <a href="https://resend.com/legal/privacy-policy" style={{ color: GREEN }}>resend.com/legal/privacy-policy</a>.
               </li>
               <li>
-                <strong>Vercel</strong> (hosting) — hosts the Tally website. Vercel may collect
-                standard server access logs (IP address, browser type, requested URL). Their
+                <strong>Vercel</strong> (hosting and Web Analytics) — hosts the Tally website and
+                collects privacy-friendly pageview analytics. Vercel may also collect standard
+                server access logs (IP address, browser type, requested URL). Their
                 privacy policy:{' '}
                 <a href="https://vercel.com/legal/privacy-policy" style={{ color: GREEN }}>vercel.com/legal/privacy-policy</a>.
               </li>
