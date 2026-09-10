@@ -43,7 +43,8 @@ export default function CookieConsent() {
       }}
     >
       <div style={{ flex: 1 }}>
-        We use essential cookies for payments (Stripe) and session management. No tracking cookies.{' '}
+        We use essential cookies for payments (Stripe) and session management. Site analytics are
+        privacy-friendly pageviews — no advertising or tracking cookies.{' '}
         <a href="/privacy" style={{ color: GREEN, textDecoration: 'underline' }}>Privacy Policy</a>
       </div>
       <button

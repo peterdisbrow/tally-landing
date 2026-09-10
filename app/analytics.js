@@ -1,20 +1,25 @@
 import Script from 'next/script';
+import { Analytics as VercelAnalytics } from '@vercel/analytics/react';
 
 /**
- * Plausible analytics — privacy-friendly, no cookies, GDPR-compliant.
- * Set NEXT_PUBLIC_PLAUSIBLE_DOMAIN in your env (e.g. "tallyconnect.app").
- * If the env var is missing, nothing renders — safe for local dev.
+ * Site analytics.
+ * Vercel Web Analytics is always mounted (uses the existing Vercel project).
+ * Plausible stays optional — set NEXT_PUBLIC_PLAUSIBLE_DOMAIN to also load it.
  */
 export default function Analytics() {
-  const domain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
-  if (!domain) return null;
+  const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
 
   return (
-    <Script
-      defer
-      data-domain={domain}
-      src="https://plausible.io/js/script.js"
-      strategy="afterInteractive"
-    />
+    <>
+      <VercelAnalytics />
+      {plausibleDomain ? (
+        <Script
+          defer
+          data-domain={plausibleDomain}
+          src="https://plausible.io/js/script.js"
+          strategy="afterInteractive"
+        />
+      ) : null}
+    </>
   );
 }
