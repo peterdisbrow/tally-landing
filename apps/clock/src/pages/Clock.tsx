@@ -1,3 +1,4 @@
+import { useTimer } from "@/hooks/useTimer";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -150,15 +151,11 @@ const Clock = () => {
   const [showMiniClock, setShowMiniClock] = useState(saved?.showMiniClock ?? false);
   const [showHelp, setShowHelp] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [paused, setPaused] = useState(false);
+  const { elapsedMs: timerElapsedMs, paused, pauseTimer, resetTimer, togglePause, adjustTimer } = useTimer();
   const [countdownFrom, setCountdownFrom] = useState(300);
   const [countToTarget, setCountToTarget] = useState<number | null>(null);
   const [tenths, setTenths] = useState(0);
 
-  // Ms-precision timer tracking
-  const timerStartRef = useRef<number | null>(null);
-  const timerAccRef = useRef(0);
-  const [timerElapsedMs, setTimerElapsedMs] = useState(0);
   const [now, setNow] = useState(new Date());
   const [sign, setSign] = useState<"+" | "-">("+");
   const [hideLeadingZero, setHideLeadingZero] = useState(saved?.hideLeadingZero ?? false);
@@ -261,42 +258,6 @@ const Clock = () => {
   useEffect(() => { const id = setInterval(() => setNow(new Date(Date.now() + ntpOffset)), 100); return () => clearInterval(id); }, [ntpOffset]);
   useEffect(() => { if (showTenths) setTenths(Math.floor(now.getMilliseconds() / 100)); }, [now, showTenths]);
 
-  // Timer helpers
-  const startTimer = useCallback(() => {
-    timerStartRef.current = Date.now();
-    setPaused(false);
-  }, []);
-
-  const pauseTimer = useCallback(() => {
-    if (timerStartRef.current !== null) {
-      timerAccRef.current += Date.now() - timerStartRef.current;
-      timerStartRef.current = null;
-    }
-    setPaused(true);
-  }, []);
-
-  const togglePause = useCallback(() => {
-    if (paused) startTimer();
-    else pauseTimer();
-  }, [paused, startTimer, pauseTimer]);
-
-  const resetTimer = useCallback((andStart = true) => {
-    timerAccRef.current = 0;
-    timerStartRef.current = andStart ? Date.now() : null;
-    setTimerElapsedMs(0);
-    setPaused(!andStart);
-  }, []);
-
-  // Fast tick for ms-precision timer display
-  useEffect(() => {
-    if (mode === "clock") return;
-    const id = setInterval(() => {
-      const elapsed = timerAccRef.current + (timerStartRef.current !== null ? Date.now() - timerStartRef.current : 0);
-      setTimerElapsedMs(elapsed);
-    }, 33);
-    return () => clearInterval(id);
-  }, [mode, paused]);
-
   useEffect(() => { if (editingName && nameInputRef.current) { nameInputRef.current.focus(); nameInputRef.current.select(); } }, [editingName]);
   useEffect(() => { if (savingPreset && presetNameRef.current) { presetNameRef.current.focus(); } }, [savingPreset]);
 
@@ -379,7 +340,7 @@ const Clock = () => {
               if (target.getTime() < Date.now()) target.setDate(target.getDate() + 1);
               setCountToTarget(target.getTime());
               setMode("countto");
-              setPaused(false);
+              pauseTimer();
             }
           }
           setEnteringTime(false);
@@ -394,7 +355,7 @@ const Clock = () => {
 
       const key = e.key.toLowerCase();
 
-      if (key === "c") { setMode("clock"); setPaused(false); }
+      if (key === "c") { setMode("clock"); pauseTimer(); }
       else if (key === "s") { setMode("countup"); resetTimer(true); }
       else if (key === "d") { setEnteringTime(true); setEnterMode("countdown"); setTimeInput(""); }
       else if (key === "m") { setEnteringTime(true); setEnterMode("countto"); setTimeInput(""); }
@@ -420,10 +381,10 @@ const Clock = () => {
       else if (key === "arrowdown") { setAutoSize(false); setFontSize((p) => Math.max(p - 10, 30)); }
       else if (key === "-") {
         const adj = e.ctrlKey ? 60 : e.shiftKey ? 30 : 5;
-        timerAccRef.current += adj * 1000;
+        adjustTimer(adj * 1000);
       } else if (key === "=") {
         const adj = e.ctrlKey ? 60 : e.shiftKey ? 30 : 5;
-        timerAccRef.current = Math.max(0, timerAccRef.current - adj * 1000);
+        adjustTimer(-adj * 1000);
       } else if (/\d/.test(key)) {
         const d = key === "0" ? 10 : parseInt(key);
         let minutes = d;
@@ -435,7 +396,7 @@ const Clock = () => {
         resetTimer(true);
       }
     },
-    [editingName, savingPreset, enteringTime, timeInput, mode, countdownFrom, enterMode, clockColor, togglePause, resetTimer]
+    [editingName, savingPreset, enteringTime, timeInput, mode, enterMode, clockColor, togglePause, resetTimer, pauseTimer, adjustTimer]
   );
 
   useEffect(() => { window.addEventListener("keydown", handleKey); return () => window.removeEventListener("keydown", handleKey); }, [handleKey]);
@@ -1016,6 +977,7 @@ const Clock = () => {
               <p className="mt-2">Digit 0 is treated as 10</p>
               <p className="mt-2">UI auto-hides after 3s of inactivity</p>
               <p className="mt-2">Settings are saved automatically</p>
+              <p className="mt-2">Elapsed timers ignore device clock changes. Keep this device awake: some browsers exclude time spent asleep.</p>
             </div>
           </motion.div>
         )}

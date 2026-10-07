@@ -1,3 +1,4 @@
+import { useTimer } from "@/hooks/useTimer";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, Trash2, GripVertical, Play, Pause, RotateCcw } from "lucide-react";
@@ -156,24 +157,10 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
   const hyperdeckIndex = config.hyperdeckIndex ?? 0;
   const showSeconds = config.showSeconds !== false;
 
-  // Ms-precision timer tracking
-  const timerStartRef = useRef<number | null>(null);
-  const timerAccRef = useRef(0);
-  const [timerElapsedMs, setTimerElapsedMs] = useState(0);
-  const [paused, setPaused] = useState(true);
+  const { elapsedMs: timerElapsedMs, paused, pauseTimer, resetTimer, togglePause } = useTimer();
 
   const font = CLOCK_FONTS.find(f => f.name === config.fontName) || CLOCK_FONTS[0];
   const tzLabel = COMMON_TIMEZONES.find(t => t.value === config.timezone)?.label || config.timezone;
-
-  const startTimer = useCallback(() => { timerStartRef.current = Date.now(); setPaused(false); }, []);
-  const pauseTimer = useCallback(() => {
-    if (timerStartRef.current !== null) { timerAccRef.current += Date.now() - timerStartRef.current; timerStartRef.current = null; }
-    setPaused(true);
-  }, []);
-  const togglePause = useCallback(() => { if (paused) startTimer(); else pauseTimer(); }, [paused, startTimer, pauseTimer]);
-  const resetTimer = useCallback((andStart = false) => {
-    timerAccRef.current = 0; timerStartRef.current = andStart ? Date.now() : null; setTimerElapsedMs(0); setPaused(!andStart);
-  }, []);
 
   // Time sync — Tally /api/time first (shared with the single clock)
   const syncTime = useCallback(async () => {
@@ -183,14 +170,6 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
 
   useEffect(() => { syncTime(); const id = setInterval(syncTime, 60000); return () => clearInterval(id); }, [syncTime]);
   useEffect(() => { const id = setInterval(() => setNow(new Date(Date.now() + ntpOffset)), 200); return () => clearInterval(id); }, [ntpOffset]);
-
-  useEffect(() => {
-    if (mode === "clock" || mode === "propresenter" || mode === "hyperdeck") return;
-    const id = setInterval(() => {
-      setTimerElapsedMs(timerAccRef.current + (timerStartRef.current !== null ? Date.now() - timerStartRef.current : 0));
-    }, 33);
-    return () => clearInterval(id);
-  }, [mode, paused]);
 
   // Fast clock update for live elapsed modes (streamtime, recordtime, lastcue, atemrecord, service)
   useEffect(() => {
@@ -467,10 +446,10 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
         <div className="flex items-center gap-2">
           {isTimerMode && (
             <>
-              <button onClick={togglePause} className="text-white/30 hover:text-white/70 transition-colors">
+              <button aria-label={paused ? "Start timer" : "Pause timer"} onClick={togglePause} className="text-white/30 hover:text-white/70 transition-colors">
                 {paused ? <Play size={14} /> : <Pause size={14} />}
               </button>
-              <button onClick={() => resetTimer(false)} className="text-white/30 hover:text-white/70 transition-colors">
+              <button aria-label="Reset timer" onClick={() => resetTimer(false)} className="text-white/30 hover:text-white/70 transition-colors">
                 <RotateCcw size={14} />
               </button>
             </>

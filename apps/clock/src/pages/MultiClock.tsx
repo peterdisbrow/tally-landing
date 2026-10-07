@@ -397,143 +397,49 @@ const MultiClock = () => {
         )}
       </AnimatePresence>
 
-      {/* Clock grid — standard layouts */}
-      {layout !== "featured" && (
-        <div className={`flex-1 grid ${currentLayout.cols} gap-1 p-1 pt-12`}>
-          {clocks.slice(0, currentLayout.max).map((clock, index) => (
-            <ClockCell
-              key={clock.id}
-              config={clock}
-              onUpdate={handleUpdate}
-              onRemove={handleRemove}
-              globalScale={globalScale}
-              isDragging={dragIndex === index}
-              onDragStart={() => setDragIndex(index)}
-              onDragEnd={() => setDragIndex(null)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => handleDrop(index)}
-              {...tallyProps}
-            />
-          ))}
-
-          {/* Empty slots */}
-          {clocks.length < currentLayout.max && Array.from({ length: currentLayout.max - clocks.length }).map((_, i) => (
-            <button
-              key={`empty-${i}`}
-              onClick={handleAdd}
-              className="border border-dashed border-white/10 rounded-lg flex items-center justify-center text-white/10 hover:text-white/30 hover:border-white/20 transition-colors"
-            >
-              <Plus size={32} />
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Featured + Grid layout */}
-      {layout === "featured" && (
-        <div ref={featuredContainerRef} className="flex-1 flex flex-col p-1 pt-12 overflow-hidden">
-          {/* Top — featured clock (full width, resizable height) */}
-          <div className="relative flex-shrink-0" style={{ height: `${featuredHeight}%` }}>
-            {clocks.length > 0 ? (
-              <div className="relative h-full">
-                <ClockCell
-                  key={clocks[0].id}
-                  config={clocks[0]}
-                  onUpdate={handleUpdate}
-                  onRemove={handleRemove}
-                  globalScale={globalScale}
-                  isDragging={dragIndex === 0}
-                  onDragStart={() => setDragIndex(0)}
-                  onDragEnd={() => setDragIndex(null)}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={() => handleDrop(0)}
-                  {...tallyProps}
-                />
-                {/* Featured badge */}
-                <span
-                  className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[9px] font-mono uppercase tracking-[0.3em] pointer-events-none z-10 transition-opacity duration-500"
-                  style={{ color: "rgba(255,255,255,0.15)", opacity: hovered ? 1 : 0 }}
-                >
-                  Featured
-                </span>
-              </div>
-            ) : (
-              <button
-                onClick={handleAdd}
-                className="w-full h-full border border-dashed border-white/10 rounded-lg flex items-center justify-center text-white/10 hover:text-white/30 hover:border-white/20 transition-colors"
-              >
-                <Plus size={32} />
-              </button>
+      {/* One stable keyed parent: presentation changes never remount timers.
+          Keep overflow clocks mounted when a smaller layout hides them. */}
+      <div ref={featuredContainerRef} className={`flex-1 min-h-0 grid ${currentLayout.cols} ${layout === "featured" ? "" : currentLayout.rows} gap-1 p-1 pt-12 overflow-hidden`}
+        style={{ gridTemplateRows: layout === "featured" ? `${featuredHeight}% 32px repeat(2, minmax(0, 1fr))` : undefined }}>
+        {clocks.map((clock, index) => (
+          <div key={clock.id} data-clock-id={clock.id}
+            className="relative min-h-0 min-w-0"
+            style={{ display: index >= currentLayout.max ? "none" : undefined,
+              gridColumn: layout === "featured" && index === 0 ? "1 / -1" : undefined,
+              gridRow: layout === "featured" ? (index === 0 ? 1 : Math.floor((index - 1) / 2) + 3) : undefined }}
+            title={layout === "featured" && index > 0 ? "Click to feature" : undefined}
+            onClick={(e) => {
+              if (layout !== "featured" || index === 0) return;
+              if ((e.target as HTMLElement).closest("button, input, select, a")) return;
+              promoteToFeatured(index);
+            }}>
+            <ClockCell config={clock} onUpdate={handleUpdate} onRemove={handleRemove}
+              globalScale={globalScale} isDragging={dragIndex === index}
+              onDragStart={() => setDragIndex(index)} onDragEnd={() => setDragIndex(null)}
+              onDragOver={(e) => e.preventDefault()} onDrop={() => handleDrop(index)} {...tallyProps} />
+            {layout === "featured" && hovered && (
+              <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[9px] font-mono uppercase tracking-[0.3em] text-white/30 pointer-events-none z-10 bg-black/60 px-2 py-0.5 rounded">
+                {index === 0 ? "Featured" : "★ Click to Feature"}
+              </span>
             )}
           </div>
-
-          {/* Drag handle between featured and grid — large hit area for touch */}
-          <div
-            onMouseDown={handleFeaturedDividerDown}
-            onTouchStart={handleFeaturedDividerDown}
-            role="separator"
-            aria-orientation="horizontal"
-            aria-label="Resize featured clock"
-            className="flex-shrink-0 cursor-ns-resize flex items-center justify-center touch-none py-3 group select-none"
-            title="Drag to resize"
-          >
-            <div className="flex items-center justify-center px-4 py-1 rounded-full bg-white/5 border border-white/10 group-hover:bg-white/15 group-hover:border-white/30 group-active:bg-white/25 transition-colors">
-              <GripHorizontal size={16} className="text-white/40 group-hover:text-white/80 transition-colors" />
-            </div>
-          </div>
-
-          {/* Bottom — grid of remaining clocks (fills remaining space) */}
-          <div className="flex-1 min-h-0 grid grid-cols-2 gap-1">
-            {clocks.slice(1, currentLayout.max).map((clock, i) => {
-              const index = i + 1; // actual array index
-              return (
-                <div
-                  key={clock.id}
-                  className="relative cursor-pointer"
-                  onClick={(e) => {
-                    const t = e.target as HTMLElement;
-                    if (t.closest("button") || t.closest("input") || t.closest("select")) return;
-                    promoteToFeatured(index);
-                  }}
-                  title="Click to feature"
-                >
-                  <ClockCell
-                    config={clock}
-                    onUpdate={handleUpdate}
-                    onRemove={handleRemove}
-                    globalScale={globalScale}
-                    isDragging={dragIndex === index}
-                    onDragStart={() => setDragIndex(index)}
-                    onDragEnd={() => setDragIndex(null)}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={() => handleDrop(index)}
-                    {...tallyProps}
-                  />
-                  {/* Subtle hint on hover */}
-                  {hovered && (
-                    <span
-                      className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[9px] font-mono uppercase tracking-[0.3em] text-white/30 pointer-events-none z-10 bg-black/60 px-2 py-0.5 rounded"
-                    >
-                      ★ Click to Feature
-                    </span>
-                  )}
-                </div>
-              );
-            })}
-
-            {/* Empty slots */}
-            {clocks.slice(1).length < currentLayout.max - 1 && Array.from({ length: currentLayout.max - 1 - clocks.slice(1).length }).map((_, i) => (
-              <button
-                key={`empty-grid-${i}`}
-                onClick={handleAdd}
-                className="border border-dashed border-white/10 rounded-lg flex items-center justify-center text-white/10 hover:text-white/30 hover:border-white/20 transition-colors"
-              >
-                <Plus size={32} />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+        ))}
+        {layout === "featured" && <div key="divider" onMouseDown={handleFeaturedDividerDown} onTouchStart={handleFeaturedDividerDown}
+          role="separator" aria-orientation="horizontal" aria-label="Resize featured clock" title="Drag to resize"
+          style={{ gridColumn: "1 / -1", gridRow: 2 }}
+          className="cursor-ns-resize flex items-center justify-center touch-none select-none">
+          <GripHorizontal size={16} className="text-white/40" />
+        </div>}
+        {Array.from({ length: Math.max(0, currentLayout.max - clocks.length) }).map((_, i) => {
+          const index = clocks.length + i;
+          return <button key={`empty-${i}`} onClick={handleAdd}
+            style={{ gridColumn: layout === "featured" && index === 0 ? "1 / -1" : undefined,
+              gridRow: layout === "featured" ? (index === 0 ? 1 : Math.floor((index - 1) / 2) + 3) : undefined }}
+            className="border border-dashed border-white/10 rounded-lg flex items-center justify-center text-white/10 hover:text-white/30 hover:border-white/20 transition-colors">
+            <Plus size={32} />
+          </button>;
+        })}
+      </div>
 
       {/* Disbrow Productions logo */}
       <div
