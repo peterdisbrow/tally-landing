@@ -11,9 +11,9 @@ function src(rel) {
 }
 
 describe('site analytics wiring', () => {
-  it('mounts official Vercel Analytics from @vercel/analytics/react', () => {
+  it('mounts official Vercel Analytics from @vercel/analytics/next', () => {
     const analytics = src('app/analytics.js');
-    expect(analytics).toMatch(/from '@vercel\/analytics\/react'/);
+    expect(analytics).toMatch(/from '@vercel\/analytics\/next'/);
     expect(analytics).toMatch(/<VercelAnalytics\s*\/>/);
     expect(src('app/layout.js')).toMatch(/<Analytics\s*\/>/);
   });
