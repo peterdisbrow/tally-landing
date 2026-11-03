@@ -57,3 +57,13 @@ roughly -18 dB to -6 dB**. Bar amber / "LOW" → turn the interface's input gain
 5. **Frame offset** in settings (−1f / +1f) is a fine trim in case your TC-1 display and the clock differ by a frame on your setup.
 
 Re-jam before each show. If the Mac is asleep the clock still stays right (it uses wall-clock time), but a manual clock change on the Mac will shift the jam.
+
+## It won't lock? Read the diagnostics line
+With the clock in Timecode mode and listening, the cell shows a one-line verdict under the level meter, and **Settings** shows the full counters (input device, sample rate, channels, whether echo cancellation / noise suppression / AGC are really off, per-channel level, edges/s, how "steady" the signal is, the bit rate it implies, sync words found, rejected frames, glitches, frames decoded). Quick reading:
+- **Input is silent** → wrong input device, cable, or the TC-1's output is off / at the wrong level (Out Type).
+- **Audio present but not a timecode-like square wave** → wrong input (mic/room noise); pick the interface the TC-1 is plugged into.
+- **Steady signal at ~4800 bits/s (≈60 fps)** → the TC-1 is outputting a faster-than-30 fps signal; set it to 29.97 / 29.97 DF / 30 (59.94/60 shows are sent as 29.97/30).
+- **Steady biphase signal but no sync words** → too distorted/clipped or processed; lower the level, keep processing off.
+- **Sync words found but digits invalid / don't count up** → noisy signal.
+- Both channels are decoded separately (LTC on only the left or right is fine, and a balanced +/- pair is fine); channels are never summed.
+Copy the diagnostics lines into a bug report if it still won't lock.

@@ -1,5 +1,6 @@
 import { Mic } from "lucide-react";
 import type { LtcInput, LtcStatus } from "@/lib/ltc/useLtcInput";
+import { diagnose, diagLines, inputLine } from "@/lib/ltc/diagnose";
 import type { TimecodeCell } from "@/hooks/useTimecodeCell";
 import { JAM_MIN_FRAMES } from "@/lib/timecode/jam";
 
@@ -56,6 +57,30 @@ export function LtcLevelMeter({ ltc }: { ltc: LtcInput; color?: string }) {
   );
 }
 
+/** Why isn't it locking? A one-line verdict (cell) or the full counters (settings). */
+export function LtcDiagnostics({ tc, full }: { tc: TimecodeCell; full?: boolean }) {
+  const ltc = tc.ltc;
+  const running = ltc.status === "locked" || ltc.status === "nosignal" || ltc.status === "notltc";
+  if (!running) return null;
+  const v = diagnose(ltc.diag, true);
+  const t = ltc.diag.totals;
+  const rateNote = v.code === "ok" && !tc.canJam && !tc.jamProgress ? " · measuring the frame rate (Jam needs ~1 s of steady frames)" : "";
+  const bad = v.code !== "ok" && v.code !== "idle";
+  return (
+    <div className="max-w-full text-center font-mono text-[10px] leading-snug" data-testid={full ? "ltc-diag" : "ltc-diag-verdict"} data-diag-code={v.code}>
+      <p style={{ color: bad ? "rgba(252,211,77,0.85)" : "rgba(255,255,255,0.45)" }}>{v.text}{rateNote}</p>
+      {bad && v.hint && <p className="text-white/35">{v.hint}</p>}
+      {full && (
+        <div className="mt-1 text-left text-white/35 break-words" data-testid="ltc-diag-detail">
+          {inputLine(ltc.diag.input) && <p data-testid="ltc-diag-input">{inputLine(ltc.diag.input)}</p>}
+          {diagLines(ltc.diag).map((l, i) => <p key={i} data-testid="ltc-diag-channel">{l}</p>)}
+          <p data-testid="ltc-diag-totals">Totals since start: {t.frames} frames decoded · {t.syncs} sync words · {t.bad} rejected · {t.resets} glitches · {t.edges} edges</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** Shown over the bottom of the cell in Timecode mode: start button, jam controls, errors, level meter. */
 export function LtcCellOverlay({ tc, color }: { tc: TimecodeCell; color: string }) {
   const ltc = tc.ltc;
@@ -92,6 +117,7 @@ export function LtcCellOverlay({ tc, color }: { tc: TimecodeCell; color: string 
         <p className="max-w-full text-center font-mono text-[10px] leading-snug text-red-300/80" data-testid="ltc-message">{ltc.message}</p>
       )}
       {listening && <LtcLevelMeter ltc={ltc} color={color} />}
+      {listening && ltc.status !== "locked" && <LtcDiagnostics tc={tc} />}
     </div>
   );
 }
@@ -123,6 +149,7 @@ export function LtcSettings({ tc, color, deviceId, onDeviceChange }: { tc: Timec
         <button onClick={running ? ltc.stop : ltc.start} className={small} style={style}>{running ? "Stop listening" : "Start listening"}</button>
       </div>
       {running && <LtcLevelMeter ltc={ltc} color={color} />}
+      {running && <LtcDiagnostics tc={tc} full />}
 
       <p className="text-white/30 text-[10px] font-mono mt-1">Jam sync</p>
       <p className="text-white/60 text-[10px] font-mono leading-snug" data-testid="jam-status">

@@ -15,7 +15,8 @@ import { createRequire } from "node:module";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { generateLtc, toWav16 } from "../src/test/ltcGenerator.ts";
+import { generateLtc, toWav16, toWav16Multi } from "../src/test/ltcGenerator.ts";
+import { biquad, gain, gaussNoise, hum } from "../src/test/ltcImpair.ts";
 
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_PATH || "playwright");
@@ -342,6 +343,63 @@ async function main() {
     const crossed = uniq.some((t) => t.startsWith("00:01:00;"));
     check("[jam-df] free-run crosses the minute: 00:00:59;29 → 00:01:00;02", crossed && uniq.includes("00:01:00;02") && !uniq.includes("00:01:00;00") && !uniq.includes("00:01:00;01"), uniq.filter((t) => t.startsWith("00:00:59") || t.startsWith("00:01:00")).join(" "));
     await page.screenshot({ path: path.join(SHOTS, "13-freerun-dropframe.png") });
+    await ctx.close(); await browser.close();
+  }
+
+  // ── 12. Diagnostics + real-world damage, through the real browser pipeline ──
+  const openSettings = async (cell) => { await cell.hover(); await cell.locator("button:has(svg.lucide-settings)").click(); };
+  {
+    // 12a. clean TC-1-like LTC: diagnostics show what's being received
+    const browser = await launch(wav("diag-clean", generateLtc({ fps: 30000 / 1001, nominal: 30, drop: true, seconds: 30, start: [1, 0, 0, 0] })));
+    const { ctx, page, cell } = await openApp(browser);
+    await cell.hover(); await cell.getByRole("button", { name: /Start timecode input/ }).click();
+    await waitFor(async () => /LIVE/.test(await cellText(cell)), 10000);
+    await page.waitForTimeout(1500);
+    await openSettings(cell);
+    const diag = cell.getByTestId("ltc-diag");
+    await diag.waitFor();
+    const inp = await cell.getByTestId("ltc-diag-input").innerText();
+    check("[diag] shows the real input settings: sample rate, channels, echo/noise/AGC off", /\d{5} Hz/.test(inp) && /echo off/.test(inp) && /noise-sup off/.test(inp) && /AGC off/.test(inp), inp);
+    const chl = await cell.getByTestId("ltc-diag-channel").first().innerText();
+    check("[diag] per-channel line: level, edges/s, steadiness, bit rate ≈ 2398 b/s", /dB · \d+ edges\/s · \d+% steady · 23\d\d b\/s/.test(chl), chl);
+    const tot = await cell.getByTestId("ltc-diag-totals").innerText();
+    check("[diag] totals show frames decoded and sync words found", /(\d+) frames decoded · (\d+) sync words/.test(tot) && +tot.match(/(\d+) frames decoded/)[1] > 20, tot);
+    check("[diag] verdict says timecode decoded", (await diag.getAttribute("data-diag-code")) === "ok", await diag.getAttribute("data-diag-code"));
+    await page.screenshot({ path: path.join(SHOTS, "17-diagnostics-locked.png") });
+    await ctx.close(); await browser.close();
+  }
+  const diagCase = async (id, samples, expectCode, textRe, shot) => {
+    const browser = await launch(wav("diag-" + id, samples));
+    const { ctx, page, cell } = await openApp(browser);
+    await cell.hover(); await cell.getByRole("button", { name: /Start timecode input/ }).click();
+    const got = await waitFor(async () => (await cell.getByTestId("ltc-diag-verdict").getAttribute("data-diag-code").catch(() => null)) === expectCode, 12000);
+    const v = await cell.getByTestId("ltc-diag-verdict").innerText().catch(() => "");
+    check(`[diag ${id}] verdict '${expectCode}' shown in the cell`, !!got && textRe.test(v), v.replace(/\n/g, " | "));
+    if (shot) await page.screenshot({ path: path.join(SHOTS, shot) });
+    await ctx.close(); await browser.close();
+  };
+  await diagCase("wrong-input", gaussNoise(new Float32Array(48000 * 10), 0.15), "not-ltc", /isn't a timecode-like square wave.*wrong input/is, "18-diag-wrong-input.png");
+  await diagCase("fast-60", generateLtc({ fps: 60, nominal: 30, seconds: 12, amplitude: 0.5 }), "too-fast", /4\d\d\d bits\/s.*29\.97/s, "19-diag-too-fast.png");
+  await diagCase("silent-input", new Float32Array(48000 * 10), "silent", /silent/i);
+  {
+    // 12b. damaged + quiet + inverted + one channel only, 44.1 kHz source file: must still lock and show timecode
+    const sr = 44100;
+    const ltc = generateLtc({ fps: 25, nominal: 25, seconds: 30, sampleRate: sr, start: [2, 3, 4, 5], amplitude: 0.5 });
+    const damaged = hum(gaussNoise(biquad(biquad(gain(ltc, -0.012), "hp", 120, sr), "lp", 3000, sr), 0.0015), 0.004, 60, sr);
+    const file = path.join(tmp, "damaged-stereo.wav");
+    fs.writeFileSync(file, toWav16Multi([new Float32Array(damaged.length), damaged], sr)); // LTC on R only, L silent
+    const browser = await launch(file);
+    const { ctx, page, cell } = await openApp(browser);
+    await cell.hover(); await cell.getByRole("button", { name: /Start timecode input/ }).click();
+    const sub = await waitFor(async () => { const t = await cellText(cell); return /TC-1 · 25 fps · LIVE/.test(t) ? t : null; }, 12000);
+    check("[damaged] inverted, -38 dB, noisy, hummy, 3 kHz-limited, 44.1 kHz, LTC on right channel only: locks at 25 fps", !!sub, sub || await cellText(cell));
+    const m = (await cellText(cell)).match(/\b02:03:(\d\d):(\d\d)\b/);
+    check("[damaged] shows the right time (02:03:xx:xx)", !!m, m ? m[0] : await cellText(cell));
+    check("[damaged] Jam is available", await waitFor(async () => !(await cell.getByTestId("jam-button").isDisabled()), 8000));
+    await openSettings(cell);
+    const lines = await cell.getByTestId("ltc-diag-channel").allInnerTexts();
+    check("[damaged] diagnostics show two channels, L dead and R decoding", lines.length === 2 && /^L -∞ dB/.test(lines[0]) && /sync [1-9]/.test(lines[1]), lines.join(" || "));
+    await page.screenshot({ path: path.join(SHOTS, "20-damaged-stereo-locked.png") });
     await ctx.close(); await browser.close();
   }
 
