@@ -23,12 +23,14 @@ it('retains real timer state across repeated feature swaps, layouts, hidden cell
   const view = render(<MemoryRouter><MultiClock /></MemoryRouter>);
   await act(async () => {});
   const cell = (id: number) => view.container.querySelector(`[data-clock-id="${id}"]`) as HTMLElement;
+  // the cell's text without its (hover-dependent) top-row hint
+  const cellText = (id: number) => { const c = (cell(id).firstElementChild as HTMLElement).cloneNode(true) as HTMLElement; c.querySelectorAll('[data-testid="cell-hint"]').forEach((n) => n.remove()); return c.textContent; };
   const original = Array.from({length:5},(_,i)=>cell(i));
   for (const id of [0,1,3,4]) fireEvent.click(within(cell(id)).getByRole('button',{name:'Start timer'}));
   act(() => vi.advanceTimersByTime(2100));
   fireEvent.click(within(cell(3)).getByRole('button',{name:'Pause timer'}));
-  const pausedText=cell(3).firstElementChild?.textContent;
-  const targetText=cell(2).firstElementChild?.textContent;
+  const pausedText=cellText(3);
+  const targetText=cellText(2);
   for (let i=0;i<12;i++) fireEvent.click(cell(i%5));
   for (let i=0;i<5;i++) expect(cell(i)).toBe(original[i]);
   expect(within(cell(3)).getByRole('button',{name:'Start timer'})).toBeInTheDocument();
@@ -39,8 +41,8 @@ it('retains real timer state across repeated feature swaps, layouts, hidden cell
   act(() => { vi.setSystemTime(new Date('2026-10-08T12:00:00Z')); vi.advanceTimersByTime(2000); });
   fireEvent.click(screen.getByRole('button',{name:'Featured'}));
   for (const id of [0,1,4]) expect(within(cell(id)).getByRole('button',{name:'Pause timer'})).toBeInTheDocument();
-  expect(cell(3).firstElementChild?.textContent).toBe(pausedText);
-  expect(cell(2).firstElementChild?.textContent).not.toBe(targetText);
+  expect(cellText(3)).toBe(pausedText);
+  expect(cellText(2)).not.toBe(targetText);
   expect(within(cell(0)).getByText(/^00:04\./)).toBeInTheDocument();
   expect(within(cell(1)).getByText(/^04:55\./)).toBeInTheDocument();
   expect(within(cell(4)).getByText(/^00:04\./)).toBeInTheDocument();

@@ -20,6 +20,9 @@ export const resolveLabelSize = (v: unknown): LabelSize =>
 
 export const resolveScaleLabels = (v: unknown): boolean => (typeof v === "boolean" ? v : DEFAULT_SCALE_LABELS);
 
+/** Line-height of the digits. The digit font's content box is about this tall, so labels sized and spaced from it never touch the glyphs. */
+export const DIGIT_LINE = 1.3;
+
 export type LabelPx = { name: number; sub: number; ampm: number };
 
 /**
