@@ -262,6 +262,11 @@ const MultiClock = () => {
             <Monitor size={18} />
             <span className="text-xs font-mono uppercase tracking-widest">Single</span>
           </Link>
+          {/* Disbrow Productions logo: lives in the toolbar so it can never sit on top of a cell */}
+          <div className="hidden lg:flex flex-col items-start gap-1">
+            <span className="font-display text-[11px] font-bold tracking-[0.25em] text-white/20">TALLYCONNECT</span>
+            <span className="font-display text-[7px] tracking-[0.35em] text-white/15">MULTI-CLOCK</span>
+          </div>
         </div>
 
         <div className="flex items-center gap-3 pointer-events-auto">
@@ -416,13 +421,9 @@ const MultiClock = () => {
             }}>
             <ClockCell config={clock} onUpdate={handleUpdate} onRemove={handleRemove}
               globalScale={globalScale} isDragging={dragIndex === index}
+              hint={layout === "featured" && hovered ? (index === 0 ? "Featured" : "★ Click to Feature") : undefined}
               onDragStart={() => setDragIndex(index)} onDragEnd={() => setDragIndex(null)}
               onDragOver={(e) => e.preventDefault()} onDrop={() => handleDrop(index)} {...tallyProps} />
-            {layout === "featured" && hovered && (
-              <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[9px] font-mono uppercase tracking-[0.3em] text-white/30 pointer-events-none z-10 bg-black/60 px-2 py-0.5 rounded">
-                {index === 0 ? "Featured" : "★ Click to Feature"}
-              </span>
-            )}
           </div>
         ))}
         {layout === "featured" && <div key="divider" onMouseDown={handleFeaturedDividerDown} onTouchStart={handleFeaturedDividerDown}
@@ -440,19 +441,6 @@ const MultiClock = () => {
             <Plus size={32} />
           </button>;
         })}
-      </div>
-
-      {/* Disbrow Productions logo */}
-      <div
-        className="absolute bottom-3 right-4 z-50 flex flex-col items-end transition-opacity duration-500"
-        style={{ opacity: hovered ? 1 : 0 }}
-      >
-        <span className="font-display text-[11px] font-bold tracking-[0.25em] text-white/20">
-          TALLYCONNECT
-        </span>
-        <span className="font-display text-[7px] tracking-[0.35em] text-white/15 -mt-0.5">
-          MULTI-CLOCK
-        </span>
       </div>
     </div>
   );

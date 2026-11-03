@@ -82,7 +82,7 @@ export function LtcDiagnostics({ tc, full }: { tc: TimecodeCell; full?: boolean 
   );
 }
 
-/** Shown over the bottom of the cell in Timecode mode: start button, jam controls, errors, level meter. */
+/** Shown in the cell's reserved bottom row in Timecode mode: start button, jam controls, errors, level meter. */
 export function LtcCellOverlay({ tc, color }: { tc: TimecodeCell; color: string }) {
   const ltc = tc.ltc;
   const needsStart = ltc.status === "idle" || ltc.status === "denied" || ltc.status === "error";
@@ -90,7 +90,7 @@ export function LtcCellOverlay({ tc, color }: { tc: TimecodeCell; color: string 
   const btn = "flex items-center gap-1.5 rounded border px-3 py-1 font-mono text-[11px] transition-colors hover:bg-white/10 disabled:opacity-40 disabled:hover:bg-transparent";
   const style = { color, borderColor: `${color}60` };
   return (
-    <div className="absolute bottom-2 left-3 right-3 z-10 flex flex-col items-center gap-1" data-testid="ltc-overlay" data-ltc-status={ltc.status} data-tc-state={tc.state}>
+    <div className="w-full px-3 pb-1 flex flex-col items-center gap-1" data-testid="ltc-overlay" data-ltc-status={ltc.status} data-tc-state={tc.state}>
       <div className="flex items-center gap-2">
         {needsStart && (
           <button onClick={ltc.start} className={btn} style={style}>

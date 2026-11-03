@@ -1,5 +1,5 @@
 import { useTimer } from "@/hooks/useTimer";
-import { LABEL_SIZES, labelPx, resolveLabelSize, resolveScaleLabels, type LabelSize } from "@/lib/labelSize";
+import { DIGIT_LINE, LABEL_SIZES, labelPx, resolveLabelSize, resolveScaleLabels, type LabelSize } from "@/lib/labelSize";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, Trash2, GripVertical, Play, Pause, RotateCcw } from "lucide-react";
@@ -156,16 +156,22 @@ interface ClockCellProps {
   atemTimecode?: string | null;
   /** Signed in to Tally. The Rundown timer mode exists only when this is true. */
   isTallySignedIn?: boolean;
+  /** Small hint shown in the middle of the cell's top row (MultiClock's "★ Click to Feature"). Reserved space, never over the digits. */
+  hint?: string;
 }
 
-const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, isDropTarget, onDragStart, onDragEnd, onDragOver, onDrop, onTouchStart, onTouchMove, onTouchEnd, proPresenter, hyperdecks, atem, isTallyConnected, streamStartedAt, recordingStartedAt, atemRecordingStartedAt, lastCueAt, atemTimecode, isTallySignedIn }: ClockCellProps) => {
+/** Height (px) of the reserved top row (drag handle / live dot / hint / controls) and bottom row (quick adjust, timecode input). */
+export const CELL_BAND = 28;
+
+const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, isDropTarget, onDragStart, onDragEnd, onDragOver, onDrop, onTouchStart, onTouchMove, onTouchEnd, proPresenter, hyperdecks, atem, isTallyConnected, streamStartedAt, recordingStartedAt, atemRecordingStartedAt, lastCueAt, atemTimecode, isTallySignedIn, hint }: ClockCellProps) => {
   const [now, setNow] = useState(new Date());
   const [showSettings, setShowSettings] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [countToInput, setCountToInput] = useState("");
   const cellRef = useRef<HTMLDivElement>(null);
   const [fontSize, setFontSize] = useState(80);
-  const [cellHeight, setCellHeight] = useState(0);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [content, setContent] = useState({ w: 0, h: 0 });
   const [ntpOffset, setNtpOffset] = useState(0);
   const [rundownLinkInput, setRundownLinkInput] = useState("");
   const [rundownLinkError, setRundownLinkError] = useState("");
@@ -226,9 +232,19 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
       const w = cellRef.current.clientWidth * 0.85;
       const base = Math.max(20, Math.min(Math.floor(w / 6), 300));
       setFontSize(Math.round(base * sizeScaleRef.current));
-      setCellHeight(cellRef.current.clientHeight);
     });
     observer.observe(cellRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // The space between the reserved top and bottom rows: digits and labels must fit in here.
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const measure = () => setContent((c) => (c.w === el.clientWidth && c.h === el.clientHeight ? c : { w: el.clientWidth, h: el.clientHeight }));
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
@@ -240,7 +256,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
     setFontSize(Math.round(base * (config.sizeScale || 1) * globalScale));
   }, [config.sizeScale, globalScale]);
 
-  const lp = labelPx(config.labelSize, config.scaleLabels, fontSize, cellHeight);
+  const lp = labelPx(config.labelSize, config.scaleLabels, fontSize, content.h);
 
   // Helper: format elapsed ms as HH:MM:SS
   const formatElapsed = (ms: number) => {
@@ -507,6 +523,28 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
     }
   }
 
+  // ---- Layout budget -------------------------------------------------------------------
+  // The cell is a column: reserved top row, the content (name, digits, AM/PM, status), reserved
+  // bottom row. Hover controls live in the reserved rows, so they never cover text, and the
+  // digits are sized to what is left after the labels, so labels never collide with them.
+  const isAnalog = displayStyle === "analog" && !isLiveSource;
+  const hasAmpm = !isAnalog && mode === "clock" && !config.is24h;
+  const lineH = (px: number) => Math.ceil(px * 1.2) + 4;
+  let showName = true, showSub = true, showAmpm = hasAmpm;
+  const labelsH = () => (showName ? lineH(lp.name) : 0) + (showSub ? lineH(lp.sub) : 0) + (showAmpm ? lineH(lp.ampm) : 0);
+  const MIN_DIGIT_PX = 16;
+  const measured = content.h > 0;
+  if (measured) {
+    // A very short cell: drop the least important labels until the digits have room.
+    const budget = () => (content.h - labelsH() - 2) / DIGIT_LINE;
+    if (budget() < MIN_DIGIT_PX) showSub = false;
+    if (budget() < MIN_DIGIT_PX) showAmpm = false;
+    if (budget() < MIN_DIGIT_PX) showName = false;
+  }
+  const maxDigitPx = measured ? Math.max(8, (content.h - labelsH() - 2) / DIGIT_LINE) : Infinity;
+  const renderFont = Math.min(fontSize, maxDigitPx / 0.6);
+  const analogPx = measured ? Math.max(40, Math.min(300, content.w - 16, content.h - labelsH() - 2)) : 300;
+
   return (
     <div
       ref={cellRef}
@@ -520,16 +558,36 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
       onTouchEnd={onTouchEnd}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); setShowSettings(false); }}
-      className={`relative flex flex-col items-center justify-center bg-black border-2 rounded-lg overflow-hidden transition-all duration-200 h-full ${isDragging ? "opacity-30 scale-95 border-white/20" : isDropTarget ? "border-red-500/60 bg-red-500/5" : "border-white/10 opacity-100"} ${isOvertimeFlashing ? "animate-slow-flash" : ""}`}
+      className={`relative flex flex-col items-center bg-black border-2 rounded-lg overflow-hidden transition-all duration-200 h-full ${isDragging ? "opacity-30 scale-95 border-white/20" : isDropTarget ? "border-red-500/60 bg-red-500/5" : "border-white/10 opacity-100"} ${isOvertimeFlashing ? "animate-slow-flash" : ""}`}
       style={{ minHeight: 80 }}
     >
-      {/* Controls */}
+      {/* Top row (reserved): drag handle, live dot, hint, timer / settings / remove controls */}
       <div
-        className="absolute top-0 left-0 right-0 flex items-center justify-between px-3 py-2 z-30 transition-opacity duration-300"
-        style={{ opacity: hovered ? 1 : 0 }}
+        className="relative shrink-0 w-full flex items-center gap-2 px-3 z-30"
+        style={{ height: CELL_BAND }}
+        data-clock-part="controls"
       >
-        <GripVertical size={16} className="text-white/30 cursor-grab active:cursor-grabbing" />
-        <div className="flex items-center gap-2">
+        <span className="shrink-0 flex items-center transition-opacity duration-300" style={{ opacity: hovered ? 1 : 0 }}>
+          <GripVertical size={16} className="text-white/30 cursor-grab active:cursor-grabbing" />
+        </span>
+        {isLiveSource && (
+          <span className="shrink-0 flex items-center">
+            <span className={`w-1.5 h-1.5 rounded-full ${
+              (mode === "propresenter" && proPresenter?.connected) ||
+              (mode === "hyperdeck" && hyperdecks?.[hyperdeckIndex]?.connected) ||
+              (mode === "streamtime" && streamStartedAt) ||
+              (mode === "recordtime" && recordingStartedAt) ||
+              (mode === "lastcue" && proPresenter?.connected) ||
+              (mode === "atemrecord" && atemRecordingStartedAt) ||
+              (mode === "atemtimecode" && atem?.connected && atemTimecode) ||
+              (mode === "rundown" && rundownReadout?.live) ||
+              (mode === "timecode" && tc.state === "live")
+                ? "bg-green-500 animate-pulse" : mode === "timecode" && tc.state === "freerun" ? "bg-amber-400" : "bg-white/20"
+            }`} />
+          </span>
+        )}
+        <span className="flex-1 min-w-0 text-center truncate text-[9px] font-mono uppercase tracking-[0.15em] text-white/30 pointer-events-none" data-testid="cell-hint">{hint}</span>
+        <div className="shrink-0 flex items-center gap-2 transition-opacity duration-300" style={{ opacity: hovered ? 1 : 0 }}>
           {isTimerMode && (
             <>
               <button aria-label={paused ? "Start timer" : "Pause timer"} onClick={togglePause} className="text-white/30 hover:text-white/70 transition-colors">
@@ -549,86 +607,75 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
         </div>
       </div>
 
-      {/* Quick add / subtract (Count Up, Countdown, Count To) */}
-      {canAdjust && (
-        <div
-          className="absolute bottom-2 left-0 right-0 flex items-center justify-center gap-1 z-30 transition-opacity duration-300"
-          style={{ opacity: hovered ? 1 : 0, pointerEvents: hovered ? "auto" : "none" }}
-          data-testid="adjust-bar"
-        >
-          {[...ADJUST_STEPS].reverse().map(s => (
-            <button key={`-${s}`} aria-label={`Subtract ${stepLabel(s)}`} onClick={() => adjustBy(-s)}
-              className="px-1.5 py-0.5 text-[10px] font-mono border border-white/10 text-white/40 hover:text-white/80 hover:border-white/30 transition-colors">-{stepLabel(s)}</button>
-          ))}
-          {ADJUST_STEPS.map(s => (
-            <button key={`+${s}`} aria-label={`Add ${stepLabel(s)}`} onClick={() => adjustBy(s)}
-              className="px-1.5 py-0.5 text-[10px] font-mono border border-white/10 text-white/40 hover:text-white/80 hover:border-white/30 transition-colors">+{stepLabel(s)}</button>
-          ))}
-        </div>
-      )}
+      {/* Content: name, digits, AM/PM, status. Centred between the reserved rows. */}
+      <div ref={contentRef} className="flex-1 min-h-0 w-full flex flex-col items-center justify-center overflow-hidden" data-clock-part="content">
+        {showName && (
+          <span className="font-mono uppercase tracking-widest max-w-full px-2 truncate text-center shrink-0" data-testid="label-name" style={{ fontSize: lp.name, lineHeight: 1.2, marginBottom: 4, color: `${config.clockColor}88` }}>
+            {config.clockName || modeLabel || tzLabel}
+          </span>
+        )}
 
-      {/* Clock name */}
-      <span className="font-mono uppercase tracking-widest mb-1 max-w-full px-2 truncate text-center" data-testid="label-name" style={{ fontSize: lp.name, lineHeight: 1.2, color: `${config.clockColor}88` }}>
-        {config.clockName || modeLabel || tzLabel}
-      </span>
+        {isAnalog ? (
+          <AnalogClock
+            hours={analogHours} minutes={analogMinutes} seconds={analogSeconds}
+            color={isOvertime ? overtimeColor : config.clockColor}
+            digitalTime={countdownRemainingMs < 0 && mode === "countdown" ? `+${timeText}` : timeText}
+            size={analogPx}
+            fontFamily={font.css} fontWeight={font.weight} thickness={thickness}
+          />
+        ) : (
+          <>
+            <div
+              className="tracking-wider whitespace-nowrap shrink-0"
+              style={{
+                fontSize: `${renderFont * 0.6}px`,
+                fontFamily: font.css, fontWeight: font.weight, lineHeight: DIGIT_LINE,
+                color: valueColor,
+              }}
+              data-testid={mode === "rundown" ? "rundown-readout" : undefined}
+              data-clock-part="digits"
+            >
+              {countdownRemainingMs < 0 && mode === "countdown" ? `+${timeText}` : timeText}
+            </div>
+            {showAmpm && (
+              <span className="font-mono tracking-widest shrink-0" data-testid="label-ampm" style={{ fontSize: lp.ampm, lineHeight: 1.2, marginTop: 4, color: `${config.clockColor}80` }}>{ampm}</span>
+            )}
+          </>
+        )}
 
-      {/* Time display */}
-      {displayStyle === "analog" && !isLiveSource ? (
-        <AnalogClock
-          hours={analogHours} minutes={analogMinutes} seconds={analogSeconds}
-          color={isOvertime ? overtimeColor : config.clockColor}
-          digitalTime={countdownRemainingMs < 0 && mode === "countdown" ? `+${timeText}` : timeText}
-          fontFamily={font.css} fontWeight={font.weight} thickness={thickness}
-        />
-      ) : (
-        <>
+        {showSub && (
+          <span className="font-mono tracking-wider text-white/20 max-w-full px-2 truncate text-center shrink-0" data-testid="label-sub" style={{ fontSize: lp.sub, lineHeight: 1.2, marginTop: 4 }}>
+            {isLiveSource ? subtitleText
+              : isServiceMode ? subtitleText
+              : mode === "clock" ? tzLabel
+              : mode === "countto" ? (config.countToTarget ? "COUNTING TO" : "SET TARGET")
+              : (paused ? "PAUSED" : "RUNNING")}
+            {canAdjust && timeAdjust ? ` · ADJ ${formatSigned(timeAdjust)}` : ""}
+          </span>
+        )}
+      </div>
+
+      {/* Bottom row (reserved): quick add / subtract (Count Up, Countdown, Count To) or the LTC input controls */}
+      <div className="relative shrink-0 w-full flex flex-col items-center justify-center z-10" style={{ minHeight: CELL_BAND }} data-clock-part="bottom">
+        {canAdjust && (
           <div
-            className="tracking-wider whitespace-nowrap"
-            style={{
-              fontSize: `${fontSize * 0.6}px`,
-              fontFamily: font.css, fontWeight: font.weight, lineHeight: 1.1,
-              color: valueColor,
-            }}
-            data-testid={mode === "rundown" ? "rundown-readout" : undefined}
+            className="flex items-center justify-center gap-1 transition-opacity duration-300"
+            style={{ opacity: hovered ? 1 : 0, pointerEvents: hovered ? "auto" : "none" }}
+            data-testid="adjust-bar"
           >
-            {countdownRemainingMs < 0 && mode === "countdown" ? `+${timeText}` : timeText}
+            {[...ADJUST_STEPS].reverse().map(s => (
+              <button key={`-${s}`} aria-label={`Subtract ${stepLabel(s)}`} onClick={() => adjustBy(-s)}
+                className="px-1.5 py-0.5 text-[10px] font-mono border border-white/10 text-white/40 hover:text-white/80 hover:border-white/30 transition-colors">-{stepLabel(s)}</button>
+            ))}
+            {ADJUST_STEPS.map(s => (
+              <button key={`+${s}`} aria-label={`Add ${stepLabel(s)}`} onClick={() => adjustBy(s)}
+                className="px-1.5 py-0.5 text-[10px] font-mono border border-white/10 text-white/40 hover:text-white/80 hover:border-white/30 transition-colors">+{stepLabel(s)}</button>
+            ))}
           </div>
-          {mode === "clock" && !config.is24h && (
-            <span className="font-mono tracking-widest mt-1" data-testid="label-ampm" style={{ fontSize: lp.ampm, lineHeight: 1.2, color: `${config.clockColor}80` }}>{ampm}</span>
-          )}
-        </>
-      )}
-
-      {/* Subtitle */}
-      <span className="font-mono tracking-wider mt-1 text-white/20 max-w-full px-2 truncate text-center" data-testid="label-sub" style={{ fontSize: lp.sub, lineHeight: 1.2 }}>
-        {isLiveSource ? subtitleText
-          : isServiceMode ? subtitleText
-          : mode === "clock" ? tzLabel
-          : mode === "countto" ? (config.countToTarget ? "COUNTING TO" : "SET TARGET")
-          : (paused ? "PAUSED" : "RUNNING")}
-        {canAdjust && timeAdjust ? ` · ADJ ${formatSigned(timeAdjust)}` : ""}
-      </span>
-
-      {/* Live source indicator */}
-      {isLiveSource && (
-        <span className="absolute top-2 left-2 flex items-center gap-1 z-20">
-          <span className={`w-1.5 h-1.5 rounded-full ${
-            (mode === "propresenter" && proPresenter?.connected) ||
-            (mode === "hyperdeck" && hyperdecks?.[hyperdeckIndex]?.connected) ||
-            (mode === "streamtime" && streamStartedAt) ||
-            (mode === "recordtime" && recordingStartedAt) ||
-            (mode === "lastcue" && proPresenter?.connected) ||
-            (mode === "atemrecord" && atemRecordingStartedAt) ||
-            (mode === "atemtimecode" && atem?.connected && atemTimecode) ||
-            (mode === "rundown" && rundownReadout?.live) ||
-            (mode === "timecode" && tc.state === "live")
-              ? "bg-green-500 animate-pulse" : mode === "timecode" && tc.state === "freerun" ? "bg-amber-400" : "bg-white/20"
-          }`} />
-        </span>
-      )}
-
-      {/* LTC input: start button, errors, level meter */}
-      {mode === "timecode" && isTallySignedIn && <LtcCellOverlay tc={tc} color={config.clockColor} />}
+        )}
+        {/* LTC input: start button, errors, level meter */}
+        {mode === "timecode" && isTallySignedIn && <LtcCellOverlay tc={tc} color={config.clockColor} />}
+      </div>
 
       {/* Settings panel */}
       <AnimatePresence>
@@ -636,6 +683,8 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="absolute inset-0 bg-black/95 z-20 p-4 overflow-y-auto flex flex-col gap-3"
+            style={{ paddingTop: CELL_BAND + 6 }}
+            data-clock-part="settings"
             onClick={(e) => e.stopPropagation()}
           >
             <p className="text-white/50 text-[10px] uppercase tracking-widest font-mono">Settings</p>

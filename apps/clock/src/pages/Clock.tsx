@@ -1,5 +1,5 @@
 import { useTimer } from "@/hooks/useTimer";
-import { LABEL_SIZES, labelPx, resolveLabelSize, resolveScaleLabels, type LabelSize } from "@/lib/labelSize";
+import { DIGIT_LINE, LABEL_SIZES, labelPx, resolveLabelSize, resolveScaleLabels, type LabelSize } from "@/lib/labelSize";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -166,6 +166,9 @@ const Clock = () => {
   const [scaleLabels, setScaleLabels] = useState<boolean>(resolveScaleLabels(saved?.scaleLabels));
   const [displayStyle, setDisplayStyle] = useState<DisplayStyle>(saved?.displayStyle || "digital");
   const clockRef = useRef<HTMLDivElement>(null);
+  const midRef = useRef<HTMLDivElement>(null);
+  const renderFontRef = useRef(0);
+  const [mid, setMid] = useState({ w: 0, h: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedFont, setSelectedFont] = useState<ClockFont>(
     CLOCK_FONTS.find(f => f.name === saved?.fontName) || CLOCK_FONTS[0]
@@ -264,23 +267,43 @@ const Clock = () => {
   useEffect(() => { if (editingName && nameInputRef.current) { nameInputRef.current.focus(); nameInputRef.current.select(); } }, [editingName]);
   useEffect(() => { if (savingPreset && presetNameRef.current) { presetNameRef.current.focus(); } }, [savingPreset]);
 
-  // Auto-size
+  // Fit to width. Auto mode sets the size; a fixed size is still capped to the screen width so the
+  // digits are never clipped at the edges. (scrollWidth is measured at the size actually drawn,
+  // which can be below the chosen size when the height budget caps it, so the fit is a ratio.)
+  const [widthFit, setWidthFit] = useState(Infinity);
   useEffect(() => {
-    if (!autoSize || !clockRef.current || !containerRef.current) return;
+    if (!clockRef.current || !containerRef.current) return;
     const resizeObserver = new ResizeObserver(() => {
       if (!clockRef.current || !containerRef.current) return;
       const containerWidth = containerRef.current.clientWidth * 0.95;
       const textWidth = clockRef.current.scrollWidth;
       if (textWidth > 0) {
         const scale = containerWidth / textWidth;
-        const newSize = Math.floor(fontSize * scale);
-        const clamped = Math.max(30, Math.min(newSize, 800));
-        if (Math.abs(clamped - fontSize) > 2) setFontSize(clamped);
+        const fit = Math.floor((renderFontRef.current || fontSize) * scale);
+        if (autoSize) {
+          const clamped = Math.max(30, Math.min(fit, 800));
+          if (Math.abs(clamped - fontSize) > 2) setFontSize(clamped);
+          setWidthFit(Infinity);
+        } else {
+          setWidthFit((w) => (Math.abs(w - fit) > 2 ? fit : w));
+        }
       }
     });
     resizeObserver.observe(containerRef.current);
+    resizeObserver.observe(clockRef.current); // the digits can widen or narrow on their own (sign, tenths)
     return () => resizeObserver.disconnect();
-  }, [autoSize, fontSize]);
+  }, [autoSize, fontSize, displayStyle, mode, showTenths, is24h, selectedFont.name, mid.h]);
+
+  // Measure the middle block (the space between the reserved rows)
+  useEffect(() => {
+    const el = midRef.current;
+    if (!el) return;
+    const measure = () => setMid((m) => (m.w === el.clientWidth && m.h === el.clientHeight ? m : { w: el.clientWidth, h: el.clientHeight }));
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Save preset
   const handleSavePreset = useCallback((name: string) => {
@@ -449,16 +472,36 @@ const Clock = () => {
   const defaultName = mode === "countup" ? "Count Up" : mode === "countdown" ? "Countdown" : mode === "countto" ? "Count To" : "Clock";
   const displayName = clockName || defaultName;
 
-  const lp = labelPx(labelSize, scaleLabels, fontSize);
-  // The AM/PM line under the digits pushes them up (the stack is centred), so lift the name with them.
-  const ampmShift = displayStyle === "digital" && mode === "clock" && !is24h ? (lp.ampm * 1.2 + 8) / 2 : 0;
+  // ---- Layout budget ----------------------------------------------------------------------
+  // Column: reserved top row, middle (name, digits, AM/PM), reserved bottom rows. The digits are
+  // sized to what is left after the labels, so nothing ever collides with them, and the controls
+  // that show while the mouse is moving sit in rows of their own.
+  const isAnalog = displayStyle === "analog";
+  const hasAmpm = !isAnalog && mode === "clock" && !is24h;
+  const topReserve = showMiniClock && mode !== "clock" ? 92 : 60;
+  const lp = labelPx(labelSize, scaleLabels, fontSize, mid.h);
+  const lineH = (px: number) => Math.ceil(px * 1.2) + 4;
+  let showName = true, showAmpm = hasAmpm;
+  const nameH = () => (showName ? lineH(lp.name) + (editingName ? 10 : 0) : 0);
+  const labelsH = () => nameH() + (showAmpm ? lineH(lp.ampm) : 0);
+  const MIN_DIGIT_PX = 24;
+  const measured = mid.h > 0;
+  if (measured) {
+    const budget = () => (mid.h - labelsH() - 2) / DIGIT_LINE;
+    if (budget() < MIN_DIGIT_PX) showAmpm = false;
+    if (budget() < MIN_DIGIT_PX) showName = false;
+  }
+  const maxDigitPx = measured ? Math.max(12, (mid.h - labelsH() - 2) / DIGIT_LINE) : Infinity;
+  const renderFont = Math.min(fontSize, maxDigitPx / 0.6, Math.max(20, widthFit));
+  renderFontRef.current = renderFont;
+  const analogPx = measured ? Math.max(60, Math.min(fontSize * 2, 600, mid.w - 32, mid.h - labelsH() - 2)) : Math.min(fontSize * 2, 600);
   const uiOpacity = uiVisible ? 1 : 0;
   const uiTransition = "opacity 0.5s ease";
 
   return (
     <div
       ref={containerRef}
-      className="min-h-screen w-screen bg-black flex flex-col items-center justify-center relative select-none overflow-hidden cursor-default"
+      className="h-screen w-screen bg-black flex flex-col items-center relative select-none overflow-hidden cursor-default"
       onClick={() => {
         if (showHelp) setShowHelp(false);
         if (showColorPicker) setShowColorPicker(false);
@@ -476,64 +519,6 @@ const Clock = () => {
         <Link to="/multi-clock" className="text-white/30 hover:text-white/70 transition-colors" title="Multi-clock view">
           <LayoutGrid size={22} />
         </Link>
-      </div>
-
-      {/* NTP sync indicator */}
-      <div
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 font-mono text-[10px] text-white/20"
-        style={{ opacity: uiOpacity, transition: uiTransition }}
-      >
-        {syncStatus === "synced" ? (
-          <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500/60 inline-block" />
-            {syncLabel} ({ntpOffset > 0 ? "+" : ""}{Math.round(ntpOffset)}ms)
-          </span>
-        ) : syncStatus === "local" ? (
-          <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-white/40 inline-block" />
-            {syncLabel || "Local clock"}
-          </span>
-        ) : (
-          <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-yellow-500/60 inline-block animate-pulse" />
-            Syncing...
-          </span>
-        )}
-      </div>
-
-      {/* Size controls */}
-      <div
-        className="absolute bottom-4 left-4 z-50 flex flex-col gap-2 items-center"
-        style={{ opacity: uiOpacity, transition: uiTransition }}
-      >
-        <button onClick={() => { setAutoSize(false); setFontSize((p) => Math.min(p + 10, 800)); }} className="text-white/30 hover:text-white/70 transition-colors p-1" title="Increase size">
-          <Plus size={20} />
-        </button>
-        <span className="text-white/20 text-[10px] font-mono text-center">{Math.round(fontSize * 0.6)}px</span>
-        <button onClick={() => { setAutoSize(false); setFontSize((p) => Math.max(p - 10, 30)); }} className="text-white/30 hover:text-white/70 transition-colors p-1" title="Decrease size">
-          <Minus size={20} />
-        </button>
-        <button
-          onClick={() => setAutoSize((p) => !p)}
-          className={`text-[10px] font-mono px-1.5 py-0.5 border transition-colors ${autoSize ? 'border-white/30 text-white/50' : 'border-white/10 text-white/20'}`}
-          title="Toggle auto-fit (A)"
-        >
-          {autoSize ? "AUTO" : "FIXED"}
-        </button>
-        <button
-          onClick={() => setLabelSize((p) => { const i = LABEL_SIZES.findIndex((o) => o.value === p); return LABEL_SIZES[(i + 1) % LABEL_SIZES.length].value; })}
-          className="text-[10px] font-mono px-1.5 py-0.5 border border-white/10 text-white/40 hover:text-white/70 transition-colors"
-          title="Label size (clock name, AM/PM): click to cycle S / M / L / XL" data-testid="label-size-btn"
-        >
-          LABEL {LABEL_SIZES.find((o) => o.value === labelSize)?.label}
-        </button>
-        <button
-          onClick={() => setScaleLabels((p) => !p)}
-          className={`text-[10px] font-mono px-1.5 py-0.5 border transition-colors ${scaleLabels ? 'border-white/30 text-white/50' : 'border-white/10 text-white/20'}`}
-          title="Scale labels with the numbers" data-testid="label-scale-btn" role="switch" aria-checked={scaleLabels}
-        >
-          {scaleLabels ? "SCALE" : "NO SCALE"}
-        </button>
       </div>
 
       {/* Top toolbar icons */}
@@ -804,10 +789,15 @@ const Clock = () => {
         )}
       </AnimatePresence>
 
+      {/* Top row (reserved): back / multi-clock, mode tabs, toolbar and the mini clock sit in here */}
+      <div className="shrink-0 w-full" style={{ height: topReserve }} data-clock-part="top-spacer" />
+
+      {/* Middle: name, digits, AM/PM. Sized to the space between the reserved top and bottom rows. */}
+      <div ref={midRef} className="flex-1 min-h-0 w-full flex flex-col items-center justify-center" data-clock-part="content">
       {/* Clock name display */}
-      <div
-        className="absolute"
-        style={{ top: "calc(50% - " + (fontSize * 0.6 * 0.55 + lp.name * 1.4 + 14 + ampmShift) + "px)", opacity: uiOpacity, transition: uiTransition }}
+      {showName && <div
+        className="shrink-0"
+        style={{ marginBottom: 4, opacity: uiOpacity, transition: uiTransition }}
       >
         {editingName ? (
           <input
@@ -818,23 +808,23 @@ const Clock = () => {
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") setEditingName(false); }}
             placeholder={defaultName}
             className="bg-transparent border-b border-white/20 outline-none text-center font-mono uppercase tracking-widest px-2 py-1"
-            style={{ color: `${clockColor}99`, fontSize: lp.name }}
+            style={{ color: `${clockColor}99`, fontSize: lp.name, lineHeight: 1.2 }}
           />
         ) : (
           <span
             onClick={() => setEditingName(true)}
             className="cursor-pointer font-mono uppercase tracking-widest hover:opacity-80 transition-opacity"
             data-testid="label-name"
-            style={{ color: `${clockColor}66`, fontSize: lp.name }}
+            style={{ color: `${clockColor}66`, fontSize: lp.name, lineHeight: 1.2 }}
             title="Click to rename (N)"
           >
             {displayName}
           </span>
         )}
-      </div>
+      </div>}
 
       {/* Main clock display */}
-      <motion.div key={`${mode}-${displayStyle}`} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }} className="flex items-center justify-center w-full px-4">
+      <motion.div key={`${mode}-${displayStyle}`} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }} className="flex items-center justify-center w-full px-4 shrink-0">
         {displayStyle === "analog" ? (
           <AnalogClock
             hours={tz.hours}
@@ -843,15 +833,16 @@ const Clock = () => {
             color={activeColor}
             digitalTime={displayTime.text}
             ampm={mode === "clock" && !is24h ? (tz.hours >= 12 ? "PM" : "AM") : undefined}
-            size={Math.min(fontSize * 2, 600)}
+            size={analogPx}
             fontFamily={selectedFont.css}
             fontWeight={selectedFont.weight}
           />
         ) : (
           <div
             ref={clockRef}
+            data-clock-part="digits"
             className={`tracking-wider transition-colors duration-300 whitespace-nowrap ${isOvertimeFlashing ? "animate-slow-flash" : ""}`}
-            style={{ fontSize: `${fontSize * 0.6}px`, fontFamily: selectedFont.css, fontWeight: selectedFont.weight, lineHeight: 1.1, color: activeColor }}
+            style={{ fontSize: `${renderFont * 0.6}px`, fontFamily: selectedFont.css, fontWeight: selectedFont.weight, lineHeight: DIGIT_LINE, color: activeColor }}
           >
             {mode !== "clock" && displayTime.negative && <span style={{ color: "#dc2626" }}>{isOvertime ? "+" : (sign === "+" ? "−" : "+")}</span>}
             {mode !== "clock" && !displayTime.negative && <span className="opacity-30">{sign === "+" ? "+" : "−"}</span>}
@@ -861,22 +852,26 @@ const Clock = () => {
       </motion.div>
 
       {/* AM/PM indicator for 12h mode */}
-      {displayStyle === "digital" && mode === "clock" && !is24h && (
+      {showAmpm && (
         <div
-          className="font-mono tracking-widest mt-2"
+          className="font-mono tracking-widest shrink-0"
           data-testid="label-ampm"
-          style={{ color: `${clockColor}80`, fontSize: lp.ampm }}
+          style={{ color: `${clockColor}80`, fontSize: lp.ampm, lineHeight: 1.2, marginTop: 4 }}
         >
           {tz.hours >= 12 ? "PM" : "AM"}
         </div>
       )}
 
+      </div>
+
+      {/* Bottom rows (reserved): countdown presets, pause / reset, size + label controls, sync, logo */}
+      <div className="shrink-0 w-full px-4 pb-4 flex flex-col items-center gap-2" data-clock-part="bottom">
       {/* Countdown presets */}
       {mode === "countdown" && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute bottom-20 flex flex-col items-center gap-2"
+          className="shrink-0 flex flex-col items-center gap-2"
           style={{ opacity: uiOpacity, transition: uiTransition }}
         >
           <div className="flex flex-wrap justify-center gap-2">
@@ -928,7 +923,7 @@ const Clock = () => {
       {/* Pause/Play for timers */}
       {(mode === "countup" || mode === "countdown" || mode === "countto") && (
         <div
-          className="absolute bottom-8 flex gap-4"
+          className="shrink-0 flex gap-4"
           style={{ opacity: uiOpacity, transition: uiTransition }}
         >
           <button
@@ -949,6 +944,78 @@ const Clock = () => {
           </button>
         </div>
       )}
+
+        <div className="w-full grid grid-cols-[1fr_auto_1fr] items-end gap-3">
+      {/* Size controls */}
+      <div
+        className="relative z-50 flex flex-wrap gap-2 items-center justify-start"
+        style={{ opacity: uiOpacity, transition: uiTransition }}
+      >
+        <button onClick={() => { setAutoSize(false); setFontSize((p) => Math.min(p + 10, 800)); }} className="text-white/30 hover:text-white/70 transition-colors p-1" title="Increase size">
+          <Plus size={20} />
+        </button>
+        <span className="text-white/20 text-[10px] font-mono text-center">{Math.round(renderFont * 0.6)}px</span>
+        <button onClick={() => { setAutoSize(false); setFontSize((p) => Math.max(p - 10, 30)); }} className="text-white/30 hover:text-white/70 transition-colors p-1" title="Decrease size">
+          <Minus size={20} />
+        </button>
+        <button
+          onClick={() => setAutoSize((p) => !p)}
+          className={`text-[10px] font-mono px-1.5 py-0.5 border transition-colors ${autoSize ? 'border-white/30 text-white/50' : 'border-white/10 text-white/20'}`}
+          title="Toggle auto-fit (A)"
+        >
+          {autoSize ? "AUTO" : "FIXED"}
+        </button>
+        <button
+          onClick={() => setLabelSize((p) => { const i = LABEL_SIZES.findIndex((o) => o.value === p); return LABEL_SIZES[(i + 1) % LABEL_SIZES.length].value; })}
+          className="text-[10px] font-mono px-1.5 py-0.5 border border-white/10 text-white/40 hover:text-white/70 transition-colors"
+          title="Label size (clock name, AM/PM): click to cycle S / M / L / XL" data-testid="label-size-btn"
+        >
+          LABEL {LABEL_SIZES.find((o) => o.value === labelSize)?.label}
+        </button>
+        <button
+          onClick={() => setScaleLabels((p) => !p)}
+          className={`text-[10px] font-mono px-1.5 py-0.5 border transition-colors ${scaleLabels ? 'border-white/30 text-white/50' : 'border-white/10 text-white/20'}`}
+          title="Scale labels with the numbers" data-testid="label-scale-btn" role="switch" aria-checked={scaleLabels}
+        >
+          {scaleLabels ? "SCALE" : "NO SCALE"}
+        </button>
+      </div>
+
+      {/* NTP sync indicator */}
+      <div
+        className="relative z-50 font-mono text-[10px] text-white/20 whitespace-nowrap"
+        style={{ opacity: uiOpacity, transition: uiTransition }}
+      >
+        {syncStatus === "synced" ? (
+          <span className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500/60 inline-block" />
+            {syncLabel} ({ntpOffset > 0 ? "+" : ""}{Math.round(ntpOffset)}ms)
+          </span>
+        ) : syncStatus === "local" ? (
+          <span className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-white/40 inline-block" />
+            {syncLabel || "Local clock"}
+          </span>
+        ) : (
+          <span className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-yellow-500/60 inline-block animate-pulse" />
+            Syncing...
+          </span>
+        )}
+      </div>
+
+          <div className="justify-self-end">
+      {logoVisible && <div className="relative z-50 flex flex-col items-end gap-1">
+        <span className="font-display text-[11px] font-bold tracking-[0.25em] text-white/20">
+          TALLYCONNECT
+        </span>
+        <span className="font-display text-[7px] tracking-[0.35em] text-white/15">
+          PRODUCTION CLOCK
+        </span>
+      </div>}
+          </div>
+        </div>
+      </div>
 
       {/* Help panel */}
       <AnimatePresence>
@@ -1005,14 +1072,6 @@ const Clock = () => {
         )}
       </AnimatePresence>
 
-      {logoVisible && <div className="absolute bottom-3 right-4 z-50 flex flex-col items-end">
-        <span className="font-display text-[11px] font-bold tracking-[0.25em] text-white/20">
-          TALLYCONNECT
-        </span>
-        <span className="font-display text-[7px] tracking-[0.35em] text-white/15 -mt-0.5">
-          PRODUCTION CLOCK
-        </span>
-      </div>}
     </div>
   );
 };

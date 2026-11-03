@@ -76,7 +76,7 @@ const AnalogClock = ({ hours, minutes, seconds, color, digitalTime, ampm, size =
       viewBox="0 0 300 300"
       width={size}
       height={size}
-      style={{ maxWidth: "100%", maxHeight: "100%" }}
+      style={{ maxWidth: "100%", maxHeight: "100%", display: "block" }}
     >
       {/* Outer ring */}
       <circle cx={cx} cy={cy} r={r} fill="none" stroke={`${color}40`} strokeWidth={2 + thickness} />
