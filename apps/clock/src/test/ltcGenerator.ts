@@ -82,3 +82,19 @@ export function toWav16(samples: Float32Array, sampleRate = 48000): Uint8Array {
   }
   return buf;
 }
+
+/** Interleaved multi-channel 16-bit WAV (e.g. LTC on L only, nothing on R). */
+export function toWav16Multi(channels: Float32Array[], sampleRate = 48000): Uint8Array {
+  const n = channels[0].length, nc = channels.length;
+  const buf = new Uint8Array(44 + n * nc * 2);
+  const dv = new DataView(buf.buffer);
+  const w = (o: number, str: string) => { for (let i = 0; i < str.length; i++) dv.setUint8(o + i, str.charCodeAt(i)); };
+  w(0, "RIFF"); dv.setUint32(4, 36 + n * nc * 2, true); w(8, "WAVE"); w(12, "fmt ");
+  dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, nc, true);
+  dv.setUint32(24, sampleRate, true); dv.setUint32(28, sampleRate * nc * 2, true); dv.setUint16(32, nc * 2, true); dv.setUint16(34, 16, true);
+  w(36, "data"); dv.setUint32(40, n * nc * 2, true);
+  for (let i = 0; i < n; i++) for (let c = 0; c < nc; c++) {
+    dv.setInt16(44 + (i * nc + c) * 2, Math.round(Math.max(-1, Math.min(1, channels[c][i])) * 32767), true);
+  }
+  return buf;
+}

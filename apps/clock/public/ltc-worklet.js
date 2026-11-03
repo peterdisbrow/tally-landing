@@ -17,6 +17,11 @@
  */
 
 export const FRAME_BITS = 80;
+const GAP_RING = 256;
+// Lowest signal (peak, full scale = 1) the edge detector will look at: ~ -62 dBFS, so a mic-level TC-1 output
+// into a line input still decodes. Noise this small can't make false timecode: a frame needs a valid 80-bit word.
+const HP_HZ = 80;
+export const EDGE_FLOOR = 0.0008;
 // Sync word = bits 64..79 of the frame, transmitted in this order.
 export const SYNC_WORD = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1];
 
@@ -48,6 +53,16 @@ export function snapFrameRate(measured, dropFlag) {
   }
   return { fps: measured, nominal: Math.round(measured), label: measured.toFixed(2), drop: !!dropFlag, snapped: false };
 }
+
+/** The timecode that follows h:m:s:f (frame count `nominal` per second; drop-frame skips 00/01 at minutes not divisible by 10). */
+export function nextTimecode(t, nominal, drop) {
+  let { h, m, s, f } = t;
+  f++;
+  if (f >= nominal) { f = 0; s++; if (s >= 60) { s = 0; m++; if (m >= 60) { m = 0; h = (h + 1) % 24; } } }
+  if (drop && f === 0 && s === 0 && m % 10 !== 0) f = 2;
+  return { h, m, s, f };
+}
+const sameTc = (a, b) => a.h === b.h && a.m === b.m && a.s === b.s && a.f === b.f;
 
 export function formatTimecode(h, m, s, f, drop) {
   const p = (n) => String(n).padStart(2, "0");
@@ -101,29 +116,72 @@ export class LtcDecoder {
     this.bitCount = 0;
     // frame-rate tracking (positions of consecutive sync words)
     this.syncPos = [];
+    this.lastTc = null;      // last accepted timecode
+    this.candTc = null;      // an unconfirmed frame (first after start / a jump / a bad run)
     this.fpsMeasured = null;
     this.lastFrame = null;
     // level metering (since last takeLevel)
     this.lvPeak = 0; this.lvSumSq = 0; this.lvN = 0;
+    this.lvYSumSq = 0; this.lvYMax = 0; // DC-blocked signal, for the "is it a square wave?" check
+    // diagnostics (counters since last takeLevel + a ring of recent edge-to-edge gaps)
+    this.dg = { edges: 0, syncs: 0, bad: 0, resets: 0, frames: 0 };
+    this.gaps = new Float32Array(GAP_RING);
+    this.gapN = 0;
+    this.hp2X = 0; this.hp2Y = 0;
   }
 
   /** Peak/RMS since last call (linear 0..1+), for the meter. */
   takeLevel() {
     const out = { peak: this.lvPeak, rms: this.lvN ? Math.sqrt(this.lvSumSq / this.lvN) : 0 };
-    this.lvPeak = 0; this.lvSumSq = 0; this.lvN = 0;
+    // rms/peak of the DC-blocked signal: ~1 for a square wave (LTC), ~0.1-0.3 for speech/room noise
+    out.squareness = this.lvYMax > 0 && this.lvN ? Math.min(1, Math.sqrt(this.lvYSumSq / this.lvN) / this.lvYMax) : 0;
+    out.diag = { ...this.dg, ...this.gapStats(), T: this.T, bitRateLocked: this.sr / this.T };
+    this.lvPeak = 0; this.lvSumSq = 0; this.lvN = 0; this.lvYSumSq = 0; this.lvYMax = 0;
+    this.dg = { edges: 0, syncs: 0, bad: 0, resets: 0, frames: 0 };
     return out;
   }
 
+  /**
+   * What the recent edge-to-edge gaps look like, independent of whether we are locked:
+   * biphase-mark has only two gap lengths (T/2 and T, T = bit period), so a clean LTC signal
+   * shows two tight clusters, one twice the other. `cadence` = share of gaps that fit that pattern,
+   * `bitRate` = the bit rate they imply (b/s; LTC is 80 bits/frame, so fps = bitRate / 80).
+   */
+  gapStats() {
+    const n = Math.min(this.gapN, GAP_RING);
+    if (n < 24) return { cadence: 0, bitRate: null, gapSamples: n };
+    const a = Array.from(this.gaps.subarray(0, n)).sort((x, y) => x - y);
+    const at = (q) => a[Math.min(n - 1, Math.floor(q * n))];
+    // Which gap length is the SHORT cluster (T/2)? Zero bits dominate most timecodes, so it can be a minority; try a few candidates and keep the best fit.
+    let best = null;
+    for (const c of [at(0.1), at(0.35), at(0.6), at(0.95) / 2]) {
+      let fit = 0, nS = 0, nL = 0, sS = 0, sL = 0;
+      for (const g of a) {
+        if (Math.abs(g - c) < 0.2 * c) { fit++; nS++; sS += g; }
+        else if (Math.abs(g - 2 * c) < 0.4 * c) { fit++; nL++; sL += g; }
+      }
+      if (!best || fit > best.fit) best = { fit, nS, nL, sS, sL };
+    }
+    const { fit, nS, nL, sS, sL } = best;
+    const cadence = fit / n;
+    // every bit cell = one long gap or two short gaps: T = total time / number of cells
+    const bitRate = cadence > 0.7 && nL >= 3 && nS >= 3 ? this.sr / ((sS + sL) / (nS / 2 + nL)) : null;
+    return { cadence, bitRate, gapSamples: n };
+  }
+
   push(samples) {
-    const hpA = 1 - 2 * Math.PI * 20 / this.sr; // 20 Hz one-pole high-pass
+    const hpA = 1 - 2 * Math.PI * HP_HZ / this.sr; // two cascaded one-pole high-passes (mains hum, DC, rumble)
     for (let i = 0; i < samples.length; i++) {
       const x = samples[i];
       const ax = Math.abs(x);
       if (ax > this.lvPeak) this.lvPeak = ax;
       this.lvSumSq += x * x; this.lvN++;
-      const y = hpA * (this.hpY + x - this.hpX);
-      this.hpX = x; this.hpY = y;
+      const y1 = hpA * (this.hpY + x - this.hpX);
+      this.hpX = x; this.hpY = y1;
+      const y = hpA * (this.hp2Y + y1 - this.hp2X);
+      this.hp2X = y1; this.hp2Y = y;
       const ay = Math.abs(y);
+      this.lvYSumSq += y * y; if (ay > this.lvYMax) this.lvYMax = ay;
       this.peakEnv = ay > this.peakEnv ? ay : this.peakEnv * 0.99995;
       // raw zero crossing with linear interpolation (sub-sample edge time)
       const idx = this.pos;
@@ -131,8 +189,8 @@ export class LtcDecoder {
         const d = y - this.prevY;
         this.zcPos = d !== 0 ? idx - 1 + (-this.prevY) / d : idx;
       }
-      // Schmitt trigger: ignore noise below 25% of the recent peak (floor 0.004)
-      const h = Math.max(0.004, this.peakEnv * 0.25);
+      // Schmitt trigger: ignore noise below 25% of the recent peak (floor EDGE_FLOOR)
+      const h = Math.max(EDGE_FLOOR, this.peakEnv * 0.25);
       let ns = this.state;
       if (y > h) ns = 1; else if (y < -h) ns = -1;
       if (ns !== this.state) {
@@ -151,9 +209,12 @@ export class LtcDecoder {
     if (prev === null) return;
     const d = edgePos - prev;
     const T = this.T;
+    this.dg.edges++;
+    this.gaps[this.gapN++ % GAP_RING] = d;
     if (d < 0.25 * T || d > 1.8 * T) { // noise burst or dropout
       this.pendingHalf = false;
       this.bitCount = 0;
+      this.dg.resets++;
       return;
     }
     if (d > 0.75 * T) {
@@ -186,12 +247,37 @@ export class LtcDecoder {
     if (this.bitCount < FRAME_BITS) this.bitCount++;
     if (this.bitCount < FRAME_BITS) return;
     for (let i = 0; i < 16; i++) if (bits[64 + i] !== SYNC_WORD[i]) return;
+    this.dg.syncs++;
     const fr = parseFrameBits(bits);
-    if (!fr) return;
+    if (!fr) { this.dg.bad++; return; }
     this.onSync(fr, this.bitStarts[FRAME_BITS - 1]);
   }
 
+  /**
+   * A frame is only believed when it is exactly one frame after the previous one (or after an unconfirmed
+   * candidate): a few wrong bits can still end in a valid-looking sync word, and a wrong time must never
+   * reach the screen or the jam. Costs one frame when locking and after a timecode jump.
+   */
+  confirm(fr) {
+    const nominal = this.nominalGuess();
+    // up to 2 lost/garbled frames in between are fine: the chance a wrong frame lands on the right count is ~1 in a million
+    const follows = (prev, k) => { if (!prev) return false; let t = prev; for (let i = 0; i < k; i++) { t = nextTimecode(t, nominal, fr.drop); if (sameTc(t, fr)) return true; } return false; };
+    const cur = { h: fr.h, m: fr.m, s: fr.s, f: fr.f };
+    if (follows(this.lastTc, 3)) { this.lastTc = cur; this.candTc = null; return true; }
+    if (follows(this.candTc, 1)) { this.lastTc = cur; this.candTc = null; return true; } // two in a row after a jump / at start
+    const first = !this.lastTc && !this.candTc;
+    this.candTc = cur;
+    return first ? "first" : false; // "first" = waiting for a 2nd frame to confirm, not an error
+  }
+
+  nominalGuess() {
+    const fps = this.sr / (FRAME_BITS * this.T);
+    return fps < 24.5 ? 24 : fps < 27.5 ? 25 : 30;
+  }
+
   onSync(fr, pos) {
+    const ok = this.confirm(fr);
+    if (ok !== true) { if (ok === false) this.dg.bad++; return; }
     // Consecutive syncs must be one frame apart (+-3% of the previous gap);
     // anything else (dropout, jump, first frame) restarts the rate measurement.
     const sp = this.syncPos;
@@ -220,6 +306,7 @@ export class LtcDecoder {
       bitRate: this.sr / this.T,
       pos,
     };
+    this.dg.frames++;
     this.onFrame(this.lastFrame);
   }
 }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { DIAG_SILENCE_PEAK, type ChannelDiag, type InputInfo, type LtcDiag } from "./diagnose";
 
 /**
  * Live LTC (SMPTE linear timecode) input from a Web Audio input device.
@@ -32,7 +33,7 @@ export type LtcStatus =
 export type LtcDevice = { deviceId: string; label: string };
 
 export const NO_SIGNAL_MS = 1000;
-const SILENCE_PEAK = 0.004; // ~ -48 dBFS
+const SILENCE_PEAK = DIAG_SILENCE_PEAK; // -60 dBFS: matches the decoder's edge floor, so a quiet TC-1 isn't reported as "no signal"
 export const LTC_WORKLET_URL = `${import.meta.env.BASE_URL}ltc-worklet.js`;
 
 export function levelToDb(peak: number): number {
@@ -81,6 +82,11 @@ export function useLtcInput({ enabled, deviceId }: Opts) {
   const lastFrameAt = useRef(0);
   const latest = useRef<{ frame: LtcFrame | null; peak: number; channel: number | null; dirty: boolean }>({ frame: null, peak: 0, channel: null, dirty: false });
   const running = useRef(false);
+  const [inputInfo, setInputInfo] = useState<InputInfo | null>(null);
+  // Decoder counters, windowed (~2 s) for per-second rates, plus running totals.
+  type LevelMsg = { peak: number; squareness?: number; diag?: { edges: number; syncs: number; bad: number; resets: number; frames: number; cadence: number; bitRate: number | null } };
+  const diagWin = useRef<{ t: number; levels: LevelMsg[] }[]>([]);
+  const diagTotals = useRef({ edges: 0, syncs: 0, bad: 0, resets: 0, frames: 0 });
   const [tick, setTick] = useState(0);
   // Un-throttled per-frame listeners (jam-sync needs every frame, and the React state below is rAF-throttled).
   const listeners = useRef(new Set<(frame: LtcFrame, wallMs: number) => void>());
@@ -104,7 +110,8 @@ export function useLtcInput({ enabled, deviceId }: Opts) {
     ctxRef.current = null;
     if (ctx && ctx.state !== "closed") ctx.close().catch(() => {});
     latest.current = { frame: null, peak: 0, channel: null, dirty: false };
-    setFrame(null); setPeak(0); setActiveDeviceId(null);
+    diagWin.current = []; diagTotals.current = { edges: 0, syncs: 0, bad: 0, resets: 0, frames: 0 };
+    setFrame(null); setPeak(0); setActiveDeviceId(null); setInputInfo(null);
   }, []);
 
   const start = useCallback(async () => {
@@ -117,6 +124,8 @@ export function useLtcInput({ enabled, deviceId }: Opts) {
       const audioBase: MediaTrackConstraints = {
         echoCancellation: false, noiseSuppression: false, autoGainControl: false,
         channelCount: { ideal: 2 }, sampleRate: { ideal: 48000 },
+        // Chrome/macOS "voice isolation" is another processing stage that would eat a square wave
+        ...({ voiceIsolation: false } as MediaTrackConstraints),
       };
       let stream: MediaStream;
       try {
@@ -134,6 +143,13 @@ export function useLtcInput({ enabled, deviceId }: Opts) {
       streamRef.current = stream;
       const track = stream.getAudioTracks()[0];
       setActiveDeviceId(track?.getSettings().deviceId ?? null);
+      // Some browsers/OS combinations keep processing on despite the request: ask again, then report what we really got.
+      type Fx = MediaTrackSettings & { echoCancellation?: boolean; noiseSuppression?: boolean; autoGainControl?: boolean };
+      let fx = (track?.getSettings() ?? {}) as Fx;
+      if (track && (fx.echoCancellation || fx.noiseSuppression || fx.autoGainControl)) {
+        await track.applyConstraints({ echoCancellation: false, noiseSuppression: false, autoGainControl: false }).catch(() => {});
+        fx = track.getSettings() as Fx;
+      }
       track?.addEventListener("ended", () => {
         if (gen !== generation.current) return;
         teardown(); setStatus("error"); setMessage("The audio input was disconnected."); 
@@ -144,6 +160,10 @@ export function useLtcInput({ enabled, deviceId }: Opts) {
       ctxRef.current = ctx;
       await ctx.audioWorklet.addModule(LTC_WORKLET_URL);
       if (gen !== generation.current) return;
+      setInputInfo({
+        label: track?.label || "", sampleRate: ctx.sampleRate, channelCount: fx.channelCount ?? null,
+        echoCancellation: fx.echoCancellation ?? null, noiseSuppression: fx.noiseSuppression ?? null, autoGainControl: fx.autoGainControl ?? null,
+      });
       const src = ctx.createMediaStreamSource(stream);
       const node = new AudioWorkletNode(ctx, "ltc-decoder", { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1], channelCountMode: "explicit", channelCount: 2 });
       node.port.onmessage = (e) => {
@@ -160,6 +180,15 @@ export function useLtcInput({ enabled, deviceId }: Opts) {
         } else if (d?.type === "level") {
           let p = 0; for (const lv of d.levels as { peak: number }[]) if (lv.peak > p) p = lv.peak;
           latest.current.peak = p; latest.current.dirty = true;
+          const now = performance.now();
+          const win = diagWin.current;
+          win.push({ t: now, levels: d.levels as LevelMsg[] });
+          while (win.length && now - win[0].t > 2000) win.shift();
+          (d.levels as LevelMsg[]).forEach((lv) => {
+            const g = lv.diag; if (!g) return;
+            const t = diagTotals.current;
+            t.edges += g.edges; t.syncs += g.syncs; t.bad += g.bad; t.resets += g.resets; t.frames += g.frames;
+          });
         }
       };
       const mute = ctx.createGain(); mute.gain.value = 0;
@@ -241,7 +270,30 @@ export function useLtcInput({ enabled, deviceId }: Opts) {
   }
   void tick;
 
+  // Decoder diagnostics over the last ~2 s: what the signal looks like even when nothing decodes.
+  const diag: LtcDiag = (() => {
+    const win = diagWin.current;
+    const nCh = win.reduce((m, w) => Math.max(m, w.levels.length), 0);
+    const span = win.length > 1 ? (win[win.length - 1].t - win[0].t) / 1000 + 0.05 : 0.05;
+    const channels: ChannelDiag[] = [];
+    for (let c = 0; c < nCh; c++) {
+      let peak = 0, sq = 0, sqN = 0, edges = 0, syncs = 0, bad = 0, resets = 0, frames = 0, cadence = 0, cadN = 0, bitRate: number | null = null;
+      for (const w of win) {
+        const lv = w.levels[c]; if (!lv) continue;
+        peak = Math.max(peak, lv.peak);
+        if (lv.peak > DIAG_SILENCE_PEAK && lv.squareness !== undefined) { sq += lv.squareness; sqN++; }
+        const g = lv.diag; if (!g) continue;
+        edges += g.edges; syncs += g.syncs; bad += g.bad; resets += g.resets; frames += g.frames;
+        cadence = g.cadence; cadN++; bitRate = g.bitRate ?? bitRate;
+      }
+      void cadN;
+      channels.push({ peak, squareness: sqN ? sq / sqN : 0, edgesPerSec: edges / span, syncsPerSec: syncs / span, badPerSec: bad / span, resetsPerSec: resets / span, framesPerSec: frames / span, cadence, bitRate });
+    }
+    return { channels, totals: { ...diagTotals.current }, input: inputInfo };
+  })();
+
   return {
+    diag,
     status: live, message, frame: live === "locked" ? frame : null, lastFrame: frame,
     peak, db: levelToDb(peak), clipping: peak >= 0.98,
     devices, activeDeviceId, start, stop, subscribe,
