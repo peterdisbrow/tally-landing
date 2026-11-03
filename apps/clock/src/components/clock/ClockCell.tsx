@@ -1,4 +1,5 @@
 import { useTimer } from "@/hooks/useTimer";
+import { LABEL_SIZES, labelPx, resolveLabelSize, resolveScaleLabels, type LabelSize } from "@/lib/labelSize";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, Trash2, GripVertical, Play, Pause, RotateCcw } from "lucide-react";
@@ -43,6 +44,8 @@ export type ClockCellConfig = {
   tcHighFrameRate?: boolean; // Timecode mode: show 29.97/30 LTC pairs as 59.94/60 fps
   ltcDeviceId?: string; // audio input used by Timecode mode (Deity TC-1 over LTC audio)
   sizeScale?: number; // 0.5 to 2.0, default 1.0
+  labelSize?: LabelSize; // size of the name / status / AM-PM text around the digits; default "m"
+  scaleLabels?: boolean; // labels also grow with the digit size; default true
   showSeconds?: boolean; // default true; when false, clock/countup/countdown/countto show HH:MM
   rundownToken?: string; // share token from a pasted Rundown display/share link (rundown mode)
   rundownSub?: RundownTimerSub; // which Rundown number to show, default "cue"
@@ -162,6 +165,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
   const [countToInput, setCountToInput] = useState("");
   const cellRef = useRef<HTMLDivElement>(null);
   const [fontSize, setFontSize] = useState(80);
+  const [cellHeight, setCellHeight] = useState(0);
   const [ntpOffset, setNtpOffset] = useState(0);
   const [rundownLinkInput, setRundownLinkInput] = useState("");
   const [rundownLinkError, setRundownLinkError] = useState("");
@@ -222,6 +226,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
       const w = cellRef.current.clientWidth * 0.85;
       const base = Math.max(20, Math.min(Math.floor(w / 6), 300));
       setFontSize(Math.round(base * sizeScaleRef.current));
+      setCellHeight(cellRef.current.clientHeight);
     });
     observer.observe(cellRef.current);
     return () => observer.disconnect();
@@ -234,6 +239,8 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
     const base = Math.max(20, Math.min(Math.floor(w / 6), 300));
     setFontSize(Math.round(base * (config.sizeScale || 1) * globalScale));
   }, [config.sizeScale, globalScale]);
+
+  const lp = labelPx(config.labelSize, config.scaleLabels, fontSize, cellHeight);
 
   // Helper: format elapsed ms as HH:MM:SS
   const formatElapsed = (ms: number) => {
@@ -561,7 +568,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
       )}
 
       {/* Clock name */}
-      <span className="font-mono text-xs uppercase tracking-widest mb-1" style={{ color: `${config.clockColor}88` }}>
+      <span className="font-mono uppercase tracking-widest mb-1 max-w-full px-2 truncate text-center" data-testid="label-name" style={{ fontSize: lp.name, lineHeight: 1.2, color: `${config.clockColor}88` }}>
         {config.clockName || modeLabel || tzLabel}
       </span>
 
@@ -587,13 +594,13 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
             {countdownRemainingMs < 0 && mode === "countdown" ? `+${timeText}` : timeText}
           </div>
           {mode === "clock" && !config.is24h && (
-            <span className="font-mono text-sm tracking-widest mt-1" style={{ color: `${config.clockColor}80` }}>{ampm}</span>
+            <span className="font-mono tracking-widest mt-1" data-testid="label-ampm" style={{ fontSize: lp.ampm, lineHeight: 1.2, color: `${config.clockColor}80` }}>{ampm}</span>
           )}
         </>
       )}
 
       {/* Subtitle */}
-      <span className="font-mono text-[10px] tracking-wider mt-1 text-white/20">
+      <span className="font-mono tracking-wider mt-1 text-white/20 max-w-full px-2 truncate text-center" data-testid="label-sub" style={{ fontSize: lp.sub, lineHeight: 1.2 }}>
         {isLiveSource ? subtitleText
           : isServiceMode ? subtitleText
           : mode === "clock" ? tzLabel
@@ -947,6 +954,29 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
               <input type="range" min={50} max={200} step={5} value={Math.round((config.sizeScale || 1) * 100)}
                 onChange={(e) => onUpdate({ ...config, sizeScale: parseInt(e.target.value) / 100 })}
                 className="w-full accent-current" style={{ color: config.clockColor }} />
+            </div>
+
+            {/* Label size: the text above / below the digits */}
+            <div>
+              <p className="text-white/30 text-[10px] font-mono mb-1">Label size</p>
+              <div className="flex gap-1 items-center flex-wrap" data-testid="label-size-controls">
+                {LABEL_SIZES.map((o) => (
+                  <button key={o.value} aria-pressed={resolveLabelSize(config.labelSize) === o.value}
+                    onClick={() => onUpdate({ ...config, labelSize: o.value })}
+                    className="px-2 py-0.5 text-[10px] font-mono border transition-colors"
+                    style={{
+                      borderColor: resolveLabelSize(config.labelSize) === o.value ? config.clockColor : "rgba(255,255,255,0.1)",
+                      color: resolveLabelSize(config.labelSize) === o.value ? config.clockColor : "rgba(255,255,255,0.4)",
+                    }}>{o.label}</button>
+                ))}
+                <button role="switch" aria-checked={resolveScaleLabels(config.scaleLabels)} aria-label="Scale labels with numbers"
+                  onClick={() => onUpdate({ ...config, scaleLabels: !resolveScaleLabels(config.scaleLabels) })}
+                  className="ml-2 px-2 py-0.5 text-[10px] font-mono border transition-colors"
+                  style={{
+                    borderColor: resolveScaleLabels(config.scaleLabels) ? config.clockColor : "rgba(255,255,255,0.1)",
+                    color: resolveScaleLabels(config.scaleLabels) ? config.clockColor : "rgba(255,255,255,0.4)",
+                  }}>Scale with numbers: {resolveScaleLabels(config.scaleLabels) ? "ON" : "OFF"}</button>
+              </div>
             </div>
 
             {/* Thickness (analog) */}

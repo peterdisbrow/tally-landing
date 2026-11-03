@@ -30,6 +30,7 @@ Rewrites in `next.config.js`: `/clock` and `/multi-clock` → `/tools/clock/inde
 ## Clock app — non-obvious bits
 
 - **Auth is context-based.** `TallyConnectProvider` wraps `<App />` in `apps/clock/src/App.tsx`. Calling `useTallyConnect()` from multiple components without that provider was the original bug — each call got its own state and logins never propagated.
+- **Label size.** Per cell `labelSize` (`s|m|l|xl`, default `m`) and `scaleLabels` (default `true`) size the name / status / AM-PM text around the digits; both optional, so old saved configs still load. Math is in `apps/clock/src/lib/labelSize.ts` (`s` + scaling off = the original 12/10/14 px; scaling follows the digit size, capped by cell height). The `/clock` page has the same two settings (LABEL / SCALE buttons, bottom-left).
 - **Rules-of-hooks on the auth gate.** `MultiClock.tsx` renders a `<LoginForm />` when `!isAuthenticated`. The early `return` MUST sit below every `useState` / `useEffect` / `useCallback` call, or React throws minified error #300 on the authenticated render.
 - **Relay endpoints** (hard-coded in `useTallyConnect.tsx`):
   - `POST https://api.tallyconnect.app/api/church/app/login` → `{ token, church }`

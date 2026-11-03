@@ -1,4 +1,5 @@
 import { useTimer } from "@/hooks/useTimer";
+import { LABEL_SIZES, labelPx, resolveLabelSize, resolveScaleLabels, type LabelSize } from "@/lib/labelSize";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -161,6 +162,8 @@ const Clock = () => {
   const [hideLeadingZero, setHideLeadingZero] = useState(saved?.hideLeadingZero ?? false);
   const [fontSize, setFontSize] = useState(saved?.fontSize ?? 200);
   const [autoSize, setAutoSize] = useState(saved?.autoSize ?? true);
+  const [labelSize, setLabelSize] = useState<LabelSize>(resolveLabelSize(saved?.labelSize));
+  const [scaleLabels, setScaleLabels] = useState<boolean>(resolveScaleLabels(saved?.scaleLabels));
   const [displayStyle, setDisplayStyle] = useState<DisplayStyle>(saved?.displayStyle || "digital");
   const clockRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -239,9 +242,9 @@ const Clock = () => {
     saveSettings({
       clockName, clockColor, fontName: selectedFont.name, timezone,
       is24h, mode, showTenths, showMiniClock, hideLeadingZero, fontSize, autoSize, displayStyle,
-      overtimeWarningColor, allowOverrun,
+      overtimeWarningColor, allowOverrun, labelSize, scaleLabels,
     });
-  }, [clockName, clockColor, selectedFont, timezone, is24h, mode, showTenths, showMiniClock, hideLeadingZero, fontSize, autoSize, displayStyle, overtimeWarningColor, allowOverrun]);
+  }, [clockName, clockColor, selectedFont, timezone, is24h, mode, showTenths, showMiniClock, hideLeadingZero, fontSize, autoSize, displayStyle, overtimeWarningColor, allowOverrun, labelSize, scaleLabels]);
 
   // Time sync — Tally /api/time first, then optional public NTP, then local
   const syncTime = useCallback(async () => {
@@ -446,6 +449,9 @@ const Clock = () => {
   const defaultName = mode === "countup" ? "Count Up" : mode === "countdown" ? "Countdown" : mode === "countto" ? "Count To" : "Clock";
   const displayName = clockName || defaultName;
 
+  const lp = labelPx(labelSize, scaleLabels, fontSize);
+  // The AM/PM line under the digits pushes them up (the stack is centred), so lift the name with them.
+  const ampmShift = displayStyle === "digital" && mode === "clock" && !is24h ? (lp.ampm * 1.2 + 8) / 2 : 0;
   const uiOpacity = uiVisible ? 1 : 0;
   const uiTransition = "opacity 0.5s ease";
 
@@ -513,6 +519,20 @@ const Clock = () => {
           title="Toggle auto-fit (A)"
         >
           {autoSize ? "AUTO" : "FIXED"}
+        </button>
+        <button
+          onClick={() => setLabelSize((p) => { const i = LABEL_SIZES.findIndex((o) => o.value === p); return LABEL_SIZES[(i + 1) % LABEL_SIZES.length].value; })}
+          className="text-[10px] font-mono px-1.5 py-0.5 border border-white/10 text-white/40 hover:text-white/70 transition-colors"
+          title="Label size (clock name, AM/PM): click to cycle S / M / L / XL" data-testid="label-size-btn"
+        >
+          LABEL {LABEL_SIZES.find((o) => o.value === labelSize)?.label}
+        </button>
+        <button
+          onClick={() => setScaleLabels((p) => !p)}
+          className={`text-[10px] font-mono px-1.5 py-0.5 border transition-colors ${scaleLabels ? 'border-white/30 text-white/50' : 'border-white/10 text-white/20'}`}
+          title="Scale labels with the numbers" data-testid="label-scale-btn" role="switch" aria-checked={scaleLabels}
+        >
+          {scaleLabels ? "SCALE" : "NO SCALE"}
         </button>
       </div>
 
@@ -787,7 +807,7 @@ const Clock = () => {
       {/* Clock name display */}
       <div
         className="absolute"
-        style={{ top: "calc(50% - " + (fontSize * 0.6 * 0.55 + 30) + "px)", opacity: uiOpacity, transition: uiTransition }}
+        style={{ top: "calc(50% - " + (fontSize * 0.6 * 0.55 + lp.name * 1.4 + 14 + ampmShift) + "px)", opacity: uiOpacity, transition: uiTransition }}
       >
         {editingName ? (
           <input
@@ -797,14 +817,15 @@ const Clock = () => {
             onBlur={() => setEditingName(false)}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") setEditingName(false); }}
             placeholder={defaultName}
-            className="bg-transparent border-b border-white/20 outline-none text-center font-mono text-sm uppercase tracking-widest px-2 py-1"
-            style={{ color: `${clockColor}99` }}
+            className="bg-transparent border-b border-white/20 outline-none text-center font-mono uppercase tracking-widest px-2 py-1"
+            style={{ color: `${clockColor}99`, fontSize: lp.name }}
           />
         ) : (
           <span
             onClick={() => setEditingName(true)}
-            className="cursor-pointer font-mono text-sm uppercase tracking-widest hover:opacity-80 transition-opacity"
-            style={{ color: `${clockColor}66` }}
+            className="cursor-pointer font-mono uppercase tracking-widest hover:opacity-80 transition-opacity"
+            data-testid="label-name"
+            style={{ color: `${clockColor}66`, fontSize: lp.name }}
             title="Click to rename (N)"
           >
             {displayName}
@@ -842,8 +863,9 @@ const Clock = () => {
       {/* AM/PM indicator for 12h mode */}
       {displayStyle === "digital" && mode === "clock" && !is24h && (
         <div
-          className="font-mono text-lg tracking-widest mt-2"
-          style={{ color: `${clockColor}80` }}
+          className="font-mono tracking-widest mt-2"
+          data-testid="label-ampm"
+          style={{ color: `${clockColor}80`, fontSize: lp.ampm }}
         >
           {tz.hours >= 12 ? "PM" : "AM"}
         </div>

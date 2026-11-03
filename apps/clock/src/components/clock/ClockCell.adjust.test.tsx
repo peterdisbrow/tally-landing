@@ -20,7 +20,7 @@ const secs = () => {
   return m[1] ? -v : v;
 };
 const expectSecs = (expected: number) => expect(Math.abs(secs() - expected)).toBeLessThanOrEqual(1);
-const text = () => (document.querySelector("[style*='font-size']") as HTMLElement).textContent!;
+const text = () => (document.querySelector("[style*='font-size']:not([data-testid^='label'])") as HTMLElement).textContent!;
 const openSettings = () => fireEvent.click(document.querySelector("button svg.lucide-settings")!.closest("button")!);
 const click = (name: string) => fireEvent.click(screen.getByRole("button", { name }));
 const type = (testId: string, value: string) => fireEvent.change(screen.getByTestId(testId), { target: { value } });
@@ -131,7 +131,7 @@ describe("Add / subtract time", () => {
     await settle();
     // 300 + 60 - 600 = -240s total, 10.1s elapsed -> 4:10 over
     expectSecs(-250);
-    expect((document.querySelector("[style*='font-size']") as HTMLElement).style.color).toBe("rgb(239, 68, 68)");
+    expect((document.querySelector("[style*='font-size']:not([data-testid^='label'])") as HTMLElement).style.color).toBe("rgb(239, 68, 68)");
   });
 
   it("picking a countdown preset clears a previous adjustment", () => {
