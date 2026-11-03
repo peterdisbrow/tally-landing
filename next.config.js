@@ -142,6 +142,13 @@ const nextConfig = {
           },
         ],
       },
+      // The Multi-Clock "Timecode (LTC input)" mode reads an audio input (getUserMedia).
+      // Same-origin only: embedding is still blocked (frame-ancestors 'none'), and every
+      // other route keeps microphone=() above. Declared after the catch-all so it wins.
+      ...['/clock', '/clock/', '/multi-clock', '/multi-clock/', '/tools/clock', '/tools/clock/:path*'].map((source) => ({
+        source,
+        headers: [{ key: 'Permissions-Policy', value: 'camera=(), microphone=(self), geolocation=()' }],
+      })),
     ];
   },
 };
