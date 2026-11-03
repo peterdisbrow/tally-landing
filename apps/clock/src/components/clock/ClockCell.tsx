@@ -10,6 +10,8 @@ import {
   computeRundownReadout, maskRundownToken, parseRundownLink, restartRundownTimer,
   RUNDOWN_SUB_LABELS, type RundownTimerSub,
 } from "@/lib/rundownTimer";
+import { useTimecodeCell } from "@/hooks/useTimecodeCell";
+import { LtcCellOverlay, LtcSettings, timecodeSubtitle } from "./LtcClockParts";
 import type { ProPresenterStatus, HyperDeckStatus, AtemStatus } from "@/hooks/useTallyConnect";
 
 type ClockFont = {
@@ -19,7 +21,7 @@ type ClockFont = {
   weight: number;
 };
 
-type ClockMode = "clock" | "countup" | "countdown" | "countto" | "propresenter" | "hyperdeck" | "service" | "streamtime" | "recordtime" | "lastcue" | "atemrecord" | "atemtimecode" | "rundown";
+type ClockMode = "clock" | "countup" | "countdown" | "countto" | "propresenter" | "hyperdeck" | "service" | "streamtime" | "recordtime" | "lastcue" | "atemrecord" | "atemtimecode" | "rundown" | "timecode";
 type DisplayStyle = "digital" | "analog";
 
 export type ClockCellConfig = {
@@ -38,6 +40,7 @@ export type ClockCellConfig = {
   allowOverrun?: boolean;
   hyperdeckIndex?: number; // which hyperdeck (0-based)
   serviceStartTime?: number; // timestamp for service countdown mode
+  ltcDeviceId?: string; // audio input used by Timecode mode (Deity TC-1 over LTC audio)
   sizeScale?: number; // 0.5 to 2.0, default 1.0
   showSeconds?: boolean; // default true; when false, clock/countup/countdown/countto show HH:MM
   rundownToken?: string; // share token from a pasted Rundown display/share link (rundown mode)
@@ -181,6 +184,9 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
   const rundownActive = mode === "rundown" && !!isTallySignedIn;
   const rundownFeed = useRundownTimer(config.rundownToken, rundownActive);
 
+  // Timecode (Deity TC-1): Tally sign-in only, same gate as the Rundown timer. A saved cell never opens the mic when signed out.
+  const tc = useTimecodeCell({ enabled: mode === "timecode" && !!isTallySignedIn, deviceId: config.ltcDeviceId });
+
   const { elapsedMs: timerElapsedMs, paused, pauseTimer, resetTimer, togglePause } = useTimer();
 
   const font = CLOCK_FONTS.find(f => f.name === config.fontName) || CLOCK_FONTS[0];
@@ -197,7 +203,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
 
   // Fast clock update for live elapsed modes (streamtime, recordtime, lastcue, atemrecord, service)
   useEffect(() => {
-    if (mode !== "streamtime" && mode !== "recordtime" && mode !== "lastcue" && mode !== "atemrecord" && mode !== "atemtimecode" && mode !== "service") return;
+    if (mode !== "streamtime" && mode !== "recordtime" && mode !== "lastcue" && mode !== "atemrecord" && mode !== "atemtimecode" && mode !== "timecode" && mode !== "service") return;
     const id = setInterval(() => setNow(new Date(Date.now() + ntpOffset)), 1000);
     return () => clearInterval(id);
   }, [mode, ntpOffset]);
@@ -353,6 +359,14 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
       timeText = atemTimecode;
       subtitleText = "ATEM TIMECODE";
     }
+  } else if (mode === "timecode") {
+    if (!isTallySignedIn) {
+      timeText = "- - -";
+      subtitleText = "Sign in to Tally";
+    } else {
+      timeText = tc.text;
+      subtitleText = timecodeSubtitle(tc);
+    }
   } else if (mode === "propresenter") {
     if (proPresenter?.connected) {
       // Show timer data if available, otherwise show current slide info
@@ -444,7 +458,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
   };
 
   const isTimerMode = mode === "countup" || mode === "countdown";
-  const isLiveSource = mode === "propresenter" || mode === "hyperdeck" || mode === "streamtime" || mode === "recordtime" || mode === "lastcue" || mode === "atemrecord" || mode === "atemtimecode" || mode === "rundown";
+  const isLiveSource = mode === "propresenter" || mode === "hyperdeck" || mode === "streamtime" || mode === "recordtime" || mode === "lastcue" || mode === "atemrecord" || mode === "atemtimecode" || mode === "rundown" || mode === "timecode";
   const isServiceMode = mode === "service";
   const modeLabels: Record<string, string> = {
     countup: "Count Up", countdown: "Countdown", countto: "Count To",
@@ -452,6 +466,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
     service: "Service", streamtime: "Stream Time", recordtime: "Recording",
     lastcue: "Last Cue", atemrecord: "ATEM Rec", atemtimecode: "ATEM TC",
     rundown: `Rundown ${rundownSub === "cue" ? "Cue" : rundownSub === "remaining" ? "Remaining" : "Elapsed"}`,
+    timecode: "Timecode · TC-1",
   };
   const modeLabel = modeLabels[mode] || "";
 
@@ -466,6 +481,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
   // Rundown timer: Tally sign-in only (also hidden for a saved cell when signed out).
   if (isTallySignedIn) {
     availableModes.push({ value: "rundown", label: "Rundown Timer" });
+    availableModes.push({ value: "timecode", label: "Timecode (Deity TC-1)" });
   }
   if (isTallyConnected) {
     if (proPresenter?.connected) {
@@ -596,11 +612,15 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
             (mode === "lastcue" && proPresenter?.connected) ||
             (mode === "atemrecord" && atemRecordingStartedAt) ||
             (mode === "atemtimecode" && atem?.connected && atemTimecode) ||
-            (mode === "rundown" && rundownReadout?.live)
-              ? "bg-green-500 animate-pulse" : "bg-white/20"
+            (mode === "rundown" && rundownReadout?.live) ||
+            (mode === "timecode" && tc.state === "live")
+              ? "bg-green-500 animate-pulse" : mode === "timecode" && tc.state === "freerun" ? "bg-amber-400" : "bg-white/20"
           }`} />
         </span>
       )}
+
+      {/* LTC input: start button, errors, level meter */}
+      {mode === "timecode" && isTallySignedIn && <LtcCellOverlay tc={tc} color={config.clockColor} />}
 
       {/* Settings panel */}
       <AnimatePresence>
@@ -722,6 +742,12 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
                   ))}
                 </div>
               </div>
+            )}
+
+            {/* LTC input device */}
+            {mode === "timecode" && isTallySignedIn && (
+              <LtcSettings tc={tc} color={config.clockColor} deviceId={config.ltcDeviceId}
+                onDeviceChange={(id) => onUpdate({ ...config, ltcDeviceId: id })} />
             )}
 
             {/* Service start time */}
