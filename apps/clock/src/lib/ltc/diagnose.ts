@@ -67,7 +67,7 @@ export function diagnose(d: LtcDiag, running: boolean): Verdict {
     return { code: "not-ltc", text: `Audio present but it isn't a timecode-like square wave (${Math.round(ch.edgesPerSec)} edges/s, ${Math.round(ch.cadence * 100)}% steady)`, hint: "Looks like the wrong input (speech, room noise or music). Pick the interface the TC-1 is plugged into." };
   }
   if (ch.bitRate !== null && ch.bitRate > LTC_MAX_BITRATE) {
-    return { code: "too-fast", text: `Steady signal at ${Math.round(ch.bitRate)} bits/s (≈ ${fpsText(ch.bitRate)}), faster than 24-30 fps timecode`, hint: "Set the TC-1 to 29.97, 29.97 DF or 30. A 59.94 / 60 fps show is sent as 29.97 / 30 timecode (then choose ×2 in settings)." };
+    return { code: "too-fast", text: `Steady signal at ${Math.round(ch.bitRate)} bits/s (≈ ${fpsText(ch.bitRate)}), faster than 24-30 fps timecode`, hint: "Set the TC-1 to 29.97, 29.97 DF or 30. A 59.94 / 60 fps show is sent as 29.97 / 30 timecode." };
   }
   if (ch.bitRate !== null && ch.bitRate < LTC_MIN_BITRATE) {
     return { code: "too-slow", text: `Steady signal at ${Math.round(ch.bitRate)} bits/s (≈ ${fpsText(ch.bitRate)}), slower than 24-30 fps timecode`, hint: "This clock reads 23.98 to 30 fps. Check the TC-1's frame rate." };

@@ -62,7 +62,7 @@ Re-jam before each show. If the Mac is asleep the clock still stays right (it us
 With the clock in Timecode mode and listening, the cell shows a one-line verdict under the level meter, and **Settings** shows the full counters (input device, sample rate, channels, whether echo cancellation / noise suppression / AGC are really off, per-channel level, edges/s, how "steady" the signal is, the bit rate it implies, sync words found, rejected frames, glitches, frames decoded). Quick reading:
 - **Input is silent** → wrong input device, cable, or the TC-1's output is off / at the wrong level (Out Type).
 - **Audio present but not a timecode-like square wave** → wrong input (mic/room noise); pick the interface the TC-1 is plugged into.
-- **Steady signal at ~4800 bits/s (≈60 fps)** → the TC-1 is outputting a faster-than-30 fps signal; set it to 29.97 / 29.97 DF / 30 and use ×2 for 59.94/60 shows.
+- **Steady signal at ~4800 bits/s (≈60 fps)** → the TC-1 is outputting a faster-than-30 fps signal; set it to 29.97 / 29.97 DF / 30 (59.94/60 shows are sent as 29.97/30).
 - **Steady biphase signal but no sync words** → too distorted/clipped or processed; lower the level, keep processing off.
 - **Sync words found but digits invalid / don't count up** → noisy signal.
 - Both channels are decoded separately (LTC on only the left or right is fine, and a balanced +/- pair is fine); channels are never summed.
