@@ -4,6 +4,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Settings, Trash2, GripVertical, Play, Pause, RotateCcw } from "lucide-react";
 import AnalogClock from "./AnalogClock";
 import { syncServerTime } from "@/lib/timeSync";
+import { ADJUST_STEPS, formatHMS, formatSigned, nextAdjust, parseDuration, stepLabel } from "@/lib/timerAdjust";
+import { useRundownTimer } from "@/hooks/useRundownTimer";
+import {
+  computeRundownReadout, maskRundownToken, parseRundownLink, restartRundownTimer,
+  RUNDOWN_SUB_LABELS, type RundownTimerSub,
+} from "@/lib/rundownTimer";
 import type { ProPresenterStatus, HyperDeckStatus, AtemStatus } from "@/hooks/useTallyConnect";
 
 type ClockFont = {
@@ -13,7 +19,7 @@ type ClockFont = {
   weight: number;
 };
 
-type ClockMode = "clock" | "countup" | "countdown" | "countto" | "propresenter" | "hyperdeck" | "service" | "streamtime" | "recordtime" | "lastcue" | "atemrecord" | "atemtimecode";
+type ClockMode = "clock" | "countup" | "countdown" | "countto" | "propresenter" | "hyperdeck" | "service" | "streamtime" | "recordtime" | "lastcue" | "atemrecord" | "atemtimecode" | "rundown";
 type DisplayStyle = "digital" | "analog";
 
 export type ClockCellConfig = {
@@ -34,6 +40,10 @@ export type ClockCellConfig = {
   serviceStartTime?: number; // timestamp for service countdown mode
   sizeScale?: number; // 0.5 to 2.0, default 1.0
   showSeconds?: boolean; // default true; when false, clock/countup/countdown/countto show HH:MM
+  rundownToken?: string; // share token from a pasted Rundown display/share link (rundown mode)
+  rundownSub?: RundownTimerSub; // which Rundown number to show, default "cue"
+  countupStart?: number; // seconds the Count Up starts from (e.g. 1800 = 30:00); default 0
+  timeAdjust?: number; // seconds added (+) or subtracted (-) live in Count Up / Countdown / Count To; default 0
 };
 
 const CLOCK_FONTS: ClockFont[] = [
@@ -137,9 +147,11 @@ interface ClockCellProps {
   atemRecordingStartedAt?: number | null;
   lastCueAt?: number | null;
   atemTimecode?: string | null;
+  /** Signed in to Tally. The Rundown timer mode exists only when this is true. */
+  isTallySignedIn?: boolean;
 }
 
-const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, isDropTarget, onDragStart, onDragEnd, onDragOver, onDrop, onTouchStart, onTouchMove, onTouchEnd, proPresenter, hyperdecks, atem, isTallyConnected, streamStartedAt, recordingStartedAt, atemRecordingStartedAt, lastCueAt, atemTimecode }: ClockCellProps) => {
+const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, isDropTarget, onDragStart, onDragEnd, onDragOver, onDrop, onTouchStart, onTouchMove, onTouchEnd, proPresenter, hyperdecks, atem, isTallyConnected, streamStartedAt, recordingStartedAt, atemRecordingStartedAt, lastCueAt, atemTimecode, isTallySignedIn }: ClockCellProps) => {
   const [now, setNow] = useState(new Date());
   const [showSettings, setShowSettings] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -147,6 +159,12 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
   const cellRef = useRef<HTMLDivElement>(null);
   const [fontSize, setFontSize] = useState(80);
   const [ntpOffset, setNtpOffset] = useState(0);
+  const [rundownLinkInput, setRundownLinkInput] = useState("");
+  const [rundownLinkError, setRundownLinkError] = useState("");
+  const [startInput, setStartInput] = useState("");
+  const [startError, setStartError] = useState("");
+  const [adjustInput, setAdjustInput] = useState("");
+  const [adjustError, setAdjustError] = useState("");
 
   const mode = config.mode || "clock";
   const countdownFrom = config.countdownFrom || 300;
@@ -156,6 +174,12 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
   const allowOverrun = config.allowOverrun ?? true;
   const hyperdeckIndex = config.hyperdeckIndex ?? 0;
   const showSeconds = config.showSeconds !== false;
+  const countupStart = config.countupStart || 0;
+  const timeAdjust = config.timeAdjust || 0;
+
+  const rundownSub: RundownTimerSub = config.rundownSub ?? "cue";
+  const rundownActive = mode === "rundown" && !!isTallySignedIn;
+  const rundownFeed = useRundownTimer(config.rundownToken, rundownActive);
 
   const { elapsedMs: timerElapsedMs, paused, pauseTimer, resetTimer, togglePause } = useTimer();
 
@@ -213,14 +237,30 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
     return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   };
 
+  // Count Up value: starting value + running time + live add/subtract
+  const countupMs = Math.max(0, timerElapsedMs + (countupStart + timeAdjust) * 1000);
+  // Countdown remaining: duration + live add/subtract - running time
+  const countdownTotalMs = (countdownFrom + timeAdjust) * 1000;
+
   // Build display
   let timeText: string;
   let ampm = "";
   let analogHours = 0, analogMinutes = 0, analogSeconds = 0;
   let isNegative = false;
   let subtitleText = "";
+  let rundownReadout: ReturnType<typeof computeRundownReadout> | null = null;
 
-  if (mode === "service") {
+  if (mode === "rundown") {
+    if (!isTallySignedIn) {
+      // Tally-only: a saved Rundown cell never connects when signed out.
+      timeText = "- - -";
+      subtitleText = "Sign in to Tally";
+    } else {
+      rundownReadout = computeRundownReadout(rundownFeed, rundownSub, now.getTime(), !!config.rundownToken);
+      timeText = rundownReadout.text;
+      subtitleText = rundownReadout.subtitle;
+    }
+  } else if (mode === "service") {
     // Service Countdown: count down to start time, then show elapsed
     const target = config.serviceStartTime;
     if (!target) {
@@ -342,18 +382,18 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
       subtitleText = `${hdLabel} Offline`;
     }
   } else if (mode === "countup") {
-    const result = formatTimer(timerElapsedMs, showSeconds);
+    const result = formatTimer(countupMs, showSeconds);
     timeText = result.text; isNegative = result.negative;
-    const totalSec = Math.floor(timerElapsedMs / 1000);
+    const totalSec = Math.floor(countupMs / 1000);
     analogHours = Math.floor(totalSec / 3600); analogMinutes = Math.floor((totalSec % 3600) / 60); analogSeconds = totalSec % 60;
   } else if (mode === "countdown") {
-    const remainingMs = countdownFrom * 1000 - timerElapsedMs;
+    const remainingMs = countdownTotalMs - timerElapsedMs;
     const result = formatTimer(remainingMs, showSeconds);
     timeText = result.text; isNegative = result.negative;
     const absSec = Math.floor(Math.abs(remainingMs) / 1000);
     analogHours = Math.floor(absSec / 3600); analogMinutes = Math.floor((absSec % 3600) / 60); analogSeconds = absSec % 60;
   } else if (mode === "countto" && config.countToTarget) {
-    const diffMs = config.countToTarget - now.getTime();
+    const diffMs = config.countToTarget + timeAdjust * 1000 - now.getTime();
     isNegative = diffMs < 0;
     const absSec = Math.floor(Math.abs(diffMs) / 1000);
     const h = Math.floor(absSec / 3600); const m = Math.floor((absSec % 3600) / 60); const s = absSec % 60;
@@ -375,25 +415,43 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
       : `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
   }
 
-  const countdownRemainingMs = countdownFrom * 1000 - timerElapsedMs;
+  const countdownRemainingMs = countdownTotalMs - timerElapsedMs;
   const isOvertime = mode === "countdown" && countdownRemainingMs < 0;
   const overtimeMs = isOvertime ? Math.abs(countdownRemainingMs) : 0;
-  const isOvertimeFlashing = isOvertime && overtimeMs > 30000;
+  const rundownOvertime = !!rundownReadout?.overtime;
+  const rundownWarning = !!rundownReadout?.warning;
+  const isOvertimeFlashing = (isOvertime && overtimeMs > 30000) || (rundownOvertime && (rundownReadout?.seconds ?? 0) > 30);
   // Immediately red on overtime; flash after 30s
-  const overtimeColor = isOvertime ? "#ef4444" : config.clockColor;
+  const overtimeColor = isOvertime || rundownOvertime ? "#ef4444" : rundownWarning ? overtimeWarningColor : config.clockColor;
+  const valueColor = isOvertime || rundownOvertime || rundownWarning ? overtimeColor : config.clockColor;
 
   useEffect(() => {
-    if (!allowOverrun && mode === "countdown" && countdownFrom * 1000 - timerElapsedMs <= 0 && !paused) pauseTimer();
-  }, [allowOverrun, mode, countdownFrom, timerElapsedMs, paused, pauseTimer]);
+    if (!allowOverrun && mode === "countdown" && countdownTotalMs - timerElapsedMs <= 0 && !paused) pauseTimer();
+  }, [allowOverrun, mode, countdownTotalMs, timerElapsedMs, paused, pauseTimer]);
+
+  const canAdjust = mode === "countup" || mode === "countdown" || (mode === "countto" && !!config.countToTarget);
+  // Seconds currently shown (Count Up only needs it, to stop subtracting below 00:00).
+  const adjustBy = (deltaSeconds: number) => {
+    const shown = mode === "countup" ? countupMs / 1000 : 0;
+    const next = nextAdjust(timeAdjust, deltaSeconds, shown, mode === "countup");
+    onUpdate({ ...config, timeAdjust: next || undefined });
+  };
+  const applyTyped = (sign: 1 | -1) => {
+    const secs = parseDuration(adjustInput);
+    if (!secs) { setAdjustError("Type an amount like 90, 1:30, 5m or 1m30s."); return; }
+    adjustBy(sign * secs);
+    setAdjustInput(""); setAdjustError("");
+  };
 
   const isTimerMode = mode === "countup" || mode === "countdown";
-  const isLiveSource = mode === "propresenter" || mode === "hyperdeck" || mode === "streamtime" || mode === "recordtime" || mode === "lastcue" || mode === "atemrecord" || mode === "atemtimecode";
+  const isLiveSource = mode === "propresenter" || mode === "hyperdeck" || mode === "streamtime" || mode === "recordtime" || mode === "lastcue" || mode === "atemrecord" || mode === "atemtimecode" || mode === "rundown";
   const isServiceMode = mode === "service";
   const modeLabels: Record<string, string> = {
     countup: "Count Up", countdown: "Countdown", countto: "Count To",
     propresenter: "ProPresenter", hyperdeck: "HyperDeck",
     service: "Service", streamtime: "Stream Time", recordtime: "Recording",
     lastcue: "Last Cue", atemrecord: "ATEM Rec", atemtimecode: "ATEM TC",
+    rundown: `Rundown ${rundownSub === "cue" ? "Cue" : rundownSub === "remaining" ? "Remaining" : "Elapsed"}`,
   };
   const modeLabel = modeLabels[mode] || "";
 
@@ -405,6 +463,10 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
     { value: "countto", label: "Count To" },
     { value: "service", label: "Service" },
   ];
+  // Rundown timer: Tally sign-in only (also hidden for a saved cell when signed out).
+  if (isTallySignedIn) {
+    availableModes.push({ value: "rundown", label: "Rundown Timer" });
+  }
   if (isTallyConnected) {
     if (proPresenter?.connected) {
       availableModes.push({ value: "propresenter", label: "ProPresenter" });
@@ -449,7 +511,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
               <button aria-label={paused ? "Start timer" : "Pause timer"} onClick={togglePause} className="text-white/30 hover:text-white/70 transition-colors">
                 {paused ? <Play size={14} /> : <Pause size={14} />}
               </button>
-              <button aria-label="Reset timer" onClick={() => resetTimer(false)} className="text-white/30 hover:text-white/70 transition-colors">
+              <button aria-label="Reset timer" onClick={() => { resetTimer(false); if (timeAdjust) onUpdate({ ...config, timeAdjust: undefined }); }} className="text-white/30 hover:text-white/70 transition-colors">
                 <RotateCcw size={14} />
               </button>
             </>
@@ -462,6 +524,24 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
           </button>
         </div>
       </div>
+
+      {/* Quick add / subtract (Count Up, Countdown, Count To) */}
+      {canAdjust && (
+        <div
+          className="absolute bottom-2 left-0 right-0 flex items-center justify-center gap-1 z-30 transition-opacity duration-300"
+          style={{ opacity: hovered ? 1 : 0, pointerEvents: hovered ? "auto" : "none" }}
+          data-testid="adjust-bar"
+        >
+          {[...ADJUST_STEPS].reverse().map(s => (
+            <button key={`-${s}`} aria-label={`Subtract ${stepLabel(s)}`} onClick={() => adjustBy(-s)}
+              className="px-1.5 py-0.5 text-[10px] font-mono border border-white/10 text-white/40 hover:text-white/80 hover:border-white/30 transition-colors">-{stepLabel(s)}</button>
+          ))}
+          {ADJUST_STEPS.map(s => (
+            <button key={`+${s}`} aria-label={`Add ${stepLabel(s)}`} onClick={() => adjustBy(s)}
+              className="px-1.5 py-0.5 text-[10px] font-mono border border-white/10 text-white/40 hover:text-white/80 hover:border-white/30 transition-colors">+{stepLabel(s)}</button>
+          ))}
+        </div>
+      )}
 
       {/* Clock name */}
       <span className="font-mono text-xs uppercase tracking-widest mb-1" style={{ color: `${config.clockColor}88` }}>
@@ -483,8 +563,9 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
             style={{
               fontSize: `${fontSize * 0.6}px`,
               fontFamily: font.css, fontWeight: font.weight, lineHeight: 1.1,
-              color: isOvertime ? overtimeColor : config.clockColor,
+              color: valueColor,
             }}
+            data-testid={mode === "rundown" ? "rundown-readout" : undefined}
           >
             {countdownRemainingMs < 0 && mode === "countdown" ? `+${timeText}` : timeText}
           </div>
@@ -501,6 +582,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
           : mode === "clock" ? tzLabel
           : mode === "countto" ? (config.countToTarget ? "COUNTING TO" : "SET TARGET")
           : (paused ? "PAUSED" : "RUNNING")}
+        {canAdjust && timeAdjust ? ` · ADJ ${formatSigned(timeAdjust)}` : ""}
       </span>
 
       {/* Live source indicator */}
@@ -513,7 +595,8 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
             (mode === "recordtime" && recordingStartedAt) ||
             (mode === "lastcue" && proPresenter?.connected) ||
             (mode === "atemrecord" && atemRecordingStartedAt) ||
-            (mode === "atemtimecode" && atem?.connected && atemTimecode)
+            (mode === "atemtimecode" && atem?.connected && atemTimecode) ||
+            (mode === "rundown" && rundownReadout?.live)
               ? "bg-green-500 animate-pulse" : "bg-white/20"
           }`} />
         </span>
@@ -557,6 +640,74 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
                 ))}
               </div>
             </div>
+
+            {/* Rundown timer (Tally sign-in only) */}
+            {mode === "rundown" && isTallySignedIn && (
+              <div className="flex flex-col gap-2" data-testid="rundown-settings">
+                <div>
+                  <p className="text-white/30 text-[10px] font-mono mb-1">Rundown link</p>
+                  <div className="flex gap-1">
+                    <input
+                      data-testid="rundown-link-input"
+                      value={rundownLinkInput}
+                      onChange={(e) => { setRundownLinkInput(e.target.value); setRundownLinkError(""); }}
+                      onPaste={(e) => {
+                        const pasted = e.clipboardData.getData("text");
+                        const token = parseRundownLink(pasted);
+                        if (token) {
+                          e.preventDefault();
+                          onUpdate({ ...config, rundownToken: token });
+                          setRundownLinkInput("");
+                          setRundownLinkError("");
+                        }
+                      }}
+                      onKeyDown={(e) => { if (e.key === "Enter") (e.currentTarget.nextElementSibling as HTMLButtonElement | null)?.click(); }}
+                      placeholder="Paste a Rundown display link…"
+                      aria-label="Rundown display link"
+                      autoComplete="off" spellCheck={false}
+                      className="flex-1 min-w-0 bg-transparent border border-white/20 outline-none text-xs font-mono text-white/70 px-2 py-1 rounded" />
+                    <button
+                      onClick={() => {
+                        const token = parseRundownLink(rundownLinkInput);
+                        if (!token) { setRundownLinkError("That is not a Rundown display or share link."); return; }
+                        onUpdate({ ...config, rundownToken: token });
+                        setRundownLinkInput("");
+                        setRundownLinkError("");
+                      }}
+                      className="px-2 py-0.5 text-[10px] font-mono border transition-colors"
+                      style={{ color: config.clockColor, borderColor: `${config.clockColor}60` }}
+                    >Connect</button>
+                  </div>
+                  {rundownLinkError && <p className="text-red-400 text-[10px] font-mono mt-1" role="alert">{rundownLinkError}</p>}
+                  {config.rundownToken && (
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-white/40 text-[10px] font-mono" data-testid="rundown-link-status">
+                        {rundownFeed.status === "open" ? "Connected" : rundownFeed.status === "invalid" ? "Link not valid or expired" : "Connecting…"}
+                        {" · "}{maskRundownToken(config.rundownToken)}
+                      </span>
+                      {rundownFeed.status === "invalid" && (
+                        <button onClick={() => restartRundownTimer(config.rundownToken!)}
+                          className="px-2 py-0.5 text-[10px] font-mono border border-white/10 text-white/50">Retry</button>
+                      )}
+                      <button onClick={() => onUpdate({ ...config, rundownToken: undefined })}
+                        className="px-2 py-0.5 text-[10px] font-mono border border-white/10 text-white/50">Remove</button>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <p className="text-white/30 text-[10px] font-mono mb-1">Show</p>
+                  <div className="flex flex-wrap gap-1">
+                    {(Object.keys(RUNDOWN_SUB_LABELS) as RundownTimerSub[]).map(sub => (
+                      <button key={sub} onClick={() => onUpdate({ ...config, rundownSub: sub })}
+                        aria-pressed={rundownSub === sub}
+                        className="px-2 py-0.5 text-[10px] font-mono border transition-colors"
+                        style={{ color: rundownSub === sub ? config.clockColor : "rgba(255,255,255,0.3)", borderColor: rundownSub === sub ? `${config.clockColor}60` : "rgba(255,255,255,0.1)" }}
+                      >{RUNDOWN_SUB_LABELS[sub]}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* HyperDeck selector */}
             {mode === "hyperdeck" && hyperdecks && hyperdecks.length > 1 && (
@@ -611,13 +762,81 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
               </div>
             )}
 
+            {/* Count Up starting value */}
+            {mode === "countup" && (
+              <div data-testid="countup-start-settings">
+                <p className="text-white/30 text-[10px] font-mono mb-1">Start at (counts up from here)</p>
+                <div className="flex gap-1">
+                  <input
+                    data-testid="countup-start-input"
+                    aria-label="Count up start value"
+                    value={startInput}
+                    onChange={(e) => { setStartInput(e.target.value); setStartError(""); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") (e.currentTarget.nextElementSibling as HTMLButtonElement | null)?.click(); }}
+                    placeholder={countupStart ? formatHMS(countupStart) : "30:00 or 00:12:30"}
+                    autoComplete="off" spellCheck={false}
+                    className="flex-1 min-w-0 bg-transparent border border-white/20 outline-none text-xs font-mono text-white/70 px-2 py-1 rounded" />
+                  <button
+                    onClick={() => {
+                      const secs = startInput.trim() === "" ? 0 : parseDuration(startInput);
+                      if (secs === null) { setStartError("Type a start like 30:00, 00:12:30 or 90."); return; }
+                      onUpdate({ ...config, countupStart: secs || undefined });
+                      resetTimer(false);
+                      setStartInput(""); setStartError("");
+                    }}
+                    className="px-2 py-0.5 text-[10px] font-mono border transition-colors"
+                    style={{ color: config.clockColor, borderColor: `${config.clockColor}60` }}
+                  >Set</button>
+                </div>
+                {startError && <p className="text-red-400 text-[10px] font-mono mt-1" role="alert">{startError}</p>}
+                <p className="text-white/30 text-[10px] font-mono mt-1" data-testid="countup-start-status">
+                  Starts at {formatHMS(countupStart)}
+                  {countupStart ? (
+                    <button onClick={() => { onUpdate({ ...config, countupStart: undefined }); resetTimer(false); }}
+                      className="ml-2 px-1 border border-white/10 text-white/50">Clear</button>
+                  ) : null}
+                </p>
+              </div>
+            )}
+
+            {/* Add / subtract time */}
+            {canAdjust && (
+              <div data-testid="adjust-settings">
+                <p className="text-white/30 text-[10px] font-mono mb-1">
+                  Add / subtract time{timeAdjust ? ` (adjusted ${formatSigned(timeAdjust)})` : ""}
+                </p>
+                <div className="flex gap-1">
+                  <input
+                    data-testid="adjust-input"
+                    aria-label="Amount of time to add or subtract"
+                    value={adjustInput}
+                    onChange={(e) => { setAdjustInput(e.target.value); setAdjustError(""); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") applyTyped(1); }}
+                    placeholder="90, 1:30, 5m, 1m30s"
+                    autoComplete="off" spellCheck={false}
+                    className="flex-1 min-w-0 bg-transparent border border-white/20 outline-none text-xs font-mono text-white/70 px-2 py-1 rounded" />
+                  <button aria-label="Subtract typed amount" onClick={() => applyTyped(-1)}
+                    className="px-2 py-0.5 text-[10px] font-mono border transition-colors"
+                    style={{ color: config.clockColor, borderColor: `${config.clockColor}60` }}>− Subtract</button>
+                  <button aria-label="Add typed amount" onClick={() => applyTyped(1)}
+                    className="px-2 py-0.5 text-[10px] font-mono border transition-colors"
+                    style={{ color: config.clockColor, borderColor: `${config.clockColor}60` }}>+ Add</button>
+                </div>
+                {adjustError && <p className="text-red-400 text-[10px] font-mono mt-1" role="alert">{adjustError}</p>}
+                {timeAdjust !== 0 && (
+                  <button onClick={() => onUpdate({ ...config, timeAdjust: undefined })}
+                    className="mt-1 px-2 py-0.5 text-[10px] font-mono border border-white/10 text-white/50">Clear adjustment</button>
+                )}
+              </div>
+            )}
+
             {/* Countdown duration */}
             {mode === "countdown" && (
               <div>
                 <p className="text-white/30 text-[10px] font-mono mb-1">Duration</p>
                 <div className="flex flex-wrap gap-1">
                   {COUNTDOWN_PRESETS.map(p => (
-                    <button key={p.seconds} onClick={() => onUpdate({ ...config, countdownFrom: p.seconds })}
+                    <button key={p.seconds} onClick={() => onUpdate({ ...config, countdownFrom: p.seconds, timeAdjust: undefined })}
                       className="px-2 py-0.5 text-[10px] font-mono border transition-colors"
                       style={{ color: countdownFrom === p.seconds ? config.clockColor : "rgba(255,255,255,0.3)", borderColor: countdownFrom === p.seconds ? `${config.clockColor}60` : "rgba(255,255,255,0.1)" }}
                     >{p.label}</button>

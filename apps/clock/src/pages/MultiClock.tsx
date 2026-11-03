@@ -215,6 +215,7 @@ const MultiClock = () => {
 
   const tallyProps = {
     isTallyConnected,
+    isTallySignedIn: isAuthenticated,
     proPresenter: status.proPresenter,
     hyperdecks: status.hyperdecks,
     atem: status.atem,
