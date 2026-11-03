@@ -50,7 +50,7 @@ async function launch(wavPath, { fakeUi = true, noloop = false } = {}) {
 }
 
 /** Opens /multi-clock signed in (mocked relay), with a clock + an LTC cell. */
-async function openApp(browser, { signedIn = true, ltcMode = true, viewport = { width: 1280, height: 720 }, extra } = {}) {
+async function openApp(browser, { signedIn = true, ltcMode = true, hfr = false, viewport = { width: 1280, height: 720 }, extra } = {}) {
   const ctx = await browser.newContext({ viewport });
   const page = await ctx.newPage();
   page.on("pageerror", (e) => console.log("  [pageerror]", e.message));
@@ -65,14 +65,14 @@ async function openApp(browser, { signedIn = true, ltcMode = true, viewport = { 
     ws.send(JSON.stringify({ type: "connected", churchId: "c1", name: "Demo Church" }));
     ws.send(JSON.stringify({ type: "status_update", status: { atem: { connected: false } } }));
   });
-  await page.addInitScript(({ signedIn, ltcMode }) => {
+  await page.addInitScript(({ signedIn, ltcMode, hfr }) => {
     if (signedIn) localStorage.setItem("tallyconnect-clock-token", "test-token");
     localStorage.setItem("broadcast-multi-layout", "2x2");
     localStorage.setItem("broadcast-multi-clocks", JSON.stringify([
       { id: "1", clockName: "Local Time", clockColor: "#22c55e", fontName: "dseg7", timezone: "America/New_York", is24h: false, showSeconds: true },
-      { id: "2", clockName: "TC-1 Timecode", clockColor: "#ef4444", fontName: "dseg7", timezone: "local", is24h: true, showSeconds: true, mode: ltcMode ? "timecode" : "clock" },
+      { id: "2", clockName: "TC-1 Timecode", clockColor: "#ef4444", fontName: "dseg7", timezone: "local", is24h: true, showSeconds: true, mode: ltcMode ? "timecode" : "clock", ...(hfr ? { tcHighFrameRate: true } : {}) },
     ]));
-  }, { signedIn, ltcMode });
+  }, { signedIn, ltcMode, hfr });
   await page.goto(BASE_URL + "/multi-clock");
   if (signedIn) await page.waitForSelector('[data-clock-id="2"]');
   return { ctx, page, cell: page.locator('[data-clock-id="2"]') };
@@ -400,6 +400,64 @@ async function main() {
     const lines = await cell.getByTestId("ltc-diag-channel").allInnerTexts();
     check("[damaged] diagnostics show two channels, L dead and R decoding", lines.length === 2 && /^L -∞ dB/.test(lines[0]) && /sync [1-9]/.test(lines[1]), lines.join(" || "));
     await page.screenshot({ path: path.join(SHOTS, "20-damaged-stereo-locked.png") });
+    await ctx.close(); await browser.close();
+  }
+
+  // ── 11. 59.94 / 60 fps (x2): an LTC word labels a frame PAIR, shown as frames 00-59 ──
+  const sampleIn = (page, re, ms, every = 6) => page.evaluate(([src, ms, every]) => new Promise((resolve) => {
+    const el = document.querySelector('[data-clock-id="2"]'); const out = []; const rx = new RegExp(src);
+    const id = setInterval(() => { const m = el.innerText.match(rx); if (m) out.push(m[0]); }, every);
+    setTimeout(() => { clearInterval(id); resolve(out); }, ms);
+  }), [re.source, ms, every]);
+  for (const r of [
+    { id: "60", fps: 30, drop: false, sep: ":", label: /TC-1 · 60 fps · LIVE/ },
+    { id: "59.94", fps: 30000 / 1001, drop: false, sep: ":", label: /TC-1 · 59\.94 fps · LIVE/ },
+    { id: "59.94df", fps: 30000 / 1001, drop: true, sep: ";", label: /TC-1 · 59\.94 fps DF · LIVE/ },
+  ]) {
+    const file = wav("hfr-" + r.id, generateLtc({ fps: r.fps, nominal: 30, drop: r.drop, seconds: 30, start: [1, 0, 0, 0] }));
+    const browser = await launch(file);
+    const { ctx, page, cell } = await openApp(browser, { hfr: true });
+    await cell.hover();
+    await cell.getByRole("button", { name: /Start timecode input/ }).click();
+    const ok = await waitFor(async () => { const t = await cellText(cell); return r.label.test(t) ? t : null; }, 10000);
+    check(`[x2 ${r.id}] LTC ${r.drop ? "29.97 DF" : r.fps === 30 ? "30" : "29.97"} is shown as ${r.id} fps`, !!ok, ok ? "" : await cellText(cell));
+    const seen = await sampleIn(page, new RegExp(`\\b\\d\\d:\\d\\d:\\d\\d${r.sep}\\d\\d\\b`), 2500);
+    const frames = [...new Set(seen.map((t) => +t.slice(-2)))];
+    check(`[x2 ${r.id}] frame counter reaches 30-59 (a 30 fps display never can)`, frames.some((f) => f >= 30), `max ${Math.max(...frames)}`);
+    // Distinct labels in the 2.5 s window: ~150 at 60 fps (a 30 fps display would give ~75; never more than 60/s)
+    const uniqLabels = new Set(seen).size;
+    check(`[x2 ${r.id}] ~60 distinct frame labels per second (twice a 30 fps display)`, uniqLabels >= 110 && uniqLabels <= 156, `${uniqLabels} labels in 2.5 s sampling window`);
+    await page.screenshot({ path: path.join(SHOTS, `14-x2-${r.id}.png`) });
+    await ctx.close(); await browser.close();
+  }
+  // x2 via the settings toggle (persisted), then jam + free-run at 59.94 DF across the minute
+  {
+    const a = generateLtc({ fps: 30000 / 1001, nominal: 30, drop: true, seconds: 7, start: [0, 0, 50, 0], leadSilence: 0.3 });
+    const s = new Float32Array(48000 * 60); s.set(a);
+    const browser = await launch(wav("hfr-jam", s), { noloop: true });
+    const { ctx, page, cell } = await openApp(browser);
+    await cell.hover();
+    await cell.locator("button:has(svg.lucide-settings)").click();
+    check("[x2] settings offer 'As received' and '×2 · 59.94 / 60 fps'", (await cell.getByTestId("tc-rate-x2").isVisible()) && (await cell.getByTestId("tc-rate-normal").getAttribute("aria-pressed")) === "true");
+    await cell.getByTestId("tc-rate-x2").click();
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("broadcast-multi-clocks")).find((c) => c.id === "2").tcHighFrameRate);
+    check("[x2] choice is saved in the layout", saved === true, String(saved));
+    const help = await cell.getByTestId("tc-rate-help").innerText();
+    check("[x2] help says 29.97 and 59.94 look identical on the cable", /look identical/.test(help), help.slice(0, 80));
+    await page.screenshot({ path: path.join(SHOTS, "15-settings-x2.png") });
+    await cell.locator("button:has(svg.lucide-settings)").click().catch(() => {});
+    await cell.getByRole("button", { name: /Start timecode input/ }).click();
+    await waitFor(async () => !(await cell.getByTestId("jam-button").isDisabled().catch(() => true)), 10000);
+    await cell.getByTestId("jam-button").click();
+    await waitFor(async () => (await cell.locator('[data-testid="ltc-overlay"]').getAttribute("data-tc-state")) === "freerun", 15000);
+    const seen = await sampleIn(page, /\b\d\d:\d\d:\d\d;\d\d\b/, 9000, 6);
+    const uniq = [...new Set(seen)];
+    const minute = uniq.filter((t) => t.startsWith("00:00:59") || t.startsWith("00:01:00"));
+    const dropped = ["00:01:00;00", "00:01:00;01", "00:01:00;02", "00:01:00;03"];
+    check("[x2 jam] free-run crosses the minute at 59.94 DF: ;59 -> 00:01:00;04 (frames 0-3 dropped)", uniq.includes("00:00:59;59") && uniq.includes("00:01:00;04") && dropped.every((d) => !uniq.includes(d)), minute.join(" "));
+    const fr = await cellText(cell);
+    check("[x2 jam] free-run subtitle says 59.94 DF", /FREE-RUN · 59\.94 DF fps/.test(fr), fr.slice(0, 120));
+    await page.screenshot({ path: path.join(SHOTS, "16-x2-freerun-dropframe.png") });
     await ctx.close(); await browser.close();
   }
 

@@ -87,6 +87,13 @@ export function jamCount(j: JamRecord, nowMs: number): number {
   return advanceCount(j.anchorCount, frames, j);
 }
 
+/** Like jamCount, plus which half of the frame pair we're in (for x2 / 59.94-60 display). */
+export function jamPosition(j: JamRecord, nowMs: number): { count: number; sub: 0 | 1 } {
+  const total = ((nowMs - j.anchorWallMs) * j.fps) / 1000;
+  const whole = Math.floor(total);
+  return { count: advanceCount(j.anchorCount, whole, j), sub: total - whole >= 0.5 ? 1 : 0 };
+}
+
 // ── persistence ────────────────────────────────────────────────
 
 export const JAM_STORAGE_KEY = "tally-clock-tc-jam-v1";

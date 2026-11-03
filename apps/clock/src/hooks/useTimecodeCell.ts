@@ -1,22 +1,23 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useLtcInput } from "@/lib/ltc/useLtcInput";
 import { ltcFrameToTimecode } from "@/lib/ltc/ltcToTimecode";
-import { JAM_TIMEOUT_MS, JamCollector, jamCount, jamStore, type JamProgress, type JamRecord } from "@/lib/timecode/jam";
+import { JAM_TIMEOUT_MS, JamCollector, jamCount, jamPosition, jamStore, type JamProgress, type JamRecord } from "@/lib/timecode/jam";
 import { DEFAULT_TIMECODE_SOURCE_ID, getTimecodeSource, type LiveTimecode } from "@/lib/timecode/sources";
-import { advanceCount, countToTc, formatAge, formatTc, framesPerDay, rateLabel, type TcRate } from "@/lib/timecode/timecode";
+import { framesPerDay, formatAge, type TcRate } from "@/lib/timecode/timecode";
+import { canDoubleRate, displayText, rateParts, subFrameSince } from "@/lib/timecode/display";
 
 export const TC_PLACEHOLDER = "--:--:--:--";
 
 export type TimecodeDisplayState = "off" | "live" | "freerun" | "nosignal";
 
-type Opts = { enabled: boolean; deviceId?: string; sourceId?: string };
+type Opts = { enabled: boolean; deviceId?: string; sourceId?: string; /** show 29.97/30 LTC pairs as 59.94/60 fps (x2) */ hfr?: boolean };
 
 /**
  * Everything the clock's Timecode mode needs: the source (today only the Deity
  * TC-1 over LTC audio), jam-sync, and what to show. Source-specific code stops
  * at `ltc` below; the jam + display logic only sees normalised timecode.
  */
-export function useTimecodeCell({ enabled, deviceId, sourceId = DEFAULT_TIMECODE_SOURCE_ID }: Opts) {
+export function useTimecodeCell({ enabled, deviceId, sourceId = DEFAULT_TIMECODE_SOURCE_ID, hfr: hfrWanted = false }: Opts) {
   const info = getTimecodeSource(sourceId);
   // Source adapter (the only one so far). A new source adds its own hook + branch here.
   const ltc = useLtcInput({ enabled: enabled && info.kind === "ltc-audio", deviceId });
@@ -24,6 +25,28 @@ export function useTimecodeCell({ enabled, deviceId, sourceId = DEFAULT_TIMECODE
   const subscribe = ltc.subscribe;
 
   const live: LiveTimecode | null = useMemo(() => (ltc.frame ? ltcFrameToTimecode(ltc.frame) : null), [ltc.frame]);
+
+  // x2 (59.94 / 60 fps): an LTC word labels a pair of frames; the 2nd half is told by time since the word arrived.
+  const hfr = hfrWanted && !!live && canDoubleRate({ nominal: live.nominal, fps: live.fps, drop: live.drop });
+  const arrival = useRef(0);
+  const [subState, setSubState] = useState<{ wall: number; sub: 0 | 1 }>({ wall: 0, sub: 0 });
+  useEffect(() => {
+    if (!enabled || !hfrWanted) return;
+    return subscribe((_f, wallMs) => { arrival.current = wallMs; });
+  }, [enabled, hfrWanted, subscribe]);
+  useEffect(() => {
+    if (!enabled || !hfrWanted || !live) return;
+    const rate = { nominal: live.nominal, fps: live.fps, drop: live.drop };
+    let raf = 0;
+    const loop = () => {
+      const sub = subFrameSince(arrival.current, Date.now(), rate);
+      setSubState((p) => (p.wall === arrival.current && p.sub === sub ? p : { wall: arrival.current, sub }));
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [enabled, hfrWanted, live?.nominal, live?.fps, live?.drop, !!live]); // eslint-disable-line react-hooks/exhaustive-deps
+  const liveSub: 0 | 1 = subState.wall === arrival.current ? subState.sub : 0;
 
   useSyncExternalStore(jamStore.subscribe, jamStore.version, jamStore.version);
   const jam: JamRecord | null = enabled ? jamStore.get(info.id) : null;
@@ -39,7 +62,8 @@ export function useTimecodeCell({ enabled, deviceId, sourceId = DEFAULT_TIMECODE
       let raf = 0; let lastCount = -1;
       const loop = () => {
         const n = Date.now();
-        const c = jamCount(jam, n);
+        const p = jamPosition(jam, n);
+        const c = hfrWanted && canDoubleRate(jam) ? p.count * 2 + p.sub : p.count;
         if (c !== lastCount) { lastCount = c; setNowMs(n); }
         raf = requestAnimationFrame(loop);
       };
@@ -48,7 +72,7 @@ export function useTimecodeCell({ enabled, deviceId, sourceId = DEFAULT_TIMECODE
     }
     const id = setInterval(() => setNowMs(Date.now()), 1000);
     return () => clearInterval(id);
-  }, [enabled, jam, freeRunning]);
+  }, [enabled, jam, freeRunning, hfrWanted]);
 
   // ── jam ──
   const [jamProgress, setJamProgress] = useState<JamProgress | null>(null);
@@ -100,11 +124,11 @@ export function useTimecodeCell({ enabled, deviceId, sourceId = DEFAULT_TIMECODE
     if (live) {
       state = "live";
       rate = { nominal: live.nominal, fps: live.fps, drop: live.drop };
-      text = formatTc(countToTc(live.rateLocked ? advanceCount(live.count, trim, rate) : live.count, rate), live.drop);
+      text = displayText({ count: live.count, sub: hfr ? liveSub : 0 }, rate, hfr, live.rateLocked ? trim : 0);
     } else if (jam) {
       state = "freerun";
       rate = jam;
-      text = formatTc(countToTc(advanceCount(jamCount(jam, nowMs), trim, jam), jam), jam.drop);
+      text = displayText(jamPosition(jam, nowMs), jam, hfrWanted, trim);
     } else if (ltc.status === "nosignal" || ltc.status === "notltc") {
       state = "nosignal";
     }
@@ -120,10 +144,12 @@ export function useTimecodeCell({ enabled, deviceId, sourceId = DEFAULT_TIMECODE
     driftFrames = ((((live.count - jamCount(jam, nowMs)) + day / 2) % day) + day) % day - day / 2;
   }
 
-  const rateText = rate ? rateLabel(rate) : null;
+  const showHfr = !!rate && hfrWanted && canDoubleRate(rate);
+  const parts = rate ? rateParts(rate, showHfr) : null;
+  const rateText = parts ? `${parts.num}${parts.df ? " DF" : ""}` : null;
 
   return {
-    ltc, info, state, text, rateText,
+    ltc, info, state, text, rateText, rateParts: parts, hfr: showHfr, hfrAvailable: !!rate && canDoubleRate(rate),
     live: !!live, jam, jamAgeText, jamAgeMs, jamProgress, jamError, driftFrames, trim,
     canJam: !!live && live.rateLocked && !jamProgress,
     startJam, clearJam, setTrim, cancelJam: stopJam,
