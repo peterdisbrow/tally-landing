@@ -40,6 +40,7 @@ export type ClockCellConfig = {
   allowOverrun?: boolean;
   hyperdeckIndex?: number; // which hyperdeck (0-based)
   serviceStartTime?: number; // timestamp for service countdown mode
+  tcHighFrameRate?: boolean; // Timecode mode: show 29.97/30 LTC pairs as 59.94/60 fps
   ltcDeviceId?: string; // audio input used by Timecode mode (Deity TC-1 over LTC audio)
   sizeScale?: number; // 0.5 to 2.0, default 1.0
   showSeconds?: boolean; // default true; when false, clock/countup/countdown/countto show HH:MM
@@ -185,7 +186,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
   const rundownFeed = useRundownTimer(config.rundownToken, rundownActive);
 
   // Timecode (Deity TC-1): Tally sign-in only, same gate as the Rundown timer. A saved cell never opens the mic when signed out.
-  const tc = useTimecodeCell({ enabled: mode === "timecode" && !!isTallySignedIn, deviceId: config.ltcDeviceId });
+  const tc = useTimecodeCell({ enabled: mode === "timecode" && !!isTallySignedIn, deviceId: config.ltcDeviceId, hfr: !!config.tcHighFrameRate });
 
   const { elapsedMs: timerElapsedMs, paused, pauseTimer, resetTimer, togglePause } = useTimer();
 
@@ -747,7 +748,9 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
             {/* LTC input device */}
             {mode === "timecode" && isTallySignedIn && (
               <LtcSettings tc={tc} color={config.clockColor} deviceId={config.ltcDeviceId}
-                onDeviceChange={(id) => onUpdate({ ...config, ltcDeviceId: id })} />
+                onDeviceChange={(id) => onUpdate({ ...config, ltcDeviceId: id })}
+                highFrameRate={!!config.tcHighFrameRate}
+                onHighFrameRateChange={(v) => onUpdate({ ...config, tcHighFrameRate: v || undefined })} />
             )}
 
             {/* Service start time */}

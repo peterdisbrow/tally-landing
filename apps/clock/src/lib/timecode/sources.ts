@@ -17,6 +17,8 @@ export type TimecodeSourceInfo = {
   shortLabel: string;   // cell subtitle
   /** Frame rates this source/device can send AND the clock can read today. */
   supportedRates: string[];
+  /** Shown with the x2 setting: the LTC feed is 29.97 / 29.97 DF / 30 and the clock displays it as 59.94 / 59.94 DF / 60. */
+  highFrameRates: string[];
   hookup: string;       // one-line setup hint
 };
 
@@ -26,6 +28,7 @@ export const DEITY_TC1_LTC: TimecodeSourceInfo = {
   label: "Deity TC-1 (LTC, line level)",
   shortLabel: "TC-1",
   supportedRates: ["23.98", "24", "25", "29.97", "29.97 DF", "30"],
+  highFrameRates: ["59.94", "59.94 DF", "60"],
   hookup: "TC-1 Out Type = L-OUT (line level), 3.5mm TRS → audio interface line input (tip = LTC).",
 };
 

@@ -19,6 +19,7 @@ export function timecodeSubtitle(tc: TimecodeCell): string {
   }
   if (tc.state === "live") {
     if (!f?.rateLocked) return `${src} · measuring frame rate…`;
+    if (tc.hfr && tc.rateParts) return `${src} · ${tc.rateParts.num} fps${tc.rateParts.df ? " DF" : ""} · LIVE${tc.jam ? ` · ${tc.jamAgeText.toLowerCase()}` : ""}`;
     const sub = f.nominalFps === 30 && f.fpsLabel === "29.97" ? (f.drop ? " DF" : " NDF") : "";
     return `${src} · ${f.fpsLabel} fps${sub} · LIVE${tc.jam ? ` · ${tc.jamAgeText.toLowerCase()}` : ""}`;
   }
@@ -123,7 +124,7 @@ export function LtcCellOverlay({ tc, color }: { tc: TimecodeCell; color: string 
 }
 
 /** Settings-panel section: source, input device picker, start/stop, jam status + controls. */
-export function LtcSettings({ tc, color, deviceId, onDeviceChange }: { tc: TimecodeCell; color: string; deviceId?: string; onDeviceChange: (id: string | undefined) => void }) {
+export function LtcSettings({ tc, color, deviceId, onDeviceChange, highFrameRate, onHighFrameRateChange }: { tc: TimecodeCell; color: string; deviceId?: string; onDeviceChange: (id: string | undefined) => void; highFrameRate: boolean; onHighFrameRateChange: (v: boolean) => void }) {
   const ltc = tc.ltc;
   const running = ltc.status === "locked" || ltc.status === "nosignal" || ltc.status === "notltc";
   const current = deviceId ?? "";
@@ -150,6 +151,19 @@ export function LtcSettings({ tc, color, deviceId, onDeviceChange }: { tc: Timec
       </div>
       {running && <LtcLevelMeter ltc={ltc} color={color} />}
       {running && <LtcDiagnostics tc={tc} full />}
+
+      <p className="text-white/30 text-[10px] font-mono mt-1">Show as</p>
+      <div className="flex gap-1 flex-wrap" role="group" aria-label="Frame rate shown">
+        <button onClick={() => onHighFrameRateChange(false)} aria-pressed={!highFrameRate} data-testid="tc-rate-normal" className={small}
+          style={{ color: !highFrameRate ? color : "rgba(255,255,255,0.3)", borderColor: !highFrameRate ? `${color}60` : "rgba(255,255,255,0.1)" }}>As received</button>
+        <button onClick={() => onHighFrameRateChange(true)} aria-pressed={highFrameRate} data-testid="tc-rate-x2" className={small}
+          style={{ color: highFrameRate ? color : "rgba(255,255,255,0.3)", borderColor: highFrameRate ? `${color}60` : "rgba(255,255,255,0.1)" }}>×2 · 59.94 / 60 fps</button>
+      </div>
+      <p className="text-white/30 text-[10px] font-mono leading-snug" data-testid="tc-rate-help">
+        {highFrameRate
+          ? `Frame counts 00-59. Set the TC-1 to 29.97, 29.97 DF or 30 for a 59.94 / 60 fps show (${tc.info.highFrameRates.join(", ")}). 29.97 and 59.94 look identical on the cable, so you pick which one you're running.${tc.hfrAvailable ? "" : " (Only applies to 29.97 / 30 timecode.)"}`
+          : "Pick ×2 when your show runs at 59.94 or 60 fps; the TC-1 sends those as 29.97 / 30 timecode."}
+      </p>
 
       <p className="text-white/30 text-[10px] font-mono mt-1">Jam sync</p>
       <p className="text-white/60 text-[10px] font-mono leading-snug" data-testid="jam-status">
@@ -179,7 +193,7 @@ export function LtcSettings({ tc, color, deviceId, onDeviceChange }: { tc: Timec
       </div>
 
       <p className="text-white/30 text-[10px] font-mono leading-snug">
-        {tc.info.hookup} Reads {tc.info.supportedRates.join(", ")} fps. 50/60 fps isn't supported yet. Echo cancellation, noise suppression and auto-gain are turned off for you.
+        {tc.info.hookup} Reads {tc.info.supportedRates.join(", ")} fps (and 59.94 / 60 via ×2). 50 fps isn't supported. Echo cancellation, noise suppression and auto-gain are turned off for you.
       </p>
     </div>
   );

@@ -18,7 +18,8 @@ Plain-English setup for feeding a **Deity TC-1** into the Multi-Clock. (TC-1 fir
 
 - **Out Type: `L-OUT`** (line-level timecode) when going into an interface *line* input. This is the normal setting.
 - **Out Type: `A-OUT`** (mic-level timecode on the left channel, scratch mic on the right) only if you're stuck with a *mic* input.
-- **Supported rates (all the TC-1 standard ones):** 23.98, 24, 25, 29.97, 29.97 DF, 30. **50/60 fps is not supported yet** (set the TC-1 to one of the above).
+- **Supported rates (all the TC-1 standard ones):** 23.98, 24, 25, 29.97, 29.97 DF, 30. **50 fps is not supported.**
+- **59.94 and 60 fps shows (×2):** LTC has no 59.94/60 mode. Set the TC-1 to **29.97, 29.97 DF or 30** (that's what Deity's guide says for 59.94/60 cameras) and in the clock's settings pick **Show as → ×2 · 59.94 / 60 fps**. Each LTC word labels a *pair* of frames (first half = bits 0-39, second half = bits 40-79), so the clock shows frames 00-59 (29.97 → 59.94, 29.97 DF → 59.94 DF dropping frames 0-3 at each minute except every 10th, 30 → 60). **The clock can't auto-detect this**: a 29.97 feed and a 59.94 feed are identical on the cable (the field flag isn't usable in LTC), so you choose. Jam and free-run work at ×2 too; trim is then in true frames. Which half of the pair you're in comes from timing, so it can be up to a frame off versus the camera; use Trim ±1 if needed.
 - **FPS:** set the TC-1 to the frame rate your show uses (e.g. **23.98**). The clock reads the real rate off the signal, so it shows `23.98 fps`, not `24`.
 - The TC-1 must be running (synced or in Master Run); the clock only shows what it's sending.
 
