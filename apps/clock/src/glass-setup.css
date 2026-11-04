@@ -1,0 +1,55 @@
+/* Mockup: Glass setup sheet. Tally dark + Inter, Tally green accent. */
+.gs-sheet { background: linear-gradient(180deg, rgba(22,26,24,.72), rgba(12,14,13,.78)); backdrop-filter: blur(28px) saturate(150%); -webkit-backdrop-filter: blur(28px) saturate(150%);
+  border: 1px solid rgba(255,255,255,.09); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 30px 80px -20px rgba(0,0,0,.85); color: #fff; animation: gs-in .35s cubic-bezier(.2,.8,.2,1); }
+@keyframes gs-in { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.gs-sheet [data-gs-scroll] { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent; }
+.gs-card { background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.07); box-shadow: inset 0 1px 0 rgba(255,255,255,.04); }
+.gs-seg { background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.07); }
+.gs-seg-btn { color: rgba(255,255,255,.55); }
+.gs-seg-btn:hover:not([data-on]) { color: #fff; background: rgba(255,255,255,.05); }
+.gs-seg-btn[data-on] { color: #4ade80; background: rgba(34,197,94,.16); box-shadow: inset 0 0 0 1px rgba(34,197,94,.55); }
+.gs-switch { background: rgba(255,255,255,.14); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.gs-switch[data-on] { background: #22c55e; }
+.gs-chip { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); color: rgba(255,255,255,.75); transition: all .2s; }
+.gs-chip:hover { background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.45); color: #fff; }
+.gs-chip[data-on] { background: rgba(34,197,94,.16); border-color: rgba(34,197,94,.6); color: #4ade80; }
+.gs-step { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); color: rgba(255,255,255,.8); transition: all .2s; }
+.gs-step:hover { background: rgba(34,197,94,.15); border-color: rgba(34,197,94,.5); color: #fff; }
+.gs-time { background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.08); color: #fff; font-family: "JetBrains Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.gs-time:focus, .gs-input:focus { border-color: rgba(34,197,94,.6); box-shadow: 0 0 0 3px rgba(34,197,94,.15); }
+.gs-input { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.09); color: #fff; }
+.gs-input::placeholder { color: rgba(255,255,255,.3); }
+.gs-primary { background: #22c55e; color: #052e14; }
+.gs-primary:hover { background: #4ade80; }
+.gs-menu { background: rgba(16,19,17,.92); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,.10); box-shadow: 0 24px 60px -10px rgba(0,0,0,.9); }
+.gs-preview { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); cursor: grab; transition: all .2s; }
+.gs-preview:hover { border-color: rgba(255,255,255,.2); }
+.gs-preview[data-on] { border-color: rgba(34,197,94,.7); box-shadow: 0 0 0 1px rgba(34,197,94,.4), 0 0 24px -8px rgba(34,197,94,.6); }
+.gs-add { border: 1px dashed rgba(255,255,255,.15); }
+.gs-add:hover { border-color: rgba(34,197,94,.5); color: #4ade80; }
+.gs-range { accent-color: #22c55e; }
+/* Existing Rundown + LTC settings, portalled into the sheet: restyle, keep behaviour */
+.gs-slot:empty { display: none; }
+.gs-slot { margin-top: 8px; }
+.gs-slot p { font-family: Inter, system-ui, sans-serif !important; font-size: 12px !important; }
+.gs-slot p.text-white\/30 { font-size: 11px !important; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; color: rgba(255,255,255,.45) !important; margin-top: 6px; }
+.gs-slot button { font-family: Inter, system-ui, sans-serif !important; font-size: 12px !important; font-weight: 600; border-radius: 999px !important; padding: 6px 12px !important; background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.12) !important; color: rgba(255,255,255,.8) !important; }
+.gs-slot button[aria-pressed="true"] { color: #4ade80 !important; background: rgba(34,197,94,.16); border-color: rgba(34,197,94,.6) !important; }
+.gs-slot button[data-testid="jam-button-settings"] { background: #22c55e; color: #052e14 !important; border-color: #22c55e !important; }
+.gs-slot button:disabled { opacity: .4; }
+.gs-slot select, .gs-slot input { font-family: Inter, system-ui, sans-serif !important; font-size: 13px !important; border-radius: 12px !important; padding: 8px 10px !important; background: rgba(0,0,0,.3) !important; border-color: rgba(255,255,255,.1) !important; color: #fff !important; }
+.gs-tc-slot p:has(+ [aria-label="Frame rate shown"]), .gs-tc-slot [aria-label="Frame rate shown"] { display: none; }
+
+/* ---- Glass chrome: toolbar icons, timer buttons, dialogs, multi-clock toolbar ---- */
+.gs-dialog { background: rgba(14,17,15,.92) !important; backdrop-filter: blur(24px); box-shadow: 0 30px 80px -20px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.06) !important; font-family: Inter, system-ui, sans-serif; }
+[data-glass-icon] { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; color: rgba(255,255,255,.55); background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(16px); transition: all .2s; }
+[data-glass-icon]:hover { color: #fff; background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.45); }
+[data-glass-icon][data-active] { color: #4ade80; background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.55); }
+[data-glass-btn] { font-family: Inter, system-ui, sans-serif; font-size: 13px; font-weight: 600; letter-spacing: .04em; padding: 8px 20px; border-radius: 999px; color: rgba(255,255,255,.75); background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); backdrop-filter: blur(16px); transition: all .2s; }
+[data-glass-btn]:hover { color: #fff; background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.5); }
+[data-glass-toolbar] { background: rgba(12,15,13,.72); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; backdrop-filter: blur(20px); padding: 6px; box-shadow: 0 12px 40px -16px rgba(0,0,0,.7); font-family: Inter, system-ui, sans-serif; }
+[data-glass-toolbar] [data-glass-pill] { border-radius: 10px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,.6); border: 1px solid transparent; background: transparent; transition: all .2s; white-space: nowrap; }
+[data-glass-toolbar] [data-glass-pill]:hover { color: #fff; background: rgba(255,255,255,.06); }
+[data-glass-toolbar] [data-glass-pill][data-on] { color: #4ade80; background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.45); }
+/* Dialogs: Inter everywhere (the site's display font is for the clock face only). */
+[data-testid="remote-page"], [data-testid="remote-unpaired"], .gs-dialog, [data-testid="remote-page"] :is(h1, h2), .gs-dialog :is(h1, h2), [data-testid="remote-unpaired"] h1 { font-family: Inter, system-ui, sans-serif !important; letter-spacing: 0; }

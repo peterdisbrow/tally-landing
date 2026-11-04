@@ -1,9 +1,11 @@
 import { useTimer } from "@/hooks/useTimer";
 import { DIGIT_LINE, LABEL_SIZES, labelPx, resolveLabelSize, resolveScaleLabels, type LabelSize } from "@/lib/labelSize";
+import GlassSetupSheet, { type SetupConfig } from "@/components/clock/glass/GlassSetupSheet";
+import { Field, Toggle } from "@/components/clock/glass/GlassControls";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Info, X, Plus, Minus, Type, Globe, Palette, Save, FolderOpen, Trash2, LayoutGrid, Circle, Maximize, Minimize } from "lucide-react";
+import { ArrowLeft, Info, X, Plus, Minus, Type, Globe, Palette, Save, FolderOpen, Trash2, LayoutGrid, Circle, Maximize, Minimize, Settings } from "lucide-react";
 import AnalogClock from "@/components/clock/AnalogClock";
 import { syncServerTime } from "@/lib/timeSync";
 
@@ -201,6 +203,9 @@ const Clock = () => {
   const presetNameRef = useRef<HTMLInputElement>(null);
 
   // Auto-hide UI (except logo)
+  const qs = useMemo(() => new URLSearchParams(location.search), []);
+  const [sheetOpen, setSheetOpen] = useState(qs.has("setup"));
+  const [savedAt, setSavedAt] = useState(Date.now());
   const [uiVisible, setUiVisible] = useState(true);
   const [logoVisible, setLogoVisible] = useState(true);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -247,6 +252,7 @@ const Clock = () => {
       is24h, mode, showTenths, showMiniClock, hideLeadingZero, fontSize, autoSize, displayStyle,
       overtimeWarningColor, allowOverrun, labelSize, scaleLabels,
     });
+    setSavedAt(Date.now());
   }, [clockName, clockColor, selectedFont, timezone, is24h, mode, showTenths, showMiniClock, hideLeadingZero, fontSize, autoSize, displayStyle, overtimeWarningColor, allowOverrun, labelSize, scaleLabels]);
 
   // Time sync — Tally /api/time first, then optional public NTP, then local
@@ -336,6 +342,42 @@ const Clock = () => {
     setPresetList(updated);
     savePresets(updated);
   }, [presetList]);
+
+  // Mockup: Glass setup sheet -> existing state (everything still autosaves through the effect above)
+  const [singleAdjust, setSingleAdjust] = useState(0);
+  const [singleCountupStart, setSingleCountupStart] = useState(0);
+  // Add/subtract time on the running timer. Countdown: give back elapsed time first, then grow the start value,
+  // so +1m always shows +1m (adjustTimer alone clamps at zero elapsed).
+  const [cdExtra, setCdExtra] = useState(0); // seconds added beyond the start value; cleared on reset
+  const adjustBySeconds = useCallback((d: number) => {
+    if (mode === "countup") adjustTimer(d * 1000);
+    else if (mode === "countdown") {
+      if (d < 0) adjustTimer(-d * 1000);
+      else { const absorb = Math.min(d * 1000, timerElapsedMs); adjustTimer(-absorb); const extra = d * 1000 - absorb; if (extra > 0) setCdExtra((x) => x + Math.round(extra / 1000)); }
+    } else if (mode === "countto") setCountToTarget((t) => (t ?? Date.now()) + d * 1000);
+  }, [mode, adjustTimer, timerElapsedMs]);
+  const applySinglePatch = useCallback((p: Partial<SetupConfig>) => {
+    if (p.clockName !== undefined) setClockName(p.clockName);
+    if (p.clockColor !== undefined) setClockColor(p.clockColor);
+    if (p.fontName !== undefined) setSelectedFont(CLOCK_FONTS.find((f) => f.name === p.fontName) || CLOCK_FONTS[0]);
+    if (p.timezone !== undefined) setTimezone(p.timezone);
+    if (p.is24h !== undefined) setIs24h(p.is24h);
+    if (p.mode !== undefined) { setMode(p.mode as ClockMode); if (p.mode === "countto" && countToTarget === null) setCountToTarget(Date.now() + 1800e3); if (p.mode !== "clock") resetTimer(true); }
+    if (p.countdownFrom !== undefined) { setCountdownFrom(p.countdownFrom); setCdExtra(0); resetTimer(true); }
+    if (p.countToTarget !== undefined) setCountToTarget(p.countToTarget);
+    if (p.countupStart !== undefined) { resetTimer(true); adjustTimer(p.countupStart * 1000); setSingleCountupStart(p.countupStart); }
+    if (p.timeAdjust !== undefined) { adjustBySeconds(p.timeAdjust - singleAdjust); setSingleAdjust(p.timeAdjust); }
+    if (p.displayStyle !== undefined) setDisplayStyle(p.displayStyle);
+    if (p.overtimeWarningColor !== undefined) setOvertimeWarningColor(p.overtimeWarningColor);
+    if (p.allowOverrun !== undefined) setAllowOverrun(p.allowOverrun);
+    if (p.labelSize !== undefined) setLabelSize(p.labelSize);
+    if (p.scaleLabels !== undefined) setScaleLabels(p.scaleLabels);
+    if (p.showTenths !== undefined) setShowTenths(p.showTenths);
+    if (p.showMiniClock !== undefined) setShowMiniClock(p.showMiniClock);
+    if (p.hideLeadingZero !== undefined) setHideLeadingZero(p.hideLeadingZero);
+    if (p.autoSize !== undefined) setAutoSize(p.autoSize);
+    if (p.fontSize !== undefined) setFontSize(p.fontSize);
+  }, [countToTarget, resetTimer, adjustTimer, adjustBySeconds, singleAdjust]);
 
   // Keyboard shortcuts
   const handleKey = useCallback(
@@ -437,14 +479,14 @@ const Clock = () => {
   } else if (mode === "countup") {
     displayTime = formatTime(timerElapsedMs, true, true, false, 0, hideLeadingZero, true);
   } else if (mode === "countdown") {
-    const remainingMs = countdownFrom * 1000 - timerElapsedMs;
+    const remainingMs = (countdownFrom + cdExtra) * 1000 - timerElapsedMs;
     displayTime = formatTime(remainingMs, true, true, false, 0, hideLeadingZero, true);
   } else if (mode === "countto" && countToTarget !== null) {
     const diffSec = Math.round((countToTarget - Date.now()) / 1000);
     displayTime = formatTime(diffSec, true, true, false, 0, hideLeadingZero);
   }
 
-  const countdownRemainingMs = countdownFrom * 1000 - timerElapsedMs;
+  const countdownRemainingMs = (countdownFrom + cdExtra) * 1000 - timerElapsedMs;
   const isOvertime = mode === "countdown" && countdownRemainingMs < 0;
   const overtimeMs = isOvertime ? Math.abs(countdownRemainingMs) : 0;
   const isOvertimeFlashing = isOvertime && overtimeMs > 30000;
@@ -454,10 +496,10 @@ const Clock = () => {
 
   // Stop at zero if overrun not allowed
   useEffect(() => {
-    if (!allowOverrun && mode === "countdown" && countdownFrom * 1000 - timerElapsedMs <= 0 && !paused) {
+    if (!allowOverrun && mode === "countdown" && (countdownFrom + cdExtra) * 1000 - timerElapsedMs <= 0 && !paused) {
       pauseTimer();
     }
-  }, [allowOverrun, mode, countdownFrom, timerElapsedMs, paused, pauseTimer]);
+  }, [allowOverrun, mode, countdownFrom, cdExtra, timerElapsedMs, paused, pauseTimer]);
 
   const countdownPresets = [
     { label: "1m", seconds: 60 },
@@ -501,6 +543,7 @@ const Clock = () => {
   return (
     <div
       ref={containerRef}
+      style={{ width: sheetOpen ? "calc(100vw - 460px)" : undefined }}
       data-single-clock="" className="h-screen w-screen bg-black flex flex-col items-center relative select-none overflow-hidden cursor-default"
       onClick={() => {
         if (showHelp) setShowHelp(false);
@@ -521,73 +564,17 @@ const Clock = () => {
         </Link>
       </div>
 
-      {/* Top toolbar icons */}
+      {/* Top toolbar: setup, full screen, shortcuts. Everything else lives in the setup sheet. */}
       <div
-        className="absolute top-4 right-4 z-50 flex items-center gap-3"
+        className="absolute top-4 right-4 z-50 flex items-center gap-2"
         style={{ opacity: uiOpacity, transition: uiTransition }}
       >
-        {/* Save preset */}
-        <button
-          onClick={(e) => { e.stopPropagation(); setSavingPreset(true); setPresetNameInput(displayName); }}
-          className="text-white/30 hover:text-white/70 transition-colors"
-          title="Save preset"
-        >
-          <Save size={22} />
+        <button onClick={(e) => { e.stopPropagation(); setSheetOpen((o) => !o); }} data-glass-icon="" data-active={sheetOpen ? "" : undefined} title="Clock setup" aria-label="Clock setup" data-testid="open-glass-setup"><Settings size={20} /></button>
+        <button onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }} data-glass-icon="" title={isFullscreen ? "Exit full screen" : "Full screen"} aria-label="Full screen">
+          {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
         </button>
-        {/* Load preset */}
-        <button
-          onClick={(e) => { e.stopPropagation(); setShowPresetPicker((p) => !p); }}
-          className="text-white/30 hover:text-white/70 transition-colors"
-          title="Load preset"
-        >
-          <FolderOpen size={22} />
-        </button>
-        {/* Color picker */}
-        <button
-          onClick={(e) => { e.stopPropagation(); setShowColorPicker((p) => !p); }}
-          className="text-white/30 hover:text-white/70 transition-colors"
-          title="Change color (K)"
-        >
-          <Palette size={22} />
-        </button>
-        {/* Timezone */}
-        <button
-          onClick={(e) => { e.stopPropagation(); setShowTzPicker((p) => !p); }}
-          className="text-white/30 hover:text-white/70 transition-colors"
-          title="Change timezone"
-        >
-          <Globe size={22} />
-        </button>
-        {/* Font */}
-        <button
-          onClick={(e) => { e.stopPropagation(); setShowFontPicker((p) => !p); }}
-          className="text-white/30 hover:text-white/70 transition-colors"
-          title="Change font (F)"
-        >
-          <Type size={22} />
-        </button>
-        {/* Display style toggle */}
-        <button
-          onClick={(e) => { e.stopPropagation(); setDisplayStyle(p => p === "digital" ? "analog" : "digital"); }}
-          className="text-white/30 hover:text-white/70 transition-colors"
-          title="Toggle analog/digital display"
-        >
-          <Circle size={22} />
-        </button>
-        {/* Fullscreen toggle */}
-        <button
-          onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
-          className="text-white/30 hover:text-white/70 transition-colors"
-          title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-        >
-          {isFullscreen ? <Minimize size={22} /> : <Maximize size={22} />}
-        </button>
-        {/* Help */}
-        <button
-          onClick={(e) => { e.stopPropagation(); setShowHelp((p) => !p); }}
-          className="text-white/30 hover:text-white/70 transition-colors"
-        >
-          {showHelp ? <X size={22} /> : <Info size={22} />}
+        <button onClick={(e) => { e.stopPropagation(); setShowHelp((p) => !p); }} data-glass-icon="" title="Keyboard shortcuts" aria-label="Keyboard shortcuts">
+          {showHelp ? <X size={20} /> : <Info size={20} />}
         </button>
       </div>
 
@@ -866,60 +853,6 @@ const Clock = () => {
 
       {/* Bottom rows (reserved): countdown presets, pause / reset, size + label controls, sync, logo */}
       <div className="shrink-0 w-full px-4 pb-4 flex flex-col items-center gap-2" data-clock-part="bottom">
-      {/* Countdown presets */}
-      {mode === "countdown" && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="shrink-0 flex flex-col items-center gap-2"
-          style={{ opacity: uiOpacity, transition: uiTransition }}
-        >
-          <div className="flex flex-wrap justify-center gap-2">
-            {countdownPresets.map((p) => (
-              <button
-                key={p.label}
-                onClick={() => { setCountdownFrom(p.seconds); resetTimer(true); }}
-                data-adjust-btn="" className="px-3 py-1.5 text-xs font-mono text-white/30 border border-white/10 transition-colors uppercase"
-                onMouseEnter={(e) => { (e.target as HTMLElement).style.color = clockColor; (e.target as HTMLElement).style.borderColor = `${clockColor}80`; }}
-                onMouseLeave={(e) => { (e.target as HTMLElement).style.color = "rgba(255,255,255,0.3)"; (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)"; }}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setAllowOverrun(p => !p)}
-              data-pill="" className="px-3 py-1 text-[10px] font-mono border transition-colors uppercase"
-              style={{
-                color: allowOverrun ? clockColor : "rgba(255,255,255,0.3)",
-                borderColor: allowOverrun ? `${clockColor}60` : "rgba(255,255,255,0.1)",
-              }}
-            >
-              {allowOverrun ? "Overrun: ON" : "Overrun: OFF"}
-            </button>
-            {allowOverrun && (
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-mono text-white/30">Warning:</span>
-                {COLOR_PRESETS.map(c => (
-                  <button
-                    key={c.value}
-                    onClick={() => setOvertimeWarningColor(c.value)}
-                    className="w-3.5 h-3.5 rounded-full border transition-transform"
-                    style={{
-                      backgroundColor: c.value,
-                      borderColor: overtimeWarningColor === c.value ? "white" : "transparent",
-                      transform: overtimeWarningColor === c.value ? "scale(1.3)" : "scale(1)",
-                    }}
-                    title={c.label}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </motion.div>
-      )}
-
       {/* Pause/Play for timers */}
       {(mode === "countup" || mode === "countdown" || mode === "countto") && (
         <div
@@ -927,18 +860,12 @@ const Clock = () => {
           style={{ opacity: uiOpacity, transition: uiTransition }}
         >
           <button
-            onClick={togglePause}
-            className="px-4 py-1.5 text-xs font-mono text-white/30 border border-white/10 transition-colors uppercase"
-            onMouseEnter={(e) => { (e.target as HTMLElement).style.color = clockColor; (e.target as HTMLElement).style.borderColor = `${clockColor}80`; }}
-            onMouseLeave={(e) => { (e.target as HTMLElement).style.color = "rgba(255,255,255,0.3)"; (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)"; }}
+            onClick={togglePause} data-glass-btn="" data-testid="timer-toggle"
           >
             {paused ? "Resume" : "Pause"}
           </button>
           <button
-            onClick={() => resetTimer(true)}
-            className="px-4 py-1.5 text-xs font-mono text-white/30 border border-white/10 transition-colors uppercase"
-            onMouseEnter={(e) => { (e.target as HTMLElement).style.color = clockColor; (e.target as HTMLElement).style.borderColor = `${clockColor}80`; }}
-            onMouseLeave={(e) => { (e.target as HTMLElement).style.color = "rgba(255,255,255,0.3)"; (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)"; }}
+            onClick={() => { setCdExtra(0); setSingleAdjust(0); resetTimer(true); }} data-glass-btn="" data-testid="timer-reset"
           >
             Reset
           </button>
@@ -946,40 +873,7 @@ const Clock = () => {
       )}
 
         <div className="w-full grid grid-cols-[1fr_auto_1fr] items-end gap-3">
-      {/* Size controls */}
-      <div
-        className="relative z-50 flex flex-wrap gap-2 items-center justify-start"
-        style={{ opacity: uiOpacity, transition: uiTransition }}
-      >
-        <button onClick={() => { setAutoSize(false); setFontSize((p) => Math.min(p + 10, 800)); }} className="text-white/30 hover:text-white/70 transition-colors p-1" title="Increase size">
-          <Plus size={20} />
-        </button>
-        <span className="text-white/20 text-[10px] font-mono text-center">{Math.round(renderFont * 0.6)}px</span>
-        <button onClick={() => { setAutoSize(false); setFontSize((p) => Math.max(p - 10, 30)); }} className="text-white/30 hover:text-white/70 transition-colors p-1" title="Decrease size">
-          <Minus size={20} />
-        </button>
-        <button
-          onClick={() => setAutoSize((p) => !p)}
-          className={`text-[10px] font-mono px-1.5 py-0.5 border transition-colors ${autoSize ? 'border-white/30 text-white/50' : 'border-white/10 text-white/20'}`}
-          title="Toggle auto-fit (A)"
-        >
-          {autoSize ? "AUTO" : "FIXED"}
-        </button>
-        <button
-          onClick={() => setLabelSize((p) => { const i = LABEL_SIZES.findIndex((o) => o.value === p); return LABEL_SIZES[(i + 1) % LABEL_SIZES.length].value; })}
-          className="text-[10px] font-mono px-1.5 py-0.5 border border-white/10 text-white/40 hover:text-white/70 transition-colors"
-          title="Label size (clock name, AM/PM): click to cycle S / M / L / XL" data-testid="label-size-btn"
-        >
-          LABEL {LABEL_SIZES.find((o) => o.value === labelSize)?.label}
-        </button>
-        <button
-          onClick={() => setScaleLabels((p) => !p)}
-          className={`text-[10px] font-mono px-1.5 py-0.5 border transition-colors ${scaleLabels ? 'border-white/30 text-white/50' : 'border-white/10 text-white/20'}`}
-          title="Scale labels with the numbers" data-testid="label-scale-btn" role="switch" aria-checked={scaleLabels}
-        >
-          {scaleLabels ? "SCALE" : "NO SCALE"}
-        </button>
-      </div>
+      <div />
 
       {/* NTP sync indicator */}
       <div
@@ -1016,6 +910,23 @@ const Clock = () => {
           </div>
         </div>
       </div>
+
+      {sheetOpen && (
+        <GlassSetupSheet variant="single" savedAt={savedAt} isTallySignedIn={false} onClose={() => setSheetOpen(false)}
+          modes={[{ value: "clock", label: "Clock" }, { value: "countup", label: "Count Up" }, { value: "countdown", label: "Countdown" }, { value: "countto", label: "Count To" }]}
+          initialPresetsOpen={qs.has("presets")} scrollTo={qs.get("section") || undefined}
+          config={{ clockName, clockColor, fontName: selectedFont.name, timezone, is24h, mode, countdownFrom, countToTarget: countToTarget ?? undefined, countupStart: singleCountupStart, timeAdjust: singleAdjust,
+            displayStyle, overtimeWarningColor, allowOverrun, labelSize, scaleLabels, showSeconds: true, showTenths, showMiniClock, hideLeadingZero, autoSize, fontSize } as SetupConfig}
+          onChange={applySinglePatch}
+          getSnapshot={() => ({ clockName, clockColor, fontName: selectedFont.name, timezone, is24h, mode, countdownFrom, displayStyle, overtimeWarningColor, allowOverrun, labelSize, scaleLabels, showTenths, showMiniClock, hideLeadingZero, autoSize, fontSize })}
+          applySnapshot={(d) => applySinglePatch(d as Partial<SetupConfig>)}
+          display={<>
+            <Toggle label="Mini clock above timers" checked={showMiniClock} onChange={setShowMiniClock} />
+            <Toggle label="TallyConnect logo" checked={logoVisible} onChange={setLogoVisible} />
+            <Toggle label="Full screen" checked={isFullscreen} onChange={() => toggleFullscreen()} />
+            <p className="text-[11px] text-white/40 pt-1">Controls hide after 3 seconds without mouse movement.</p>
+          </>} />
+      )}
 
       {/* Help panel */}
       <AnimatePresence>
