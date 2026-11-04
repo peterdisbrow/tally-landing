@@ -11,8 +11,9 @@ export type RemoteCmd =
   | { cmd: "start" } | { cmd: "pause" } | { cmd: "toggle" } | { cmd: "reset" }
   | { cmd: "adjust"; seconds: number } | { cmd: "setCountdown"; seconds: number } | { cmd: "setMode"; mode: RemoteMode };
 export type RemoteClockState = { id: string; name: string; mode: string; color: string; text: string; paused: boolean; canTime: boolean };
-export type RemoteState = { variant: "single" | "multi"; clocks: RemoteClockState[] };
-export type Body = { k: "cmd"; clockId?: string; c: RemoteCmd } | { k: "state"; s: RemoteState } | { k: "hello" };
+export type RemoteState = { variant: "single" | "multi"; clocks: RemoteClockState[]; exp?: number };
+export type Body = { k: "cmd"; clockId?: string; c: RemoteCmd } | { k: "state"; s: RemoteState } | { k: "hello" } | { k: "ended"; reason: EndReason };
+export type EndReason = "expired" | "revoked";
 export type Envelope = { t: "msg"; from: string; seq: number; ts: number; body: string; sig: string };
 
 export const TOKEN_BYTES = 32;

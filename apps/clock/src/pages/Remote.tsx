@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Minus, Pause, Play, Plus, RotateCcw, Smartphone, WifiOff } from "lucide-react";
+import { Minus, Pause, Play, Plus, QrCode, RotateCcw, Smartphone, WifiOff } from "lucide-react";
 import { isToken, type RemoteMode } from "@/lib/remote/protocol";
 import { useRemoteController } from "@/lib/remote/useRemote";
 import { parseDuration } from "@/lib/timerAdjust";
@@ -23,7 +23,7 @@ const MODE_NAME: Record<string, string> = { clock: "Clock", countup: "Count Up",
 
 export default function Remote() {
   const { token } = useMemo(readToken, []);
-  const { state, peers, status, send } = useRemoteController(token);
+  const { state, peers, status, send, ended } = useRemoteController(token);
   const [sel, setSel] = useState<string | null>(null);
   const [entry, setEntry] = useState("");
   useEffect(() => { document.documentElement.dataset.look = "glass"; document.title = "Clock remote · TallyConnect"; }, []);
@@ -39,6 +39,16 @@ export default function Remote() {
         <Smartphone className="text-[#22c55e]" />
         <h1 className="text-white text-lg font-semibold">Scan the code on the clock</h1>
         <p className="text-white/50 text-sm">On the TallyConnect clock, open the phone button (Control from phone) and scan the QR code with your camera.</p>
+      </div>
+    </div>
+  );
+
+  if (ended) return (
+    <div className="min-h-[100dvh] grid place-items-center p-6 text-center" data-testid="remote-ended" data-reason={ended}>
+      <div className="gs-card gs-dialog rounded-3xl p-6 max-w-sm flex flex-col items-center gap-3">
+        <span className="w-11 h-11 rounded-2xl grid place-items-center bg-amber-400/15 text-amber-300"><QrCode size={22} /></span>
+        <h1 className="text-white text-lg font-semibold">{ended === "expired" ? "This pairing has expired" : "This code was turned off"}</h1>
+        <p className="text-white/55 text-sm">{ended === "expired" ? "Pairings last 12 hours." : "The clock made a new code or stopped phone control."} Scan the new QR code on the clock (phone button, Control from phone) to keep going.</p>
       </div>
     </div>
   );

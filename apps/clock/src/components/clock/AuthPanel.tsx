@@ -13,7 +13,7 @@ const AuthPanel = () => {
     return (
       <div className="flex items-center gap-2">
         {church && (
-          <span className="text-[10px] font-mono uppercase tracking-wider text-white/40">
+          <span className="hidden xl:inline text-[10px] font-mono uppercase tracking-wider text-white/40">
             {church.name}
           </span>
         )}
