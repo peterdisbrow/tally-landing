@@ -67,14 +67,30 @@ export function collectItems() {
     }
   }
   const cells = [...document.querySelectorAll("[data-clock-id]")].filter((c) => getComputedStyle(c).display !== "none").map((c) => { const b = c.getBoundingClientRect(); return { id: c.getAttribute("data-clock-id"), rect: [b.left, b.top, b.right, b.bottom].map(Math.round) }; });
-  return { items, cells, vw, vh };
+  // Decorative Glass card behind the single clock (a ::before pseudo-element): content must sit inside it.
+  let card = null;
+  const sc = document.querySelector("[data-single-clock]");
+  if (sc) {
+    const cs = getComputedStyle(sc, "::before");
+    if (cs.content && cs.content !== "none" && cs.display !== "none") {
+      const b = sc.getBoundingClientRect(), px = (v) => parseFloat(v) || 0;
+      card = [b.left + px(cs.left), b.top + px(cs.top), b.right - px(cs.right), b.bottom - px(cs.bottom)].map((n) => Math.round(n));
+    }
+  }
+  return { items, cells, card, vw, vh };
 }
 
 const inter = (a, b) => ({ w: Math.min(a[2], b[2]) - Math.max(a[0], b[0]), h: Math.min(a[3], b[3]) - Math.max(a[1], b[1]) });
 
 /** Overlaps between visible rects of different items + clipped items. */
-export function findIssues({ items, cells }, { settingsCell = null } = {}) {
+export function findIssues({ items, cells, card }, { settingsCell = null } = {}) {
   const out = [];
+  if (card && settingsCell == null) for (const it of items) {
+    if (it.cell != null || !["digits", "name", "sub", "ampm"].includes(it.part)) continue;
+    const [l, t, r, b] = it.rect, tol = 2;
+    if (l < card[0] - tol || t < card[1] - tol || r > card[2] + tol || b > card[3] + tol)
+      out.push({ kind: "outside-card", a: `${it.part}:${it.text}`, b: "card", cell: null, over: Math.round(Math.max(card[0] - l, card[1] - t, r - card[2], b - card[3])) });
+  }
   const list = items.filter((i) => settingsCell == null ? true : (i.cell === settingsCell || i.cell === null));
   for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
     const a = list[i], b = list[j];
