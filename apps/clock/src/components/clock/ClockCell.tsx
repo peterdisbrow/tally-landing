@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import { useTimer } from "@/hooks/useTimer";
 import { DIGIT_LINE, LABEL_SIZES, labelPx, resolveLabelSize, resolveScaleLabels, type LabelSize } from "@/lib/labelSize";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -158,12 +159,16 @@ interface ClockCellProps {
   isTallySignedIn?: boolean;
   /** Small hint shown in the middle of the cell's top row (MultiClock's "★ Click to Feature"). Reserved space, never over the digits. */
   hint?: string;
+  /** Mockup: Glass setup sheet slots. When set, this cell portals its Rundown and LTC settings into the sheet. */
+  /** Mockup: open the Glass setup sheet instead of the in-cell panel. */
+  onOpenSettings?: () => void;
+  glassSlots?: { tc?: HTMLElement | null; rundown?: HTMLElement | null };
 }
 
 /** Height (px) of the reserved top row (drag handle / live dot / hint / controls) and bottom row (quick adjust, timecode input). */
 export const CELL_BAND = 28;
 
-const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, isDropTarget, onDragStart, onDragEnd, onDragOver, onDrop, onTouchStart, onTouchMove, onTouchEnd, proPresenter, hyperdecks, atem, isTallyConnected, streamStartedAt, recordingStartedAt, atemRecordingStartedAt, lastCueAt, atemTimecode, isTallySignedIn, hint }: ClockCellProps) => {
+const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, isDropTarget, onDragStart, onDragEnd, onDragOver, onDrop, onTouchStart, onTouchMove, onTouchEnd, proPresenter, hyperdecks, atem, isTallyConnected, streamStartedAt, recordingStartedAt, atemRecordingStartedAt, lastCueAt, atemTimecode, isTallySignedIn, hint, glassSlots, onOpenSettings }: ClockCellProps) => {
   const [now, setNow] = useState(new Date());
   const [showSettings, setShowSettings] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -482,6 +487,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
   };
 
   const isTimerMode = mode === "countup" || mode === "countdown";
+
   const isLiveSource = mode === "propresenter" || mode === "hyperdeck" || mode === "streamtime" || mode === "recordtime" || mode === "lastcue" || mode === "atemrecord" || mode === "atemtimecode" || mode === "rundown" || mode === "timecode";
   const isServiceMode = mode === "service";
   const modeLabels: Record<string, string> = {
@@ -545,6 +551,84 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
   const renderFont = Math.min(fontSize, maxDigitPx / 0.6);
   const analogPx = measured ? Math.max(40, Math.min(300, content.w - 16, content.h - labelsH() - 2)) : 300;
 
+  const rundownSettings = (
+    <>
+{/* Rundown timer (Tally sign-in only) */}
+            {mode === "rundown" && isTallySignedIn && (
+              <div className="flex flex-col gap-2" data-testid="rundown-settings">
+                <div>
+                  <p className="text-white/30 text-[10px] font-mono mb-1">Rundown link</p>
+                  <div className="flex gap-1">
+                    <input
+                      data-testid="rundown-link-input"
+                      value={rundownLinkInput}
+                      onChange={(e) => { setRundownLinkInput(e.target.value); setRundownLinkError(""); }}
+                      onPaste={(e) => {
+                        const pasted = e.clipboardData.getData("text");
+                        const token = parseRundownLink(pasted);
+                        if (token) {
+                          e.preventDefault();
+                          onUpdate({ ...config, rundownToken: token });
+                          setRundownLinkInput("");
+                          setRundownLinkError("");
+                        }
+                      }}
+                      onKeyDown={(e) => { if (e.key === "Enter") (e.currentTarget.nextElementSibling as HTMLButtonElement | null)?.click(); }}
+                      placeholder="Paste a Rundown display link…"
+                      aria-label="Rundown display link"
+                      autoComplete="off" spellCheck={false}
+                      className="flex-1 min-w-0 bg-transparent border border-white/20 outline-none text-xs font-mono text-white/70 px-2 py-1 rounded" />
+                    <button
+                      onClick={() => {
+                        const token = parseRundownLink(rundownLinkInput);
+                        if (!token) { setRundownLinkError("That is not a Rundown display or share link."); return; }
+                        onUpdate({ ...config, rundownToken: token });
+                        setRundownLinkInput("");
+                        setRundownLinkError("");
+                      }}
+                      className="px-2 py-0.5 text-[10px] font-mono border transition-colors"
+                      style={{ color: config.clockColor, borderColor: `${config.clockColor}60` }}
+                    >Connect</button>
+                  </div>
+                  {rundownLinkError && <p className="text-red-400 text-[10px] font-mono mt-1" role="alert">{rundownLinkError}</p>}
+                  {config.rundownToken && (
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-white/40 text-[10px] font-mono" data-testid="rundown-link-status">
+                        {rundownFeed.status === "open" ? "Connected" : rundownFeed.status === "invalid" ? "Link not valid or expired" : "Connecting…"}
+                        {" · "}{maskRundownToken(config.rundownToken)}
+                      </span>
+                      {rundownFeed.status === "invalid" && (
+                        <button onClick={() => restartRundownTimer(config.rundownToken!)}
+                          className="px-2 py-0.5 text-[10px] font-mono border border-white/10 text-white/50">Retry</button>
+                      )}
+                      <button onClick={() => onUpdate({ ...config, rundownToken: undefined })}
+                        className="px-2 py-0.5 text-[10px] font-mono border border-white/10 text-white/50">Remove</button>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <p className="text-white/30 text-[10px] font-mono mb-1">Show</p>
+                  <div className="flex flex-wrap gap-1">
+                    {(Object.keys(RUNDOWN_SUB_LABELS) as RundownTimerSub[]).map(sub => (
+                      <button key={sub} onClick={() => onUpdate({ ...config, rundownSub: sub })}
+                        aria-pressed={rundownSub === sub}
+                        className="px-2 py-0.5 text-[10px] font-mono border transition-colors"
+                        style={{ color: rundownSub === sub ? config.clockColor : "rgba(255,255,255,0.3)", borderColor: rundownSub === sub ? `${config.clockColor}60` : "rgba(255,255,255,0.1)" }}
+                      >{RUNDOWN_SUB_LABELS[sub]}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+    </>
+  );
+  const ltcSettingsEl = mode === "timecode" && isTallySignedIn ? (
+    <LtcSettings tc={tc} color={config.clockColor} deviceId={config.ltcDeviceId}
+      onDeviceChange={(id) => onUpdate({ ...config, ltcDeviceId: id })}
+      highFrameRate={!!config.tcHighFrameRate}
+      onHighFrameRateChange={(v) => onUpdate({ ...config, tcHighFrameRate: v || undefined })} />
+  ) : null;
+
   return (
     <div
       ref={cellRef}
@@ -601,7 +685,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
               </button>
             </>
           )}
-          <button onClick={() => setShowSettings(p => !p)} className="text-white/30 hover:text-white/70 transition-colors">
+          <button onClick={() => (onOpenSettings ? onOpenSettings() : setShowSettings(p => !p))} aria-label="Clock settings" className="text-white/30 hover:text-white/70 transition-colors">
             <Settings size={16} />
           </button>
           <button onClick={() => onRemove(config.id)} className="text-white/30 hover:text-red-400 transition-colors">
@@ -680,6 +764,8 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
         {mode === "timecode" && isTallySignedIn && <LtcCellOverlay tc={tc} color={config.clockColor} />}
       </div>
 
+      {glassSlots?.rundown && createPortal(rundownSettings, glassSlots.rundown)}
+      {glassSlots?.tc && ltcSettingsEl && createPortal(ltcSettingsEl, glassSlots.tc)}
       {/* Settings panel */}
       <AnimatePresence>
         {showSettings && (
@@ -721,73 +807,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
               </div>
             </div>
 
-            {/* Rundown timer (Tally sign-in only) */}
-            {mode === "rundown" && isTallySignedIn && (
-              <div className="flex flex-col gap-2" data-testid="rundown-settings">
-                <div>
-                  <p className="text-white/30 text-[10px] font-mono mb-1">Rundown link</p>
-                  <div className="flex gap-1">
-                    <input
-                      data-testid="rundown-link-input"
-                      value={rundownLinkInput}
-                      onChange={(e) => { setRundownLinkInput(e.target.value); setRundownLinkError(""); }}
-                      onPaste={(e) => {
-                        const pasted = e.clipboardData.getData("text");
-                        const token = parseRundownLink(pasted);
-                        if (token) {
-                          e.preventDefault();
-                          onUpdate({ ...config, rundownToken: token });
-                          setRundownLinkInput("");
-                          setRundownLinkError("");
-                        }
-                      }}
-                      onKeyDown={(e) => { if (e.key === "Enter") (e.currentTarget.nextElementSibling as HTMLButtonElement | null)?.click(); }}
-                      placeholder="Paste a Rundown display link…"
-                      aria-label="Rundown display link"
-                      autoComplete="off" spellCheck={false}
-                      className="flex-1 min-w-0 bg-transparent border border-white/20 outline-none text-xs font-mono text-white/70 px-2 py-1 rounded" />
-                    <button
-                      onClick={() => {
-                        const token = parseRundownLink(rundownLinkInput);
-                        if (!token) { setRundownLinkError("That is not a Rundown display or share link."); return; }
-                        onUpdate({ ...config, rundownToken: token });
-                        setRundownLinkInput("");
-                        setRundownLinkError("");
-                      }}
-                      className="px-2 py-0.5 text-[10px] font-mono border transition-colors"
-                      style={{ color: config.clockColor, borderColor: `${config.clockColor}60` }}
-                    >Connect</button>
-                  </div>
-                  {rundownLinkError && <p className="text-red-400 text-[10px] font-mono mt-1" role="alert">{rundownLinkError}</p>}
-                  {config.rundownToken && (
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-white/40 text-[10px] font-mono" data-testid="rundown-link-status">
-                        {rundownFeed.status === "open" ? "Connected" : rundownFeed.status === "invalid" ? "Link not valid or expired" : "Connecting…"}
-                        {" · "}{maskRundownToken(config.rundownToken)}
-                      </span>
-                      {rundownFeed.status === "invalid" && (
-                        <button onClick={() => restartRundownTimer(config.rundownToken!)}
-                          className="px-2 py-0.5 text-[10px] font-mono border border-white/10 text-white/50">Retry</button>
-                      )}
-                      <button onClick={() => onUpdate({ ...config, rundownToken: undefined })}
-                        className="px-2 py-0.5 text-[10px] font-mono border border-white/10 text-white/50">Remove</button>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <p className="text-white/30 text-[10px] font-mono mb-1">Show</p>
-                  <div className="flex flex-wrap gap-1">
-                    {(Object.keys(RUNDOWN_SUB_LABELS) as RundownTimerSub[]).map(sub => (
-                      <button key={sub} onClick={() => onUpdate({ ...config, rundownSub: sub })}
-                        aria-pressed={rundownSub === sub}
-                        className="px-2 py-0.5 text-[10px] font-mono border transition-colors"
-                        style={{ color: rundownSub === sub ? config.clockColor : "rgba(255,255,255,0.3)", borderColor: rundownSub === sub ? `${config.clockColor}60` : "rgba(255,255,255,0.1)" }}
-                      >{RUNDOWN_SUB_LABELS[sub]}</button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
+            {rundownSettings}
 
             {/* HyperDeck selector */}
             {mode === "hyperdeck" && hyperdecks && hyperdecks.length > 1 && (
@@ -805,12 +825,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
             )}
 
             {/* LTC input device */}
-            {mode === "timecode" && isTallySignedIn && (
-              <LtcSettings tc={tc} color={config.clockColor} deviceId={config.ltcDeviceId}
-                onDeviceChange={(id) => onUpdate({ ...config, ltcDeviceId: id })}
-                highFrameRate={!!config.tcHighFrameRate}
-                onHighFrameRateChange={(v) => onUpdate({ ...config, tcHighFrameRate: v || undefined })} />
-            )}
+            {ltcSettingsEl}
 
             {/* Service start time */}
             {mode === "service" && (

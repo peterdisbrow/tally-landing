@@ -6,6 +6,21 @@ import ClockCell, { type ClockCellConfig } from "@/components/clock/ClockCell";
 import AuthPanel from "@/components/clock/AuthPanel";
 import LoginForm from "@/components/clock/LoginForm";
 import { useTallyConnect } from "@/hooks/useTallyConnect";
+import GlassSetupSheet, { type ModeOption, type PreviewClock, type SetupConfig } from "@/components/clock/glass/GlassSetupSheet";
+import { Segmented, Toggle, Field } from "@/components/clock/glass/GlassControls";
+import { formatHMS } from "@/lib/timerAdjust";
+
+const GLASS = () => typeof document !== "undefined" && !!document.documentElement.dataset.look;
+const MODE_LABEL: Record<string, string> = { clock: "Clock", countup: "Count Up", countdown: "Countdown", countto: "Count To", rundown: "Rundown Timer", timecode: "Timecode · TC-1", propresenter: "ProPresenter", lastcue: "Last Cue", hyperdeck: "HyperDeck", streamtime: "Stream Time", recordtime: "Recording", atemrecord: "ATEM Rec", atemtimecode: "ATEM Timecode", service: "Service" };
+const previewText = (c: ClockCellConfig, now: Date) => {
+  const m = c.mode || "clock";
+  if (m === "clock") { const t = c.timezone === "local" ? now : new Date(now.toLocaleString("en-US", { timeZone: c.timezone })); let h = t.getHours(); if (!c.is24h) h = h % 12 || 12; return `${String(h).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}${c.showSeconds === false ? "" : ":" + String(t.getSeconds()).padStart(2, "0")}`; }
+  if (m === "countdown") return formatHMS((c.countdownFrom ?? 300) + (c.timeAdjust || 0)).replace(/^00:/, "");
+  if (m === "countup") return formatHMS((c.countupStart ?? 0) + (c.timeAdjust || 0)).replace(/^00:/, "");
+  if (m === "countto") return c.countToTarget ? formatHMS(Math.max(0, (c.countToTarget - now.getTime()) / 1000)) : "--:--";
+  if (m === "timecode") return "00:00:00:00";
+  return "LIVE";
+};
 
 const MULTI_CLOCK_KEY = "broadcast-multi-clocks";
 const MULTI_LAYOUT_KEY = "broadcast-multi-layout";
@@ -80,6 +95,15 @@ const MultiClock = () => {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [hovered, setHovered] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const glass = GLASS();
+  const initialSetup = new URLSearchParams(location.search);
+  const [sheetOpen, setSheetOpen] = useState(glass && initialSetup.has("setup"));
+  const [sheetSel, setSheetSel] = useState<string | undefined>(initialSetup.get("sel") || undefined);
+  const [savedAt, setSavedAt] = useState(Date.now());
+  const [slotTc, setSlotTc] = useState<HTMLDivElement | null>(null);
+  const [slotRundown, setSlotRundown] = useState<HTMLDivElement | null>(null);
+  const [previewNow, setPreviewNow] = useState(new Date());
+  useEffect(() => { if (!sheetOpen) return; const id = setInterval(() => setPreviewNow(new Date()), 1000); return () => clearInterval(id); }, [sheetOpen]);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const featuredContainerRef = useRef<HTMLDivElement>(null);
 
@@ -110,6 +134,7 @@ const MultiClock = () => {
 
   useEffect(() => {
     localStorage.setItem(MULTI_CLOCK_KEY, JSON.stringify(clocks));
+    setSavedAt(Date.now());
   }, [clocks]);
 
   useEffect(() => {
@@ -255,12 +280,12 @@ const MultiClock = () => {
       {/* Toolbar */}
       <div
         className="absolute top-0 left-0 right-0 z-[60] flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/80 to-transparent transition-opacity duration-500 pointer-events-none"
-        style={{ opacity: hovered ? 1 : 0 }}
+        style={{ opacity: hovered || sheetOpen ? 1 : 0, right: glass && sheetOpen ? 460 : undefined }}
       >
         <div className="flex items-center gap-4 pointer-events-auto">
-          <Link to="/clock" className="text-white/30 hover:text-white/70 transition-colors flex items-center gap-2">
-            <Monitor size={18} />
-            <span className="text-xs font-mono uppercase tracking-widest">Single</span>
+          <Link to="/clock" data-glass-btn="" className="flex items-center gap-2 !py-2 !px-4">
+            <Monitor size={15} />
+            <span>Single clock</span>
           </Link>
           {/* Disbrow Productions logo: lives in the toolbar so it can never sit on top of a cell */}
           <div className="hidden lg:flex flex-col items-start gap-1">
@@ -272,18 +297,11 @@ const MultiClock = () => {
         <div className="flex items-center gap-3 pointer-events-auto">
           <AuthPanel />
 
-          {/* Layout picker — desktop: inline buttons */}
-          <div className="hidden md:flex items-center gap-3">
+          {/* Layout picker — desktop: Glass segmented pills */}
+          <div className="hidden md:flex items-center gap-1" data-glass-toolbar="" aria-label="Layout">
             {LAYOUTS.map(l => (
-              <button
-                key={l.mode}
-                onClick={() => setLayout(l.mode)}
-                className="px-2 py-1 text-[10px] font-mono uppercase tracking-wider border transition-colors"
-                style={{
-                  color: layout === l.mode ? "#ef4444" : "rgba(255,255,255,0.25)",
-                  borderColor: layout === l.mode ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.1)",
-                }}
-              >
+              <button key={l.mode} onClick={() => setLayout(l.mode)} data-glass-pill="" data-on={layout === l.mode ? "" : undefined}
+                aria-pressed={layout === l.mode} data-testid={`layout-${l.mode}`}>
                 {l.label}
               </button>
             ))}
@@ -299,7 +317,7 @@ const MultiClock = () => {
               aria-expanded={showLayoutMenu}
             >
               <Menu size={20} />
-              <span className="text-[10px] font-mono uppercase tracking-wider" style={{ color: "#ef4444" }}>
+              <span className="text-[10px] font-mono uppercase tracking-wider" style={{ color: "#4ade80" }}>
                 {currentLayout.label}
               </span>
             </button>
@@ -320,7 +338,7 @@ const MultiClock = () => {
                         key={l.mode}
                         onClick={() => { setLayout(l.mode); setShowLayoutMenu(false); }}
                         className="flex items-center justify-between gap-3 px-3 py-2 text-xs font-mono uppercase tracking-wider hover:bg-white/5 transition-colors text-left"
-                        style={{ color: active ? "#ef4444" : "rgba(255,255,255,0.6)" }}
+                        style={{ color: active ? "#4ade80" : "rgba(255,255,255,0.6)" }}
                       >
                         <span>{l.label}</span>
                         {active && <Check size={14} />}
@@ -335,37 +353,66 @@ const MultiClock = () => {
           {/* Add clock */}
           {clocks.length < currentLayout.max && (
             <button
-              onClick={handleAdd}
-              className="text-white/30 hover:text-white/70 transition-colors flex items-center gap-1"
+              onClick={handleAdd} data-glass-btn="" className="flex items-center gap-1.5 !py-2 !px-4"
             >
-              <Plus size={18} />
-              <span className="text-[10px] font-mono uppercase tracking-wider">Add</span>
+              <Plus size={15} />
+              <span>Add clock</span>
             </button>
           )}
 
           {/* Fullscreen toggle */}
           <button
-            onClick={toggleFullscreen}
-            className="text-white/30 hover:text-white/70 transition-colors"
-            title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            onClick={toggleFullscreen} data-glass-icon="" aria-label="Full screen"
+            title={isFullscreen ? "Exit full screen" : "Full screen"}
           >
             {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
           </button>
 
           {/* Global settings gear */}
           <button
-            onClick={() => setShowGlobalSettings(p => !p)}
-            className="text-white/30 hover:text-white/70 transition-colors"
-            title="Global settings"
+            onClick={() => (glass ? setSheetOpen(p => !p) : setShowGlobalSettings(p => !p))}
+            data-glass-icon="" data-active={sheetOpen ? "" : undefined} data-testid="open-glass-setup"
+            title="Clock setup" aria-label="Clock setup"
           >
             <Settings size={18} />
           </button>
         </div>
       </div>
 
+      {glass && sheetOpen && (() => {
+        const sel = clocks.find((c) => c.id === sheetSel) || clocks[0];
+        if (!sel) return null;
+        const modes: ModeOption[] = [
+          { value: "clock", label: "Clock" }, { value: "countup", label: "Count Up" }, { value: "countdown", label: "Countdown" }, { value: "countto", label: "Count To" },
+          { value: "rundown", label: "Rundown", group: "tally", locked: !isAuthenticated }, { value: "timecode", label: "Timecode", group: "tally", locked: !isAuthenticated },
+          ...(isTallyConnected ? [
+            ...(status.proPresenter?.connected ? [{ value: "propresenter", label: "ProPresenter", group: "live" as const }, { value: "lastcue", label: "Last Cue", group: "live" as const }] : []),
+            ...(status.hyperdecks?.some((d) => d.connected) ? [{ value: "hyperdeck", label: "HyperDeck", group: "live" as const }] : []),
+            { value: "streamtime", label: "Stream Time", group: "live" as const }, { value: "recordtime", label: "Recording", group: "live" as const },
+            ...(status.atem?.connected ? [{ value: "atemrecord", label: "ATEM Rec", group: "live" as const }, { value: "atemtimecode", label: "ATEM TC", group: "live" as const }] : []),
+          ] : []),
+        ];
+        const previews: PreviewClock[] = clocks.slice(0, currentLayout.max).map((c) => ({ id: c.id, name: c.clockName || MODE_LABEL[c.mode || "clock"], color: c.clockColor, modeLabel: MODE_LABEL[c.mode || "clock"] + (c.mode === "clock" || !c.mode ? ` · ${c.timezone === "local" ? "Local" : c.timezone.split("/").pop()?.replace("_", " ")}` : ""), text: previewText(c, previewNow) }));
+        return <GlassSetupSheet variant="multi" config={sel as SetupConfig} onChange={(patch) => handleUpdate({ ...sel, ...(patch as Partial<ClockCellConfig>) })}
+          onClose={() => setSheetOpen(false)} modes={modes} isTallySignedIn={isAuthenticated} savedAt={savedAt}
+          getSnapshot={() => ({ layout, clocks, globalScale })} applySnapshot={(d) => { const x = d as { layout: LayoutMode; clocks: ClockCellConfig[]; globalScale: number }; setLayout(x.layout); setClocks(x.clocks); setGlobalScale(x.globalScale ?? 1); }}
+          tcSlotRef={setSlotTc} rundownSlotRef={setSlotRundown}
+          previews={previews} selectedId={sel.id} onSelect={setSheetSel}
+          onReorder={(from, to) => setClocks((prev) => { const u = [...prev]; const [m] = u.splice(from, 1); u.splice(to, 0, m); return u; })}
+          onAdd={handleAdd} canAdd={clocks.length < currentLayout.max}
+          initialPresetsOpen={initialSetup.has("presets")} scrollTo={initialSetup.get("section") || undefined}
+          display={<>
+            <Field label="Layout"><Segmented value={layout} options={LAYOUTS.map((l) => ({ value: l.mode, label: l.label.replace(" Grid", "") }))} onChange={(v) => setLayout(v as LayoutMode)} testid="gs-layout" /></Field>
+            <Field label={`All clocks size · ${Math.round(globalScale * 100)}%`} aside={<button onClick={() => setGlobalScale(1)} className="text-[11px] text-white/40 hover:text-white/80">Reset</button>}>
+              <input type="range" min={50} max={200} step={5} value={Math.round(globalScale * 100)} onChange={(e) => setGlobalScale(parseInt(e.target.value) / 100)} className="gs-range w-full" />
+            </Field>
+            <Toggle label="Full screen" checked={isFullscreen} onChange={toggleFullscreen} />
+          </>} />;
+      })()}
+
       {/* Global settings panel */}
       <AnimatePresence>
-        {showGlobalSettings && (
+        {!glass && showGlobalSettings && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -405,8 +452,8 @@ const MultiClock = () => {
 
       {/* One stable keyed parent: presentation changes never remount timers.
           Keep overflow clocks mounted when a smaller layout hides them. */}
-      <div ref={featuredContainerRef} className={`flex-1 min-h-0 grid ${currentLayout.cols} ${layout === "featured" ? "" : currentLayout.rows} gap-1 p-1 pt-12 overflow-hidden`}
-        style={{ gridTemplateRows: layout === "featured" ? `${featuredHeight}% 32px repeat(2, minmax(0, 1fr))` : undefined }}>
+      <div ref={featuredContainerRef} className={`flex-1 min-h-0 grid ${currentLayout.cols} ${layout === "featured" ? "" : currentLayout.rows} gap-1 p-1 pt-[60px] overflow-hidden`}
+        style={{ paddingRight: glass && sheetOpen ? 460 : undefined, transition: "padding .35s ease", gridTemplateRows: layout === "featured" ? `${featuredHeight}% 32px repeat(2, minmax(0, 1fr))` : undefined }}>
         {clocks.map((clock, index) => (
           <div key={clock.id} data-clock-id={clock.id}
             className="relative min-h-0 min-w-0"
@@ -423,7 +470,9 @@ const MultiClock = () => {
               globalScale={globalScale} isDragging={dragIndex === index}
               hint={layout === "featured" && hovered ? (index === 0 ? "Featured" : "★ Click to Feature") : undefined}
               onDragStart={() => setDragIndex(index)} onDragEnd={() => setDragIndex(null)}
-              onDragOver={(e) => e.preventDefault()} onDrop={() => handleDrop(index)} {...tallyProps} />
+              onDragOver={(e) => e.preventDefault()} onDrop={() => handleDrop(index)} {...tallyProps}
+              onOpenSettings={glass ? () => { setSheetSel(clock.id); setSheetOpen(true); } : undefined}
+              glassSlots={glass && sheetOpen && (clocks.find((c) => c.id === sheetSel) || clocks[0])?.id === clock.id ? { tc: slotTc, rundown: slotRundown } : undefined} />
           </div>
         ))}
         {layout === "featured" && <div key="divider" onMouseDown={handleFeaturedDividerDown} onTouchStart={handleFeaturedDividerDown}
