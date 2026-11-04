@@ -542,7 +542,9 @@ const Clock = () => {
   // that show while the mouse is moving sit in rows of their own.
   const isAnalog = displayStyle === "analog";
   const hasAmpm = !isAnalog && mode === "clock" && !is24h;
-  const topReserve = showMiniClock && mode !== "clock" ? 92 : 60;
+  // Below md the mode tabs drop under the toolbar (see "Mode indicator"), so the top row grows.
+  const narrowTop = typeof window !== "undefined" && window.innerWidth < 768 ? 44 : 0;
+  const topReserve = (showMiniClock && mode !== "clock" ? 92 : 60) + narrowTop;
   const lp = labelPx(labelSize, scaleLabels, fontSize, mid.h);
   const lineH = (px: number) => Math.ceil(px * 1.2) + 4;
   let showName = true, showAmpm = hasAmpm;
@@ -754,7 +756,7 @@ const Clock = () => {
 
       {/* Mode indicator */}
       <div
-        className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-2 z-50"
+        className="absolute top-16 md:top-4 left-1/2 -translate-x-1/2 flex gap-2 z-50"
         style={{ opacity: uiOpacity, transition: uiTransition }}
       >
         {(["clock", "countup", "countdown"] as ClockMode[]).map((m) => (
@@ -764,7 +766,7 @@ const Clock = () => {
               setMode(m);
               if (m === "countup" || m === "countdown") { resetTimer(true); }
             }}
-            data-mode-tab="" data-active={mode === m ? "" : undefined} className="px-3 py-1 text-xs uppercase tracking-widest font-mono transition-colors border"
+            data-mode-tab="" data-active={mode === m ? "" : undefined} className="px-3 py-1 text-xs whitespace-nowrap uppercase tracking-widest font-mono transition-colors border"
             style={{
               color: mode === m ? activeColor : "rgba(255,255,255,0.2)",
               borderColor: mode === m ? `${activeColor}80` : "rgba(255,255,255,0.1)",
@@ -778,7 +780,7 @@ const Clock = () => {
       {/* Mini clock */}
       {showMiniClock && mode !== "clock" && (
         <div
-          className="absolute top-14 left-1/2 -translate-x-1/2 font-mono text-lg tracking-wider"
+          className="absolute top-[100px] md:top-14 left-1/2 -translate-x-1/2 font-mono text-lg tracking-wider"
           style={{ color: `${clockColor}66`, opacity: uiOpacity, transition: uiTransition }}
         >
           {formatTime(currentSeconds, is24h, true).text}
