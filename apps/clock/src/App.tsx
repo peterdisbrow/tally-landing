@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import { TallyConnectProvider } from "@/hooks/useTallyConnect";
 import { getRouterBasename } from "@/lib/clockBasename";
 
+const Remote = lazy(() => import("./pages/Remote"));
 const Index = lazy(() => import("./pages/Index"));
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Clock />} />
             <Route path="/clock" element={<Clock />} />
+            <Route path="/clock/remote" element={<Suspense fallback={<div className="min-h-screen bg-background" />}><Remote /></Suspense>} />
             <Route path="/quote" element={<QuotePage />} />
             <Route path="/services" element={<QuotePage />} />
             <Route path="/multi-clock" element={<MultiClock />} />

@@ -1,11 +1,14 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Plus, Monitor, Settings, Maximize, Minimize, Menu, Check, GripHorizontal } from "lucide-react";
+import { Plus, Monitor, Settings, Maximize, Minimize, Menu, Check, GripHorizontal, Smartphone } from "lucide-react";
 import ClockCell, { type ClockCellConfig } from "@/components/clock/ClockCell";
 import AuthPanel from "@/components/clock/AuthPanel";
 import LoginForm from "@/components/clock/LoginForm";
 import { useTallyConnect } from "@/hooks/useTallyConnect";
+import RemoteDialog from "@/components/clock/glass/RemoteDialog";
+import { useRemoteDisplay } from "@/lib/remote/useRemote";
+import type { RemoteCmd } from "@/lib/remote/protocol";
 import GlassSetupSheet, { type ModeOption, type PreviewClock, type SetupConfig } from "@/components/clock/glass/GlassSetupSheet";
 import { Segmented, Toggle, Field } from "@/components/clock/glass/GlassControls";
 import { formatHMS } from "@/lib/timerAdjust";
@@ -238,6 +241,21 @@ const MultiClock = () => {
     });
   }, []);
 
+  // Phone remote: each clock is addressable by id; the cells report what they show into a ref.
+  const [showRemote, setShowRemote] = useState(() => new URLSearchParams(location.search).has("remote"));
+  const [remoteCmds, setRemoteCmds] = useState<Record<string, { n: number; cmd: RemoteCmd }>>({});
+  const remoteShown = useRef<Record<string, { text: string; paused: boolean }>>({});
+  const reportRemote = useCallback((id: string, st: { text: string; paused: boolean }) => { remoteShown.current[id] = st; }, []);
+  const clocksRef = useRef(clocks); clocksRef.current = clocks;
+  const maxRef = useRef(currentLayout.max); maxRef.current = currentLayout.max;
+  const remote = useRemoteDisplay("multi", () => ({ variant: "multi", clocks: clocksRef.current.slice(0, maxRef.current).map((c) => {
+    const m = c.mode || "clock"; const sh = remoteShown.current[c.id];
+    return { id: c.id, name: c.clockName || MODE_LABEL[m] || "Clock", mode: m, color: c.clockColor, text: sh?.text ?? "", paused: sh?.paused ?? true, canTime: ["clock", "countup", "countdown", "countto"].includes(m) };
+  }) }), (cmd, clockId) => {
+    const target = clocksRef.current.find((c) => c.id === clockId) || clocksRef.current[0];
+    if (target) setRemoteCmds((prev) => ({ ...prev, [target.id]: { n: (prev[target.id]?.n ?? 0) + 1, cmd } }));
+  });
+
   const tallyProps = {
     isTallyConnected,
     isTallySignedIn: isAuthenticated,
@@ -367,6 +385,8 @@ const MultiClock = () => {
           >
             {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
           </button>
+          <button onClick={() => setShowRemote(true)} data-glass-icon="" data-active={remote.pairing && remote.peers.remotes > 0 ? "" : undefined}
+            title="Control from phone" aria-label="Control from phone" data-testid="open-remote"><Smartphone size={18} /></button>
 
           {/* Global settings gear */}
           <button
@@ -409,6 +429,8 @@ const MultiClock = () => {
             <Toggle label="Full screen" checked={isFullscreen} onChange={toggleFullscreen} />
           </>} />;
       })()}
+
+      {showRemote && <RemoteDialog variant="multi" remote={remote} onClose={() => setShowRemote(false)} />}
 
       {/* Global settings panel */}
       <AnimatePresence>
@@ -471,6 +493,7 @@ const MultiClock = () => {
               hint={layout === "featured" && hovered ? (index === 0 ? "Featured" : "★ Click to Feature") : undefined}
               onDragStart={() => setDragIndex(index)} onDragEnd={() => setDragIndex(null)}
               onDragOver={(e) => e.preventDefault()} onDrop={() => handleDrop(index)} {...tallyProps}
+              remoteCommand={remoteCmds[clock.id]} onRemoteState={reportRemote}
               onOpenSettings={glass ? () => { setSheetSel(clock.id); setSheetOpen(true); } : undefined}
               glassSlots={glass && sheetOpen && (clocks.find((c) => c.id === sheetSel) || clocks[0])?.id === clock.id ? { tc: slotTc, rundown: slotRundown } : undefined} />
           </div>
