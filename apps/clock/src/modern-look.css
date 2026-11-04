@@ -36,7 +36,7 @@ html[data-look="glass"] [data-adjust-btn]:hover { background: rgba(34,197,94,.14
 html[data-look="glass"] [data-clock-cell] .bg-black\/95 { background: rgba(10,12,11,.82) !important; backdrop-filter: blur(20px); }
 html[data-look="glass"] [data-single-clock] { background: transparent !important; isolation: isolate; }
 html[data-look="glass"] [data-single-clock]::before { z-index: -1; }
-html[data-look="glass"] [data-single-clock]::before { content:""; position:absolute; inset:7% 6%; border-radius:32px; pointer-events:none;
+html[data-look="glass"] [data-single-clock]::before { content:""; position:absolute; inset:5% 3%; border-radius:32px; pointer-events:none;
   background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015)); border:1px solid rgba(255,255,255,.08);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 40px 120px -40px rgba(0,0,0,.9); }
 html[data-look="glass"] [data-mode-tab] { border-radius: 999px !important; font-family: Inter, system-ui, sans-serif !important; font-weight: 600; font-size: 11px; padding: 6px 14px !important; background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08) !important; transition: all .3s ease; }

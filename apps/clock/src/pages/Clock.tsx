@@ -281,7 +281,11 @@ const Clock = () => {
     if (!clockRef.current || !containerRef.current) return;
     const resizeObserver = new ResizeObserver(() => {
       if (!clockRef.current || !containerRef.current) return;
-      const containerWidth = containerRef.current.clientWidth * 0.95;
+      // Glass look draws a card (::before) inside the container: fit the digits to the card, with padding.
+      let containerWidth = containerRef.current.clientWidth * 0.95;
+      const card = getComputedStyle(containerRef.current, "::before");
+      const cardW = card.content && card.content !== "none" && card.display !== "none" ? parseFloat(card.width) : NaN;
+      if (cardW > 0) containerWidth = Math.min(containerWidth, cardW * 0.9);
       const textWidth = clockRef.current.scrollWidth;
       if (textWidth > 0) {
         const scale = containerWidth / textWidth;
