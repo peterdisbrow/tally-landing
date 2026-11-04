@@ -453,7 +453,7 @@ const MultiClock = () => {
       {/* One stable keyed parent: presentation changes never remount timers.
           Keep overflow clocks mounted when a smaller layout hides them. */}
       <div ref={featuredContainerRef} className={`flex-1 min-h-0 grid ${currentLayout.cols} ${layout === "featured" ? "" : currentLayout.rows} gap-1 p-1 pt-[60px] overflow-hidden`}
-        style={{ paddingRight: glass && sheetOpen ? 460 : undefined, transition: "padding .35s ease", gridTemplateRows: layout === "featured" ? `${featuredHeight}% 32px repeat(2, minmax(0, 1fr))` : undefined }}>
+        style={{ paddingRight: glass && sheetOpen ? 460 : undefined, gridTemplateRows: layout === "featured" ? `${featuredHeight}% 32px repeat(2, minmax(0, 1fr))` : undefined }}>
         {clocks.map((clock, index) => (
           <div key={clock.id} data-clock-id={clock.id}
             className="relative min-h-0 min-w-0"

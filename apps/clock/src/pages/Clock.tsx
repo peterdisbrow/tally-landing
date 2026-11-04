@@ -543,7 +543,7 @@ const Clock = () => {
   return (
     <div
       ref={containerRef}
-      style={{ width: sheetOpen ? "calc(100vw - 460px)" : undefined, transition: "width .35s ease" }}
+      style={{ width: sheetOpen ? "calc(100vw - 460px)" : undefined }}
       data-single-clock="" className="h-screen w-screen bg-black flex flex-col items-center relative select-none overflow-hidden cursor-default"
       onClick={() => {
         if (showHelp) setShowHelp(false);
