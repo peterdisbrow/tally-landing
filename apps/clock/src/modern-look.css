@@ -1,0 +1,45 @@
+/* Modern "Glass" clock look (default). Off with ?look=classic. Colors/geometry only, no layout size changes. */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+html[data-look="glass"] body { background: radial-gradient(1200px 700px at 50% -10%, #12211a 0%, #0b0d0c 55%, #070807 100%) fixed; }
+html[data-look="glass"] [data-clock-cell] {
+  border-width: 1px !important; border-radius: 18px !important;
+  transition: background-color .5s ease, border-color .5s ease, box-shadow .5s ease, opacity .3s ease !important;
+}
+html[data-look="glass"] [data-clock-cell] {
+  background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.02)) !important;
+  border-color: rgba(255,255,255,.09) !important;
+  backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 20px 50px -20px rgba(0,0,0,.8);
+}
+html[data-look="glass"] [data-clock-cell][data-hovered] { border-color: rgba(34,197,94,.35) !important; }
+/* Final-minute / overtime tone */
+html[data-look="glass"] [data-clock-cell][data-tone="warn"] { border-color: rgba(245,158,11,.55) !important; box-shadow: 0 0 0 1px rgba(245,158,11,.25), 0 0 60px -18px rgba(245,158,11,.55) !important; }
+html[data-look="glass"] [data-clock-cell][data-tone="warn"] [data-clock-part="digits"] { color: #fbbf24 !important; }
+html[data-look="glass"] [data-clock-cell][data-tone="over"] { border-color: rgba(239,68,68,.6) !important; box-shadow: 0 0 0 1px rgba(239,68,68,.3), 0 0 70px -16px rgba(239,68,68,.6) !important; }
+html[data-look="glass"] [data-clock-cell][data-tone="over"] { background: linear-gradient(180deg, rgba(239,68,68,.10), rgba(239,68,68,.03)) !important; }
+/* Digits: tabular, no jiggle; smooth color change between modes/states */
+html[data-look="glass"] [data-clock-part="digits"] {
+  font-variant-numeric: tabular-nums slashed-zero; font-feature-settings: "tnum" 1, "zero" 1;
+  transition: color .5s ease, opacity .25s ease; text-shadow: 0 0 28px currentColor;
+}
+html[data-look="glass"] [data-clock-part="digits"] { text-shadow: 0 0 32px color-mix(in srgb, currentColor 35%, transparent); }
+/* Labels: Inter, softer */
+html[data-look="glass"] [data-testid="label-name"] { font-family: Inter, system-ui, sans-serif !important; font-weight: 600; letter-spacing: .18em !important; }
+html[data-look="glass"] [data-testid="label-sub"], html[data-look="glass"] [data-testid="label-ampm"] { font-family: Inter, system-ui, sans-serif !important; font-weight: 500; color: rgba(255,255,255,.38) !important; }
+html[data-look="glass"] [data-testid="cell-hint"] { font-family: Inter, system-ui, sans-serif !important; color: rgba(255,255,255,.28) !important; }
+/* Controls: pill buttons */
+html[data-look="glass"] [data-adjust-btn] {
+  border-radius: 999px !important; font-family: "JetBrains Mono", ui-monospace, monospace !important;
+  font-variant-numeric: tabular-nums; background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.10) !important; color: rgba(255,255,255,.65) !important;
+}
+html[data-look="glass"] [data-adjust-btn]:hover { background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.5) !important; color: #fff !important; }
+html[data-look="glass"] [data-clock-cell] .bg-black\/95 { background: rgba(10,12,11,.82) !important; backdrop-filter: blur(20px); }
+html[data-look="glass"] [data-single-clock] { background: transparent !important; isolation: isolate; }
+html[data-look="glass"] [data-single-clock]::before { z-index: -1; }
+html[data-look="glass"] [data-single-clock]::before { content:""; position:absolute; inset:7% 6%; border-radius:32px; pointer-events:none;
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015)); border:1px solid rgba(255,255,255,.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 40px 120px -40px rgba(0,0,0,.9); }
+html[data-look="glass"] [data-mode-tab] { border-radius: 999px !important; font-family: Inter, system-ui, sans-serif !important; font-weight: 600; font-size: 11px; padding: 6px 14px !important; background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08) !important; transition: all .3s ease; }
+html[data-look="glass"] [data-mode-tab][data-active] { background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.55) !important; color: #4ade80 !important; }
+html[data-look="glass"] [data-pill] { border-radius: 999px !important; font-family: Inter, system-ui, sans-serif !important; font-weight: 600; }
+html[data-look="glass"] .data-popover { border-radius: 14px; background: rgba(14,16,15,.85) !important; backdrop-filter: blur(20px); }
