@@ -556,6 +556,9 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
+      data-clock-cell=""
+      data-tone={isOvertime || rundownOvertime ? "over" : (mode === "countdown" && countdownRemainingMs <= 60000) || rundownWarning ? "warn" : "normal"}
+      data-hovered={hovered ? "" : undefined}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); setShowSettings(false); }}
       className={`relative flex flex-col items-center bg-black border-2 rounded-lg overflow-hidden transition-all duration-200 h-full ${isDragging ? "opacity-30 scale-95 border-white/20" : isDropTarget ? "border-red-500/60 bg-red-500/5" : "border-white/10 opacity-100"} ${isOvertimeFlashing ? "animate-slow-flash" : ""}`}
@@ -665,11 +668,11 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
           >
             {[...ADJUST_STEPS].reverse().map(s => (
               <button key={`-${s}`} aria-label={`Subtract ${stepLabel(s)}`} onClick={() => adjustBy(-s)}
-                className="px-1.5 py-0.5 text-[10px] font-mono border border-white/10 text-white/40 hover:text-white/80 hover:border-white/30 transition-colors">-{stepLabel(s)}</button>
+                data-adjust-btn="" className="px-1.5 py-0.5 text-[10px] font-mono border border-white/10 text-white/40 hover:text-white/80 hover:border-white/30 transition-colors">-{stepLabel(s)}</button>
             ))}
             {ADJUST_STEPS.map(s => (
               <button key={`+${s}`} aria-label={`Add ${stepLabel(s)}`} onClick={() => adjustBy(s)}
-                className="px-1.5 py-0.5 text-[10px] font-mono border border-white/10 text-white/40 hover:text-white/80 hover:border-white/30 transition-colors">+{stepLabel(s)}</button>
+                data-adjust-btn="" className="px-1.5 py-0.5 text-[10px] font-mono border border-white/10 text-white/40 hover:text-white/80 hover:border-white/30 transition-colors">+{stepLabel(s)}</button>
             ))}
           </div>
         )}

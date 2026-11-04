@@ -501,7 +501,7 @@ const Clock = () => {
   return (
     <div
       ref={containerRef}
-      className="h-screen w-screen bg-black flex flex-col items-center relative select-none overflow-hidden cursor-default"
+      data-single-clock="" className="h-screen w-screen bg-black flex flex-col items-center relative select-none overflow-hidden cursor-default"
       onClick={() => {
         if (showHelp) setShowHelp(false);
         if (showColorPicker) setShowColorPicker(false);
@@ -629,7 +629,7 @@ const Clock = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             onClick={(e) => e.stopPropagation()}
-            className="absolute top-12 right-4 z-50 bg-black/95 border border-white/10 p-3 flex flex-col gap-1 min-w-[200px] max-h-80 overflow-y-auto"
+            className="absolute top-12 right-4 z-50 bg-black/95 border border-white/10 p-3 data-popover flex flex-col gap-1 min-w-[200px] max-h-80 overflow-y-auto"
           >
             {presetList.length === 0 ? (
               <p className="text-white/30 text-xs font-mono px-3 py-2">No presets saved yet</p>
@@ -668,7 +668,7 @@ const Clock = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             onClick={(e) => e.stopPropagation()}
-            className="absolute top-12 right-4 z-50 bg-black/95 border border-white/10 p-3 flex flex-col gap-1"
+            className="absolute top-12 right-4 z-50 bg-black/95 border border-white/10 p-3 data-popover flex flex-col gap-1"
           >
             {COLOR_PRESETS.map((color) => (
               <button
@@ -692,7 +692,7 @@ const Clock = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             onClick={(e) => e.stopPropagation()}
-            className="absolute top-12 right-4 z-50 bg-black/95 border border-white/10 p-3 flex flex-col gap-1 max-h-80 overflow-y-auto"
+            className="absolute top-12 right-4 z-50 bg-black/95 border border-white/10 p-3 data-popover flex flex-col gap-1 max-h-80 overflow-y-auto"
           >
             {COMMON_TIMEZONES.map((t) => (
               <button
@@ -720,7 +720,7 @@ const Clock = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             onClick={(e) => e.stopPropagation()}
-            className="absolute top-12 right-4 z-50 bg-black/95 border border-white/10 p-3 flex flex-col gap-1"
+            className="absolute top-12 right-4 z-50 bg-black/95 border border-white/10 p-3 data-popover flex flex-col gap-1"
           >
             {CLOCK_FONTS.map((font) => (
               <button
@@ -753,7 +753,7 @@ const Clock = () => {
               setMode(m);
               if (m === "countup" || m === "countdown") { resetTimer(true); }
             }}
-            className="px-3 py-1 text-xs uppercase tracking-widest font-mono transition-colors border"
+            data-mode-tab="" data-active={mode === m ? "" : undefined} className="px-3 py-1 text-xs uppercase tracking-widest font-mono transition-colors border"
             style={{
               color: mode === m ? activeColor : "rgba(255,255,255,0.2)",
               borderColor: mode === m ? `${activeColor}80` : "rgba(255,255,255,0.1)",
@@ -879,7 +879,7 @@ const Clock = () => {
               <button
                 key={p.label}
                 onClick={() => { setCountdownFrom(p.seconds); resetTimer(true); }}
-                className="px-3 py-1.5 text-xs font-mono text-white/30 border border-white/10 transition-colors uppercase"
+                data-adjust-btn="" className="px-3 py-1.5 text-xs font-mono text-white/30 border border-white/10 transition-colors uppercase"
                 onMouseEnter={(e) => { (e.target as HTMLElement).style.color = clockColor; (e.target as HTMLElement).style.borderColor = `${clockColor}80`; }}
                 onMouseLeave={(e) => { (e.target as HTMLElement).style.color = "rgba(255,255,255,0.3)"; (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)"; }}
               >
@@ -890,7 +890,7 @@ const Clock = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setAllowOverrun(p => !p)}
-              className="px-3 py-1 text-[10px] font-mono border transition-colors uppercase"
+              data-pill="" className="px-3 py-1 text-[10px] font-mono border transition-colors uppercase"
               style={{
                 color: allowOverrun ? clockColor : "rgba(255,255,255,0.3)",
                 borderColor: allowOverrun ? `${clockColor}60` : "rgba(255,255,255,0.1)",
