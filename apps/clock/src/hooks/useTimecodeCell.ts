@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useLtcInput } from "@/lib/ltc/useLtcInput";
 import { ltcFrameToTimecode } from "@/lib/ltc/ltcToTimecode";
-import { JAM_TIMEOUT_MS, JamCollector, jamCount, jamPosition, jamStore, type JamProgress, type JamRecord } from "@/lib/timecode/jam";
+import { JAM_TIMEOUT_MS, JamCollector, jamPosition, jamStore, type JamProgress, type JamRecord } from "@/lib/timecode/jam";
 import { DEFAULT_TIMECODE_SOURCE_ID, getTimecodeSource, type LiveTimecode } from "@/lib/timecode/sources";
 import { framesPerDay, formatAge, type TcRate } from "@/lib/timecode/timecode";
-import { canDoubleRate, displayText, rateParts, subFrameSince } from "@/lib/timecode/display";
+import { canDoubleRate, displayText, jamDrift, rateParts, subFrameSince } from "@/lib/timecode/display";
 
 export const TC_PLACEHOLDER = "--:--:--:--";
 
@@ -27,7 +27,7 @@ export function useTimecodeCell({ enabled, deviceId, sourceId = DEFAULT_TIMECODE
   const live: LiveTimecode | null = useMemo(() => (ltc.frame ? ltcFrameToTimecode(ltc.frame) : null), [ltc.frame]);
 
   // x2 (59.94 / 60 fps): an LTC word labels a pair of frames; the 2nd half is told by time since the word arrived.
-  const hfr = hfrWanted && !!live && canDoubleRate({ nominal: live.nominal, fps: live.fps, drop: live.drop });
+  const hfr = hfrWanted && !!live && live.rateLocked && canDoubleRate({ nominal: live.nominal, fps: live.fps, drop: live.drop });
   const arrival = useRef(0);
   const [subState, setSubState] = useState<{ wall: number; sub: 0 | 1 }>({ wall: 0, sub: 0 });
   useEffect(() => {
@@ -140,8 +140,9 @@ export function useTimecodeCell({ enabled, deviceId, sourceId = DEFAULT_TIMECODE
   // How far the free-run clock would be from the live signal right now (frames): the jam's quality check.
   let driftFrames: number | null = null;
   if (jam && live && live.rateLocked && jam.nominal === live.nominal && jam.drop === live.drop) {
-    const day = framesPerDay(jam);
-    driftFrames = ((((live.count - jamCount(jam, nowMs)) + day / 2) % day) + day) % day - day / 2;
+    const hfrDrift = hfrWanted && canDoubleRate(jam);
+    const jp = jamPosition(jam, nowMs);
+    driftFrames = jamDrift({ count: live.count, sub: hfrDrift ? liveSub : 0 }, { count: jp.count, sub: jp.sub }, framesPerDay(jam), hfrDrift);
   }
 
   const showHfr = !!rate && hfrWanted && canDoubleRate(rate);
