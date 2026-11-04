@@ -74,6 +74,14 @@ const nextConfig = {
         destination: '/tools/clock/index.html',
       },
       {
+        source: '/clock/remote',
+        destination: '/tools/clock/index.html',
+      },
+      {
+        source: '/tools/clock/clock/remote',
+        destination: '/tools/clock/index.html',
+      },
+      {
         source: '/multi-clock',
         destination: '/tools/clock/index.html',
       },

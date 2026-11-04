@@ -51,5 +51,5 @@
 [data-glass-toolbar] [data-glass-pill] { border-radius: 10px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,.6); border: 1px solid transparent; background: transparent; transition: all .2s; white-space: nowrap; }
 [data-glass-toolbar] [data-glass-pill]:hover { color: #fff; background: rgba(255,255,255,.06); }
 [data-glass-toolbar] [data-glass-pill][data-on] { color: #4ade80; background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.45); }
-/* Dialogs: Inter everywhere (the site's display font is for the clock face only). */
+/* Phone remote + dialogs: Inter everywhere (the site's display font is for the clock face only). */
 [data-testid="remote-page"], [data-testid="remote-unpaired"], .gs-dialog, [data-testid="remote-page"] :is(h1, h2), .gs-dialog :is(h1, h2), [data-testid="remote-unpaired"] h1 { font-family: Inter, system-ui, sans-serif !important; letter-spacing: 0; }

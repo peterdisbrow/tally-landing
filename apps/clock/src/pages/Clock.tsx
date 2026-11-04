@@ -1,11 +1,14 @@
 import { useTimer } from "@/hooks/useTimer";
 import { DIGIT_LINE, LABEL_SIZES, labelPx, resolveLabelSize, resolveScaleLabels, type LabelSize } from "@/lib/labelSize";
+import RemoteDialog from "@/components/clock/glass/RemoteDialog";
+import { useRemoteDisplay } from "@/lib/remote/useRemote";
+import type { RemoteCmd } from "@/lib/remote/protocol";
 import GlassSetupSheet, { type SetupConfig } from "@/components/clock/glass/GlassSetupSheet";
 import { Field, Toggle } from "@/components/clock/glass/GlassControls";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Info, X, Plus, Minus, Type, Globe, Palette, Save, FolderOpen, Trash2, LayoutGrid, Circle, Maximize, Minimize, Settings } from "lucide-react";
+import { ArrowLeft, Info, X, Plus, Minus, Type, Globe, Palette, Save, FolderOpen, Trash2, LayoutGrid, Circle, Maximize, Minimize, Settings, Smartphone } from "lucide-react";
 import AnalogClock from "@/components/clock/AnalogClock";
 import { syncServerTime } from "@/lib/timeSync";
 
@@ -383,6 +386,21 @@ const Clock = () => {
     if (p.fontSize !== undefined) setFontSize(p.fontSize);
   }, [countToTarget, resetTimer, adjustTimer, adjustBySeconds, singleAdjust]);
 
+  // Phone remote (QR pairing). Commands arrive signed; useRemoteDisplay drops anything else.
+  const [showRemote, setShowRemote] = useState(qs.has("remote"));
+  const remoteRef = useRef({ text: "", paused, mode, clockName, clockColor });
+  const onRemoteCommand = useCallback((c: RemoteCmd) => {
+    const timing = mode === "countup" || mode === "countdown" || mode === "countto";
+    if (c.cmd === "toggle") { if (timing) togglePause(); }
+    else if (c.cmd === "start") { if (timing && paused) togglePause(); }
+    else if (c.cmd === "pause") { if (timing && !paused) pauseTimer(); }
+    else if (c.cmd === "reset") { if (timing) { resetTimer(false); setSingleAdjust(0); setCdExtra(0); } }
+    else if (c.cmd === "adjust") { if (timing) adjustBySeconds(c.seconds); }
+    else if (c.cmd === "setCountdown") { setMode("countdown"); setCountdownFrom(c.seconds); setSingleAdjust(0); setCdExtra(0); resetTimer(false); }
+    else if (c.cmd === "setMode") applySinglePatch({ mode: c.mode });
+  }, [mode, paused, togglePause, pauseTimer, resetTimer, applySinglePatch, adjustBySeconds]);
+  const remote = useRemoteDisplay("single", () => { const r = remoteRef.current; return { variant: "single", clocks: [{ id: "main", name: r.clockName || "Clock", mode: r.mode, color: r.clockColor, text: r.text, paused: r.paused, canTime: true }] }; }, onRemoteCommand);
+
   // Keyboard shortcuts
   const handleKey = useCallback(
     (e: KeyboardEvent) => {
@@ -524,7 +542,9 @@ const Clock = () => {
   // that show while the mouse is moving sit in rows of their own.
   const isAnalog = displayStyle === "analog";
   const hasAmpm = !isAnalog && mode === "clock" && !is24h;
-  const topReserve = showMiniClock && mode !== "clock" ? 92 : 60;
+  // Below md the mode tabs drop under the toolbar (see "Mode indicator"), so the top row grows.
+  const narrowTop = typeof window !== "undefined" && window.innerWidth < 768 ? 44 : 0;
+  const topReserve = (showMiniClock && mode !== "clock" ? 92 : 60) + narrowTop;
   const lp = labelPx(labelSize, scaleLabels, fontSize, mid.h);
   const lineH = (px: number) => Math.ceil(px * 1.2) + 4;
   let showName = true, showAmpm = hasAmpm;
@@ -541,6 +561,7 @@ const Clock = () => {
   const renderFont = Math.min(fontSize, maxDigitPx / 0.6, Math.max(20, widthFit));
   renderFontRef.current = renderFont;
   const analogPx = measured ? Math.max(60, Math.min(fontSize * 2, 600, mid.w - 32, mid.h - labelsH() - 2)) : Math.min(fontSize * 2, 600);
+  remoteRef.current = { text: displayTime.text, paused, mode, clockName: displayName, clockColor };
   const uiOpacity = uiVisible ? 1 : 0;
   const uiTransition = "opacity 0.5s ease";
 
@@ -568,12 +589,13 @@ const Clock = () => {
         </Link>
       </div>
 
-      {/* Top toolbar: setup, full screen, shortcuts. Everything else lives in the setup sheet. */}
+      {/* Top toolbar: setup, phone remote, full screen, shortcuts. Everything else lives in the setup sheet. */}
       <div
         className="absolute top-4 right-4 z-50 flex items-center gap-2"
         style={{ opacity: uiOpacity, transition: uiTransition }}
       >
         <button onClick={(e) => { e.stopPropagation(); setSheetOpen((o) => !o); }} data-glass-icon="" data-active={sheetOpen ? "" : undefined} title="Clock setup" aria-label="Clock setup" data-testid="open-glass-setup"><Settings size={20} /></button>
+        <button onClick={(e) => { e.stopPropagation(); setShowRemote(true); }} data-glass-icon="" data-active={remote.pairing && remote.peers.remotes > 0 ? "" : undefined} title="Control from phone" aria-label="Control from phone" data-testid="open-remote"><Smartphone size={20} /></button>
         <button onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }} data-glass-icon="" title={isFullscreen ? "Exit full screen" : "Full screen"} aria-label="Full screen">
           {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
         </button>
@@ -734,7 +756,7 @@ const Clock = () => {
 
       {/* Mode indicator */}
       <div
-        className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-2 z-50"
+        className="absolute top-16 md:top-4 left-1/2 -translate-x-1/2 flex gap-2 z-50"
         style={{ opacity: uiOpacity, transition: uiTransition }}
       >
         {(["clock", "countup", "countdown"] as ClockMode[]).map((m) => (
@@ -744,7 +766,7 @@ const Clock = () => {
               setMode(m);
               if (m === "countup" || m === "countdown") { resetTimer(true); }
             }}
-            data-mode-tab="" data-active={mode === m ? "" : undefined} className="px-3 py-1 text-xs uppercase tracking-widest font-mono transition-colors border"
+            data-mode-tab="" data-active={mode === m ? "" : undefined} className="px-3 py-1 text-xs whitespace-nowrap uppercase tracking-widest font-mono transition-colors border"
             style={{
               color: mode === m ? activeColor : "rgba(255,255,255,0.2)",
               borderColor: mode === m ? `${activeColor}80` : "rgba(255,255,255,0.1)",
@@ -758,7 +780,7 @@ const Clock = () => {
       {/* Mini clock */}
       {showMiniClock && mode !== "clock" && (
         <div
-          className="absolute top-14 left-1/2 -translate-x-1/2 font-mono text-lg tracking-wider"
+          className="absolute top-[100px] md:top-14 left-1/2 -translate-x-1/2 font-mono text-lg tracking-wider"
           style={{ color: `${clockColor}66`, opacity: uiOpacity, transition: uiTransition }}
         >
           {formatTime(currentSeconds, is24h, true).text}
@@ -931,6 +953,8 @@ const Clock = () => {
             <p className="text-[11px] text-white/40 pt-1">Controls hide after 3 seconds without mouse movement.</p>
           </>} />
       )}
+
+      {showRemote && <RemoteDialog variant="single" remote={remote} onClose={() => setShowRemote(false)} />}
 
       {/* Help panel */}
       <AnimatePresence>

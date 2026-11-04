@@ -1,11 +1,14 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Plus, Monitor, Settings, Maximize, Minimize, Menu, Check, GripHorizontal } from "lucide-react";
+import { Plus, Monitor, Settings, Maximize, Minimize, Menu, Check, GripHorizontal, Smartphone } from "lucide-react";
 import ClockCell, { type ClockCellConfig } from "@/components/clock/ClockCell";
 import AuthPanel from "@/components/clock/AuthPanel";
 import LoginForm from "@/components/clock/LoginForm";
 import { useTallyConnect } from "@/hooks/useTallyConnect";
+import RemoteDialog from "@/components/clock/glass/RemoteDialog";
+import { useRemoteDisplay } from "@/lib/remote/useRemote";
+import type { RemoteCmd } from "@/lib/remote/protocol";
 import GlassSetupSheet, { type ModeOption, type PreviewClock, type SetupConfig } from "@/components/clock/glass/GlassSetupSheet";
 import { Segmented, Toggle, Field } from "@/components/clock/glass/GlassControls";
 import { formatHMS } from "@/lib/timerAdjust";
@@ -238,6 +241,21 @@ const MultiClock = () => {
     });
   }, []);
 
+  // Phone remote: each clock is addressable by id; the cells report what they show into a ref.
+  const [showRemote, setShowRemote] = useState(() => new URLSearchParams(location.search).has("remote"));
+  const [remoteCmds, setRemoteCmds] = useState<Record<string, { n: number; cmd: RemoteCmd }>>({});
+  const remoteShown = useRef<Record<string, { text: string; paused: boolean }>>({});
+  const reportRemote = useCallback((id: string, st: { text: string; paused: boolean }) => { remoteShown.current[id] = st; }, []);
+  const clocksRef = useRef(clocks); clocksRef.current = clocks;
+  const maxRef = useRef(currentLayout.max); maxRef.current = currentLayout.max;
+  const remote = useRemoteDisplay("multi", () => ({ variant: "multi", clocks: clocksRef.current.slice(0, maxRef.current).map((c) => {
+    const m = c.mode || "clock"; const sh = remoteShown.current[c.id];
+    return { id: c.id, name: c.clockName || MODE_LABEL[m] || "Clock", mode: m, color: c.clockColor, text: sh?.text ?? "", paused: sh?.paused ?? true, canTime: ["clock", "countup", "countdown", "countto"].includes(m) };
+  }) }), (cmd, clockId) => {
+    const target = clocksRef.current.find((c) => c.id === clockId) || clocksRef.current[0];
+    if (target) setRemoteCmds((prev) => ({ ...prev, [target.id]: { n: (prev[target.id]?.n ?? 0) + 1, cmd } }));
+  });
+
   const tallyProps = {
     isTallyConnected,
     isTallySignedIn: isAuthenticated,
@@ -279,22 +297,23 @@ const MultiClock = () => {
     <div className="h-screen w-screen bg-black flex flex-col overflow-hidden select-none">
       {/* Toolbar */}
       <div
-        className="absolute top-0 left-0 right-0 z-[60] flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/80 to-transparent transition-opacity duration-500 pointer-events-none"
+        className="absolute top-0 left-0 right-0 z-[60] flex items-center justify-between gap-2 px-3 md:px-4 py-3 bg-gradient-to-b from-black/80 to-transparent transition-opacity duration-500 pointer-events-none"
         style={{ opacity: hovered || sheetOpen ? 1 : 0, right: glass && sheetOpen ? 460 : undefined }}
       >
-        <div className="flex items-center gap-4 pointer-events-auto">
-          <Link to="/clock" data-glass-btn="" className="flex items-center gap-2 !py-2 !px-4">
+        <div className="flex items-center gap-4 pointer-events-auto shrink-0">
+          <Link to="/clock" data-glass-btn="" className="flex items-center gap-2 !py-2 !px-3 2xl:!px-4" aria-label="Single clock" title="Single clock">
             <Monitor size={15} />
-            <span>Single clock</span>
+            <span className="hidden 2xl:inline">Single clock</span>
           </Link>
           {/* Disbrow Productions logo: lives in the toolbar so it can never sit on top of a cell */}
-          <div className="hidden lg:flex flex-col items-start gap-1">
+          <div className="hidden 2xl:flex flex-col items-start gap-1">
             <span className="font-display text-[11px] font-bold tracking-[0.25em] text-white/20">TALLYCONNECT</span>
             <span className="font-display text-[7px] tracking-[0.35em] text-white/15">MULTI-CLOCK</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 pointer-events-auto">
+        {/* On phones the labels collapse to icons and the row may wrap, so every button stays on screen. */}
+        <div className="flex flex-wrap md:flex-nowrap items-center justify-end gap-2 md:gap-3 min-w-0 pointer-events-auto">
           <AuthPanel />
 
           {/* Layout picker — desktop: Glass segmented pills */}
@@ -353,10 +372,10 @@ const MultiClock = () => {
           {/* Add clock */}
           {clocks.length < currentLayout.max && (
             <button
-              onClick={handleAdd} data-glass-btn="" className="flex items-center gap-1.5 !py-2 !px-4"
+              onClick={handleAdd} data-glass-btn="" className="flex items-center gap-1.5 !py-2 !px-3 2xl:!px-4" aria-label="Add clock" title="Add clock"
             >
               <Plus size={15} />
-              <span>Add clock</span>
+              <span className="hidden 2xl:inline">Add clock</span>
             </button>
           )}
 
@@ -367,6 +386,8 @@ const MultiClock = () => {
           >
             {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
           </button>
+          <button onClick={() => setShowRemote(true)} data-glass-icon="" data-active={remote.pairing && remote.peers.remotes > 0 ? "" : undefined}
+            title="Control from phone" aria-label="Control from phone" data-testid="open-remote"><Smartphone size={18} /></button>
 
           {/* Global settings gear */}
           <button
@@ -409,6 +430,8 @@ const MultiClock = () => {
             <Toggle label="Full screen" checked={isFullscreen} onChange={toggleFullscreen} />
           </>} />;
       })()}
+
+      {showRemote && <RemoteDialog variant="multi" remote={remote} onClose={() => setShowRemote(false)} />}
 
       {/* Global settings panel */}
       <AnimatePresence>
@@ -471,6 +494,7 @@ const MultiClock = () => {
               hint={layout === "featured" && hovered ? (index === 0 ? "Featured" : "★ Click to Feature") : undefined}
               onDragStart={() => setDragIndex(index)} onDragEnd={() => setDragIndex(null)}
               onDragOver={(e) => e.preventDefault()} onDrop={() => handleDrop(index)} {...tallyProps}
+              remoteCommand={remoteCmds[clock.id]} onRemoteState={reportRemote}
               onOpenSettings={glass ? () => { setSheetSel(clock.id); setSheetOpen(true); } : undefined}
               glassSlots={glass && sheetOpen && (clocks.find((c) => c.id === sheetSel) || clocks[0])?.id === clock.id ? { tc: slotTc, rundown: slotRundown } : undefined} />
           </div>

@@ -1,5 +1,6 @@
 import { createPortal } from "react-dom";
 import { useTimer } from "@/hooks/useTimer";
+import type { RemoteCmd } from "@/lib/remote/protocol";
 import { DIGIT_LINE, LABEL_SIZES, labelPx, resolveLabelSize, resolveScaleLabels, type LabelSize } from "@/lib/labelSize";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -163,12 +164,16 @@ interface ClockCellProps {
   /** Mockup: open the Glass setup sheet instead of the in-cell panel. */
   onOpenSettings?: () => void;
   glassSlots?: { tc?: HTMLElement | null; rundown?: HTMLElement | null };
+  /** Phone remote: a verified command for this cell. `n` increases per command so repeats still fire. */
+  remoteCommand?: { n: number; cmd: RemoteCmd };
+  /** Phone remote: receives what the cell is showing (cheap; written into a ref by the parent). */
+  onRemoteState?: (id: string, s: { text: string; paused: boolean }) => void;
 }
 
 /** Height (px) of the reserved top row (drag handle / live dot / hint / controls) and bottom row (quick adjust, timecode input). */
 export const CELL_BAND = 28;
 
-const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, isDropTarget, onDragStart, onDragEnd, onDragOver, onDrop, onTouchStart, onTouchMove, onTouchEnd, proPresenter, hyperdecks, atem, isTallyConnected, streamStartedAt, recordingStartedAt, atemRecordingStartedAt, lastCueAt, atemTimecode, isTallySignedIn, hint, glassSlots, onOpenSettings }: ClockCellProps) => {
+const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, isDropTarget, onDragStart, onDragEnd, onDragOver, onDrop, onTouchStart, onTouchMove, onTouchEnd, proPresenter, hyperdecks, atem, isTallyConnected, streamStartedAt, recordingStartedAt, atemRecordingStartedAt, lastCueAt, atemTimecode, isTallySignedIn, hint, glassSlots, onOpenSettings, remoteCommand, onRemoteState }: ClockCellProps) => {
   const [now, setNow] = useState(new Date());
   const [showSettings, setShowSettings] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -488,6 +493,20 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
 
   const isTimerMode = mode === "countup" || mode === "countdown";
 
+  // Phone remote. The latest handlers live in a ref so the effect fires once per command.
+  const remoteRef = useRef<(c: RemoteCmd) => void>(() => {});
+  remoteRef.current = (c) => {
+    const timing = isTimerMode || mode === "countto";
+    if (c.cmd === "toggle") { if (isTimerMode) togglePause(); }
+    else if (c.cmd === "start") { if (isTimerMode && paused) togglePause(); }
+    else if (c.cmd === "pause") { if (isTimerMode && !paused) pauseTimer(); }
+    else if (c.cmd === "reset") { if (timing) { resetTimer(false); if (timeAdjust) onUpdate({ ...config, timeAdjust: undefined }); } }
+    else if (c.cmd === "adjust") { if (canAdjust) adjustBy(c.seconds); }
+    else if (c.cmd === "setCountdown") { onUpdate({ ...config, mode: "countdown", countdownFrom: c.seconds || 1, timeAdjust: undefined }); resetTimer(false); }
+    else if (c.cmd === "setMode") { onUpdate({ ...config, mode: c.mode, ...(c.mode === "countto" && !config.countToTarget ? { countToTarget: Date.now() + 1800e3 } : {}) }); if (c.mode !== "clock") resetTimer(false); }
+  };
+  useEffect(() => { if (remoteCommand) remoteRef.current(remoteCommand.cmd); }, [remoteCommand]);
+  useEffect(() => { onRemoteState?.(config.id, { text: timeText, paused: isTimerMode ? paused : false }); });
   const isLiveSource = mode === "propresenter" || mode === "hyperdeck" || mode === "streamtime" || mode === "recordtime" || mode === "lastcue" || mode === "atemrecord" || mode === "atemtimecode" || mode === "rundown" || mode === "timecode";
   const isServiceMode = mode === "service";
   const modeLabels: Record<string, string> = {
