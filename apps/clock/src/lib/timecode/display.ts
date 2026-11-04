@@ -53,3 +53,11 @@ export function rateParts(r: TcRate, hfr: boolean): { num: string; df: boolean }
 export function subFrameSince(arrivalWallMs: number, nowMs: number, rate: TcRate): 0 | 1 {
   return ((nowMs - arrivalWallMs) * rate.fps) / 1000 >= 0.5 ? 1 : 0;
 }
+
+/** Signed jam drift in displayed frames (×2 units when hfr), wrapped to ±half a day. */
+export function jamDrift(live: { count: number; sub: 0 | 1 }, jam: { count: number; sub: 0 | 1 }, framesPerDay: number, hfr: boolean): number {
+  const k = hfr ? 2 : 1;
+  const day = framesPerDay * k;
+  const d = live.count * k + (hfr ? live.sub : 0) - (jam.count * k + (hfr ? jam.sub : 0));
+  return ((((d + day / 2) % day) + day) % day) - day / 2;
+}
