@@ -19,6 +19,9 @@ describe("clock remote protocol", () => {
   });
   it("validates command shapes", () => {
     expect(validCmd({ cmd: "adjust", seconds: 60 })).toBe(true);
+    expect(validCmd({ cmd: "setCountTo", time: "10:30" })).toBe(true);
+    expect(validCmd({ cmd: "setCountTo", time: "24:00" })).toBe(false);
+    expect(validCmd({ cmd: "setCountTo", time: 1030 })).toBe(false);
     expect(validCmd({ cmd: "adjust", seconds: 1.5 })).toBe(false);
     expect(validCmd({ cmd: "setCountdown", seconds: -1 })).toBe(false);
     expect(validCmd({ cmd: "setMode", mode: "timecode" })).toBe(false);

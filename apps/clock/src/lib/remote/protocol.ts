@@ -9,7 +9,7 @@
 export type RemoteMode = "clock" | "countup" | "countdown" | "countto";
 export type RemoteCmd =
   | { cmd: "start" } | { cmd: "pause" } | { cmd: "toggle" } | { cmd: "reset" }
-  | { cmd: "adjust"; seconds: number } | { cmd: "setCountdown"; seconds: number } | { cmd: "setMode"; mode: RemoteMode };
+  | { cmd: "adjust"; seconds: number } | { cmd: "setCountdown"; seconds: number } | { cmd: "setMode"; mode: RemoteMode } | { cmd: "setCountTo"; time: string };
 export type RemoteClockState = { id: string; name: string; mode: string; color: string; text: string; paused: boolean; canTime: boolean };
 export type RemoteState = { variant: "single" | "multi"; clocks: RemoteClockState[]; exp?: number };
 export type Body = { k: "cmd"; clockId?: string; c: RemoteCmd } | { k: "state"; s: RemoteState } | { k: "hello" } | { k: "ended"; reason: EndReason };
@@ -66,6 +66,7 @@ export function validCmd(c: unknown): c is RemoteCmd {
   if (["start", "pause", "toggle", "reset"].includes(x.cmd)) return true;
   if (x.cmd === "adjust") return Number.isInteger(x.seconds) && Math.abs(x.seconds as number) <= 24 * 3600;
   if (x.cmd === "setCountdown") return Number.isInteger(x.seconds) && (x.seconds as number) >= 0 && (x.seconds as number) <= 24 * 3600;
+  if (x.cmd === "setCountTo") return typeof x.time === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(x.time);
   if (x.cmd === "setMode") return MODES.includes(x.mode as RemoteMode);
   return false;
 }

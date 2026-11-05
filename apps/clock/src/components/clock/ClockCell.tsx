@@ -1,12 +1,13 @@
 import { createPortal } from "react-dom";
 import { useTimer } from "@/hooks/useTimer";
+import { useSharedNow } from "@/lib/sharedNow";
+import { targetToday, defaultCountToTime } from "@/lib/countTo";
 import type { RemoteCmd } from "@/lib/remote/protocol";
 import { DIGIT_LINE, LABEL_SIZES, labelPx, resolveLabelSize, resolveScaleLabels, type LabelSize } from "@/lib/labelSize";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, Trash2, GripVertical, Play, Pause, RotateCcw } from "lucide-react";
 import AnalogClock from "./AnalogClock";
-import { syncServerTime } from "@/lib/timeSync";
 import { ADJUST_STEPS, formatHMS, formatSigned, nextAdjust, parseDuration, stepLabel } from "@/lib/timerAdjust";
 import { useRundownTimer } from "@/hooks/useRundownTimer";
 import {
@@ -37,6 +38,7 @@ export type ClockCellConfig = {
   mode?: ClockMode;
   countdownFrom?: number;
   countToTarget?: number;
+  countToTime?: string; // "HH:MM" time of day; never rolls to tomorrow
   displayStyle?: DisplayStyle;
   thickness?: number;
   overtimeWarningColor?: string;
@@ -174,7 +176,7 @@ interface ClockCellProps {
 export const CELL_BAND = 28;
 
 const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, isDropTarget, onDragStart, onDragEnd, onDragOver, onDrop, onTouchStart, onTouchMove, onTouchEnd, proPresenter, hyperdecks, atem, isTallyConnected, streamStartedAt, recordingStartedAt, atemRecordingStartedAt, lastCueAt, atemTimecode, isTallySignedIn, hint, glassSlots, onOpenSettings, remoteCommand, onRemoteState }: ClockCellProps) => {
-  const [now, setNow] = useState(new Date());
+  const now = useSharedNow(); // one shared, synced tick for every tile
   const [showSettings, setShowSettings] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [countToInput, setCountToInput] = useState("");
@@ -182,7 +184,6 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
   const [fontSize, setFontSize] = useState(80);
   const contentRef = useRef<HTMLDivElement>(null);
   const [content, setContent] = useState({ w: 0, h: 0 });
-  const [ntpOffset, setNtpOffset] = useState(0);
   const [rundownLinkInput, setRundownLinkInput] = useState("");
   const [rundownLinkError, setRundownLinkError] = useState("");
   const [startInput, setStartInput] = useState("");
@@ -200,6 +201,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
   const showSeconds = config.showSeconds !== false;
   const countupStart = config.countupStart || 0;
   const timeAdjust = config.timeAdjust || 0;
+  const countToTargetMs = config.countToTime ? targetToday(config.countToTime, now) : config.countToTarget;
 
   const rundownSub: RundownTimerSub = config.rundownSub ?? "cue";
   const rundownActive = mode === "rundown" && !!isTallySignedIn;
@@ -213,21 +215,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
   const font = CLOCK_FONTS.find(f => f.name === config.fontName) || CLOCK_FONTS[0];
   const tzLabel = COMMON_TIMEZONES.find(t => t.value === config.timezone)?.label || config.timezone;
 
-  // Time sync — Tally /api/time first (shared with the single clock)
-  const syncTime = useCallback(async () => {
-    const result = await syncServerTime();
-    setNtpOffset(result.offsetMs);
-  }, []);
-
-  useEffect(() => { syncTime(); const id = setInterval(syncTime, 60000); return () => clearInterval(id); }, [syncTime]);
-  useEffect(() => { const id = setInterval(() => setNow(new Date(Date.now() + ntpOffset)), 200); return () => clearInterval(id); }, [ntpOffset]);
-
-  // Fast clock update for live elapsed modes (streamtime, recordtime, lastcue, atemrecord, service)
-  useEffect(() => {
-    if (mode !== "streamtime" && mode !== "recordtime" && mode !== "lastcue" && mode !== "atemrecord" && mode !== "atemtimecode" && mode !== "timecode" && mode !== "service") return;
-    const id = setInterval(() => setNow(new Date(Date.now() + ntpOffset)), 1000);
-    return () => clearInterval(id);
-  }, [mode, ntpOffset]);
+  // Time sync + tick: shared across all tiles (src/lib/sharedNow.ts), so tiles flip seconds together.
 
   useEffect(() => { resetTimer(false); }, [countdownFrom, resetTimer]);
 
@@ -440,10 +428,11 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
     timeText = result.text; isNegative = result.negative;
     const absSec = Math.floor(Math.abs(remainingMs) / 1000);
     analogHours = Math.floor(absSec / 3600); analogMinutes = Math.floor((absSec % 3600) / 60); analogSeconds = absSec % 60;
-  } else if (mode === "countto" && config.countToTarget) {
-    const diffMs = config.countToTarget + timeAdjust * 1000 - now.getTime();
+  } else if (mode === "countto" && countToTargetMs) {
+    const diffMs = countToTargetMs + timeAdjust * 1000 - now.getTime();
     isNegative = diffMs < 0;
-    const absSec = Math.floor(Math.abs(diffMs) / 1000);
+    // Before the target round up (hits 00:00 exactly at the target and flips with the time-of-day tiles); after it, count up whole seconds.
+    const absSec = diffMs > 0 ? Math.ceil(diffMs / 1000) : Math.floor(-diffMs / 1000);
     const h = Math.floor(absSec / 3600); const m = Math.floor((absSec % 3600) / 60); const s = absSec % 60;
     if (showSeconds) {
       timeText = h > 0 ? `${String(h)}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}` : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
@@ -451,6 +440,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
       timeText = h > 0 ? `${String(h)}:${String(m).padStart(2, "0")}` : `00:${String(m).padStart(2, "0")}`;
     }
     analogHours = h; analogMinutes = m; analogSeconds = s;
+    if (isNegative && absSec > 0) timeText = `+${timeText}`; // past the target: overtime counting up
   } else {
     const tz = getTimeInZone(now, config.timezone);
     let h = tz.hours; const m = tz.minutes; const s = tz.seconds;
@@ -464,8 +454,9 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
   }
 
   const countdownRemainingMs = countdownTotalMs - timerElapsedMs;
-  const isOvertime = mode === "countdown" && countdownRemainingMs < 0;
-  const overtimeMs = isOvertime ? Math.abs(countdownRemainingMs) : 0;
+  const countToOverMs = mode === "countto" && countToTargetMs ? now.getTime() - (countToTargetMs + timeAdjust * 1000) : -1;
+  const isOvertime = (mode === "countdown" && countdownRemainingMs < 0) || countToOverMs >= 1000;
+  const overtimeMs = !isOvertime ? 0 : mode === "countto" ? countToOverMs : Math.abs(countdownRemainingMs);
   const rundownOvertime = !!rundownReadout?.overtime;
   const rundownWarning = !!rundownReadout?.warning;
   const isOvertimeFlashing = (isOvertime && overtimeMs > 30000) || (rundownOvertime && (rundownReadout?.seconds ?? 0) > 30);
@@ -477,7 +468,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
     if (!allowOverrun && mode === "countdown" && countdownTotalMs - timerElapsedMs <= 0 && !paused) pauseTimer();
   }, [allowOverrun, mode, countdownTotalMs, timerElapsedMs, paused, pauseTimer]);
 
-  const canAdjust = mode === "countup" || mode === "countdown" || (mode === "countto" && !!config.countToTarget);
+  const canAdjust = mode === "countup" || mode === "countdown" || (mode === "countto" && !!countToTargetMs);
   // Seconds currently shown (Count Up only needs it, to stop subtracting below 00:00).
   const adjustBy = (deltaSeconds: number) => {
     const shown = mode === "countup" ? countupMs / 1000 : 0;
@@ -502,8 +493,9 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
     else if (c.cmd === "pause") { if (isTimerMode && !paused) pauseTimer(); }
     else if (c.cmd === "reset") { if (timing) { resetTimer(false); if (timeAdjust) onUpdate({ ...config, timeAdjust: undefined }); } }
     else if (c.cmd === "adjust") { if (canAdjust) adjustBy(c.seconds); }
+    else if (c.cmd === "setCountTo") onUpdate({ ...config, mode: "countto", countToTime: c.time, countToTarget: targetToday(c.time), timeAdjust: undefined });
     else if (c.cmd === "setCountdown") { onUpdate({ ...config, mode: "countdown", countdownFrom: c.seconds || 1, timeAdjust: undefined }); resetTimer(false); }
-    else if (c.cmd === "setMode") { onUpdate({ ...config, mode: c.mode, ...(c.mode === "countto" && !config.countToTarget ? { countToTarget: Date.now() + 1800e3 } : {}) }); if (c.mode !== "clock") resetTimer(false); }
+    else if (c.cmd === "setMode") { onUpdate({ ...config, mode: c.mode, ...(c.mode === "countto" && !config.countToTarget && !config.countToTime ? { countToTime: defaultCountToTime(), countToTarget: targetToday(defaultCountToTime()) } : {}) }); if (c.mode !== "clock") resetTimer(false); }
   };
   useEffect(() => { if (remoteCommand) remoteRef.current(remoteCommand.cmd); }, [remoteCommand]);
   useEffect(() => { onRemoteState?.(config.id, { text: timeText, paused: isTimerMode ? paused : false }); });
@@ -754,7 +746,7 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
             {isLiveSource ? subtitleText
               : isServiceMode ? subtitleText
               : mode === "clock" ? tzLabel
-              : mode === "countto" ? (config.countToTarget ? "COUNTING TO" : "SET TARGET")
+              : mode === "countto" ? (countToTargetMs ? "COUNTING TO" : "SET TARGET")
               : (paused ? "PAUSED" : "RUNNING")}
             {canAdjust && timeAdjust ? ` · ADJ ${formatSigned(timeAdjust)}` : ""}
           </span>
@@ -874,9 +866,8 @@ const ClockCell = ({ config, onUpdate, onRemove, globalScale = 1, isDragging, is
                   <button onClick={() => {
                     if (!countToInput) return;
                     const [h, m] = countToInput.split(":").map(Number);
-                    const target = new Date(); target.setHours(h, m, 0, 0);
-                    if (target.getTime() < Date.now()) target.setDate(target.getDate() + 1);
-                    onUpdate({ ...config, countToTarget: target.getTime() });
+                    const t = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+                    onUpdate({ ...config, countToTime: t, countToTarget: targetToday(t) });
                   }} className="px-2 py-0.5 text-[10px] font-mono border transition-colors"
                     style={{ color: config.clockColor, borderColor: `${config.clockColor}60` }}
                   >Set</button>

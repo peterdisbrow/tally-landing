@@ -1,0 +1,11 @@
+/* Classic face for the single /clock display: big plain digits on pure black, no Glass card, no pills.
+   Set by pages/Clock.tsx (removed on leave, so /multi-clock keeps Glass). ?look=glass opts back in.
+   The Glass setup sheet, presets and phone remote dialog keep their own styling. */
+html[data-face="classic"] body { background: #000 !important; }
+html[data-face="classic"] [data-single-clock] { background: #000 !important; }
+html[data-face="classic"] [data-mode-tabs] { display: none !important; }
+html[data-face="classic"] [data-clock-toolbar] [data-glass-icon] { background: transparent; border-color: transparent; backdrop-filter: none; color: rgba(255,255,255,.35); border-radius: 6px; }
+html[data-face="classic"] [data-clock-toolbar] [data-glass-icon]:hover { color: #fff; background: rgba(255,255,255,.06); border-color: transparent; }
+html[data-face="classic"] [data-clock-toolbar] [data-glass-icon][data-active] { color: #4ade80; background: transparent; border-color: transparent; }
+html[data-face="classic"] [data-clock-controls] [data-glass-btn] { border-radius: 4px; background: transparent; backdrop-filter: none; border-color: rgba(255,255,255,.15); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .15em; color: rgba(255,255,255,.5); }
+html[data-face="classic"] [data-clock-controls] [data-glass-btn]:hover { color: #fff; border-color: rgba(255,255,255,.4); background: transparent; }

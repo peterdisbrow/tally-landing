@@ -6,6 +6,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_PATH || "playwright");
 const BASE = process.env.BASE_URL || "http://127.0.0.1:5199";
 const OUT = process.env.OUT || "/tmp/remote-live"; fs.mkdirSync(OUT, { recursive: true });
 const PFX = process.env.PFX || "";
+const hhmm = (ms) => { const d = new Date(Date.now() + ms); return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; };
 const RELAY = "wss://api.tallyconnect.app/clock-remote";
 const checks = []; const check = (n, ok, d = "") => { checks.push({ n, ok, d }); console.log(ok ? "PASS" : "FAIL", n, d); };
 const cfg = { clockName: "SUNDAY SERVICE", clockColor: "#22c55e", fontName: "dseg7", timezone: "local", is24h: false, mode: "countdown", showMiniClock: true, displayStyle: "digital", labelSize: "m", scaleLabels: true, autoSize: true, fontSize: 200, countdownFrom: 1500 };
@@ -45,7 +46,7 @@ await P.p.waitForSelector('[data-testid="remote-link"]:has-text("Connected")', {
 check("token stripped from phone address bar", !P.p.url().includes("#k="));
 await D.p.waitForSelector('[data-testid="remote-status"]:has-text("1 phone connected")', { timeout: 8000 }).then(() => check("display sees phone", true), () => check("display sees phone", false));
 await D.p.screenshot({ path: `${OUT}/${PFX}02-clock-qr-phone-connected.png` });
-await D.p.keyboard.press("Escape"); await D.p.mouse.move(1919, 1079);
+await D.p.getByRole("dialog").getByLabel("Close").click(); await D.p.waitForSelector('[data-testid="remote-dialog"]', { state: "detached" }); await D.p.mouse.move(1919, 1079);
 
 // ---- commands, timed ----
 const lat = [];
@@ -61,6 +62,12 @@ await P.p.screenshot({ path: `${OUT}/${PFX}04-phone-controller-running.png` });
 await D.p.screenshot({ path: `${OUT}/${PFX}05-clock-after-phone-command.png` });
 lat.push(await timed("reset", D.p, () => P.p.getByTestId("remote-reset").tap(), (v) => /10:00/.test(v)));
 console.log("latencies ms", lat.join(", "));
+// ---- Count To: a time of day; past targets count up as overtime (+), never roll to tomorrow ----
+await P.p.getByTestId("remote-countto-input").fill(hhmm(-2 * 60e3)); await P.p.getByTestId("remote-countto-set").tap(); await D.p.waitForTimeout(1200);
+check("phone count-to past time shows + overtime", await D.p.evaluate(() => [...document.querySelectorAll("span")].some((x) => x.textContent === "+" && getComputedStyle(x).color === "rgb(220, 38, 38)")) && /00:0[23]/.test(await digits(D.p)), await digits(D.p));
+await P.p.getByTestId("remote-countto-input").fill(hhmm(40 * 60e3)); await P.p.getByTestId("remote-countto-set").tap(); await D.p.waitForTimeout(1200);
+check("phone count-to future time counts down to it", /00:(39|40):/.test(await digits(D.p)), await digits(D.p));
+await P.p.getByTestId("remote-countdown-input").fill("10m"); await P.p.getByTestId("remote-countdown-set").tap(); await D.p.waitForTimeout(800);
 
 // ---- bad token & forged messages ----
 const rogueTok = Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString("base64url");
@@ -144,6 +151,8 @@ await EP.p.screenshot({ path: `${OUT}/${PFX}06-phone-after-pairing-expired.png` 
   check("multi: time-of-day tile has timer buttons disabled", await M.p.getByTestId("remote-toggle").isDisabled());
   await M.p.getByTestId("remote-countdown-input").fill("5m"); await M.p.getByTestId("remote-countdown-set").tap(); await p.waitForTimeout(800);
   check("multi: set countdown turns Local tile into a 5:00 countdown", /05:00/.test(await cell("2")), await cell("2"));
+  await M.p.getByTestId("remote-countto-input").fill(hhmm(-2 * 60e3)); await M.p.getByTestId("remote-countto-set").tap(); await p.waitForTimeout(1200);
+  check("multi: count-to past time shows + overtime on Local tile", /^\+0?0?:?0?[23]:\d\d/.test(await cell("2")), await cell("2"));
   void w0;
   await pick("Sermon"); await M.p.waitForTimeout(600);
   await M.p.screenshot({ path: `${OUT}/${PFX}10-phone-controller-multi.png` });

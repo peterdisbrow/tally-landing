@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { parseTimeOfDay } from "@/lib/countTo";
 import { Minus, Pause, Play, Plus, QrCode, RotateCcw, Smartphone, WifiOff } from "lucide-react";
 import { isToken, type RemoteMode } from "@/lib/remote/protocol";
 import { useRemoteController } from "@/lib/remote/useRemote";
@@ -26,6 +27,7 @@ export default function Remote() {
   const { state, peers, status, send, ended } = useRemoteController(token);
   const [sel, setSel] = useState<string | null>(null);
   const [entry, setEntry] = useState("");
+  const [toEntry, setToEntry] = useState("");
   useEffect(() => { document.documentElement.dataset.look = "glass"; document.title = "Clock remote · TallyConnect"; }, []);
   const clocks = state?.clocks || [];
   const cur = clocks.find((c) => c.id === sel) || clocks[0];
@@ -105,6 +107,14 @@ export default function Remote() {
             <button key={m.value} disabled={!online} onClick={() => go({ cmd: "setMode", mode: m.value })} data-on={cur?.mode === m.value ? "" : undefined} className="gs-seg-btn rounded-lg py-2 text-[12px] font-semibold whitespace-nowrap disabled:opacity-40">{m.label}</button>
           ))}
         </div>
+      </section>
+
+      <section className="gs-card rounded-2xl p-4 flex flex-col gap-3">
+        <span className="text-[12px] uppercase tracking-[.14em] text-white/45">Count to a time of day</span>
+        <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); const t = parseTimeOfDay(toEntry); if (t) { go({ cmd: "setCountTo", time: t }); setToEntry(""); } }}>
+          <input value={toEntry} onChange={(e) => setToEntry(e.target.value)} inputMode="text" placeholder="10:30 AM or 22:30" className="gs-input gs-time rounded-xl flex-1 min-w-0 h-12 px-3 text-[18px] outline-none" data-testid="remote-countto-input" />
+          <button disabled={!online || !parseTimeOfDay(toEntry)} className="gs-primary rounded-xl px-4 h-12 text-[14px] font-semibold disabled:opacity-40" data-testid="remote-countto-set">Set</button>
+        </form>
       </section>
 
       <section className="gs-card rounded-2xl p-4 flex flex-col gap-3">

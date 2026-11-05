@@ -1,11 +1,12 @@
 import { useTimer } from "@/hooks/useTimer";
+import { targetToday, timeOfDayOf, defaultCountToTime } from "@/lib/countTo";
 import { DIGIT_LINE, LABEL_SIZES, labelPx, resolveLabelSize, resolveScaleLabels, type LabelSize } from "@/lib/labelSize";
 import RemoteDialog from "@/components/clock/glass/RemoteDialog";
 import { useRemoteDisplay } from "@/lib/remote/useRemote";
 import type { RemoteCmd } from "@/lib/remote/protocol";
 import GlassSetupSheet, { type SetupConfig } from "@/components/clock/glass/GlassSetupSheet";
 import { Field, Toggle } from "@/components/clock/glass/GlassControls";
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useLayoutEffect, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Info, X, Plus, Minus, Type, Globe, Palette, Save, FolderOpen, Trash2, LayoutGrid, Circle, Maximize, Minimize, Settings, Smartphone } from "lucide-react";
@@ -150,6 +151,13 @@ const AUTO_HIDE_DELAY = 3000;
 
 const Clock = () => {
   const saved = useMemo(() => loadSettings(), []);
+  // Classic face (plain digits on black) is the single clock's default; ?look=glass opts back into the Glass card.
+  const classicFace = useMemo(() => new URLSearchParams(location.search).get("look") !== "glass", []);
+  useLayoutEffect(() => {
+    const el = document.documentElement;
+    if (classicFace) el.dataset.face = "classic"; else delete el.dataset.face;
+    return () => { delete el.dataset.face; };
+  }, [classicFace]);
 
   const [mode, setMode] = useState<ClockMode>(saved?.mode || "clock");
   const [is24h, setIs24h] = useState(saved?.is24h ?? false);
@@ -159,7 +167,8 @@ const Clock = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { elapsedMs: timerElapsedMs, paused, pauseTimer, resetTimer, togglePause, adjustTimer } = useTimer();
   const [countdownFrom, setCountdownFrom] = useState(300);
-  const [countToTarget, setCountToTarget] = useState<number | null>(null);
+  const [countToTarget, setCountToTarget] = useState<number | null>(() => (typeof saved?.countToTime === "string" ? targetToday(saved.countToTime) : null));
+  const countToTime = countToTarget === null ? undefined : timeOfDayOf(countToTarget);
   const [tenths, setTenths] = useState(0);
 
   const [now, setNow] = useState(new Date());
@@ -253,10 +262,10 @@ const Clock = () => {
     saveSettings({
       clockName, clockColor, fontName: selectedFont.name, timezone,
       is24h, mode, showTenths, showMiniClock, hideLeadingZero, fontSize, autoSize, displayStyle,
-      overtimeWarningColor, allowOverrun, labelSize, scaleLabels,
+      overtimeWarningColor, allowOverrun, labelSize, scaleLabels, countToTime,
     });
     setSavedAt(Date.now());
-  }, [clockName, clockColor, selectedFont, timezone, is24h, mode, showTenths, showMiniClock, hideLeadingZero, fontSize, autoSize, displayStyle, overtimeWarningColor, allowOverrun, labelSize, scaleLabels]);
+  }, [clockName, clockColor, selectedFont, timezone, is24h, mode, showTenths, showMiniClock, hideLeadingZero, fontSize, autoSize, displayStyle, overtimeWarningColor, allowOverrun, labelSize, scaleLabels, countToTime]);
 
   // Time sync — Tally /api/time first, then optional public NTP, then local
   const syncTime = useCallback(async () => {
@@ -369,10 +378,11 @@ const Clock = () => {
     if (p.fontName !== undefined) setSelectedFont(CLOCK_FONTS.find((f) => f.name === p.fontName) || CLOCK_FONTS[0]);
     if (p.timezone !== undefined) setTimezone(p.timezone);
     if (p.is24h !== undefined) setIs24h(p.is24h);
-    if (p.mode !== undefined) { setMode(p.mode as ClockMode); if (p.mode === "countto" && countToTarget === null) setCountToTarget(Date.now() + 1800e3); if (p.mode !== "clock") resetTimer(true); }
-    if (p.countdownFrom !== undefined) { setCountdownFrom(p.countdownFrom); setCdExtra(0); resetTimer(true); }
-    if (p.countToTarget !== undefined) setCountToTarget(p.countToTarget);
-    if (p.countupStart !== undefined) { resetTimer(true); adjustTimer(p.countupStart * 1000); setSingleCountupStart(p.countupStart); }
+    if (p.mode !== undefined) { setMode(p.mode as ClockMode); if (p.mode === "countto" && countToTarget === null) setCountToTarget(targetToday(defaultCountToTime())); if (p.mode !== "clock") resetTimer(false); }
+    if (p.countdownFrom !== undefined) { setCountdownFrom(p.countdownFrom); setCdExtra(0); resetTimer(false); }
+    if (p.countToTime !== undefined) setCountToTarget(targetToday(p.countToTime));
+    else if (p.countToTarget !== undefined) setCountToTarget(targetToday(timeOfDayOf(p.countToTarget)));
+    if (p.countupStart !== undefined) { resetTimer(false); adjustTimer(p.countupStart * 1000); setSingleCountupStart(p.countupStart); }
     if (p.timeAdjust !== undefined) { adjustBySeconds(p.timeAdjust - singleAdjust); setSingleAdjust(p.timeAdjust); }
     if (p.displayStyle !== undefined) setDisplayStyle(p.displayStyle);
     if (p.overtimeWarningColor !== undefined) setOvertimeWarningColor(p.overtimeWarningColor);
@@ -396,6 +406,7 @@ const Clock = () => {
     else if (c.cmd === "pause") { if (timing && !paused) pauseTimer(); }
     else if (c.cmd === "reset") { if (timing) { resetTimer(false); setSingleAdjust(0); setCdExtra(0); } }
     else if (c.cmd === "adjust") { if (timing) adjustBySeconds(c.seconds); }
+    else if (c.cmd === "setCountTo") { setMode("countto"); setCountToTarget(targetToday(c.time)); setSingleAdjust(0); }
     else if (c.cmd === "setCountdown") { setMode("countdown"); setCountdownFrom(c.seconds); setSingleAdjust(0); setCdExtra(0); resetTimer(false); }
     else if (c.cmd === "setMode") applySinglePatch({ mode: c.mode });
   }, [mode, paused, togglePause, pauseTimer, resetTimer, applySinglePatch, adjustBySeconds]);
@@ -422,12 +433,11 @@ const Clock = () => {
             else totalSec = parts[0] * 60;
             setCountdownFrom(totalSec);
             setMode("countdown");
-            resetTimer(true);
+            resetTimer(false);
           } else {
             if (parts.length >= 2) {
               const target = new Date();
               target.setHours(parts[0], parts[1], parts[2] || 0, 0);
-              if (target.getTime() < Date.now()) target.setDate(target.getDate() + 1);
               setCountToTarget(target.getTime());
               setMode("countto");
               pauseTimer();
@@ -446,11 +456,11 @@ const Clock = () => {
       const key = e.key.toLowerCase();
 
       if (key === "c") { setMode("clock"); pauseTimer(); }
-      else if (key === "s") { setMode("countup"); resetTimer(true); }
+      else if (key === "s") { setMode("countup"); resetTimer(false); }
       else if (key === "d") { setEnteringTime(true); setEnterMode("countdown"); setTimeInput(""); }
       else if (key === "m") { setEnteringTime(true); setEnterMode("countto"); setTimeInput(""); }
       else if (key === "r") {
-        if (mode === "countdown" || mode === "countup") resetTimer(true);
+        if (mode === "countdown" || mode === "countup") resetTimer(false);
       }
       else if (key === "p" || key === " ") { e.preventDefault(); togglePause(); }
       else if (key === "t") { setShowTenths((p) => !p); }
@@ -483,7 +493,7 @@ const Clock = () => {
         else if (e.shiftKey) { minutes = d * 5; setCountdownFrom(minutes * 60); }
         else { setCountdownFrom(minutes * 60); }
         setMode("countdown");
-        resetTimer(true);
+        resetTimer(false);
       }
     },
     [editingName, savingPreset, enteringTime, timeInput, mode, enterMode, clockColor, togglePause, resetTimer, pauseTimer, adjustTimer]
@@ -504,13 +514,15 @@ const Clock = () => {
     const remainingMs = (countdownFrom + cdExtra) * 1000 - timerElapsedMs;
     displayTime = formatTime(remainingMs, true, true, false, 0, hideLeadingZero, true);
   } else if (mode === "countto" && countToTarget !== null) {
-    const diffSec = Math.round((countToTarget - Date.now()) / 1000);
+    const diffMs = countToTarget - Date.now();
+    const diffSec = diffMs > 0 ? Math.ceil(diffMs / 1000) : -Math.floor(-diffMs / 1000);
     displayTime = formatTime(diffSec, true, true, false, 0, hideLeadingZero);
   }
 
   const countdownRemainingMs = (countdownFrom + cdExtra) * 1000 - timerElapsedMs;
-  const isOvertime = mode === "countdown" && countdownRemainingMs < 0;
-  const overtimeMs = isOvertime ? Math.abs(countdownRemainingMs) : 0;
+  const countToOverMs = mode === "countto" && countToTarget !== null ? Date.now() - countToTarget : -1;
+  const isOvertime = (mode === "countdown" && countdownRemainingMs < 0) || countToOverMs >= 1000;
+  const overtimeMs = !isOvertime ? 0 : mode === "countto" ? countToOverMs : Math.abs(countdownRemainingMs);
   const isOvertimeFlashing = isOvertime && overtimeMs > 30000;
   // Pre-expiry warning (last 30s before 0), immediately red on overtime
   const isWarning = mode === "countdown" && countdownRemainingMs <= 30000 && countdownRemainingMs > 0;
@@ -543,7 +555,7 @@ const Clock = () => {
   const isAnalog = displayStyle === "analog";
   const hasAmpm = !isAnalog && mode === "clock" && !is24h;
   // Below md the mode tabs drop under the toolbar (see "Mode indicator"), so the top row grows.
-  const narrowTop = typeof window !== "undefined" && window.innerWidth < 768 ? 44 : 0;
+  const narrowTop = !classicFace && typeof window !== "undefined" && window.innerWidth < 768 ? 44 : 0;
   const topReserve = (showMiniClock && mode !== "clock" ? 92 : 60) + narrowTop;
   const lp = labelPx(labelSize, scaleLabels, fontSize, mid.h);
   const lineH = (px: number) => Math.ceil(px * 1.2) + 4;
@@ -577,7 +589,7 @@ const Clock = () => {
       }}
     >
       {/* Back to site + Multi-clock */}
-      <div
+      <div data-clock-toolbar=""
         className="absolute top-4 left-4 z-50 flex items-center gap-3"
         style={{ opacity: uiOpacity, transition: uiTransition }}
       >
@@ -591,7 +603,7 @@ const Clock = () => {
 
       {/* Top toolbar: setup, phone remote, full screen, shortcuts. Everything else lives in the setup sheet. */}
       <div
-        className="absolute top-4 right-4 z-50 flex items-center gap-2"
+        data-clock-toolbar="" className="absolute top-4 right-4 z-50 flex items-center gap-2"
         style={{ opacity: uiOpacity, transition: uiTransition }}
       >
         <button onClick={(e) => { e.stopPropagation(); setSheetOpen((o) => !o); }} data-glass-icon="" data-active={sheetOpen ? "" : undefined} title="Clock setup" aria-label="Clock setup" data-testid="open-glass-setup"><Settings size={20} /></button>
@@ -756,7 +768,7 @@ const Clock = () => {
 
       {/* Mode indicator */}
       <div
-        className="absolute top-16 md:top-4 left-1/2 -translate-x-1/2 flex gap-2 z-50"
+        data-mode-tabs="" className={`absolute ${classicFace ? "top-4" : "top-16 md:top-4"} left-1/2 -translate-x-1/2 flex gap-2 z-50`}
         style={{ opacity: uiOpacity, transition: uiTransition }}
       >
         {(["clock", "countup", "countdown"] as ClockMode[]).map((m) => (
@@ -764,7 +776,7 @@ const Clock = () => {
             key={m}
             onClick={() => {
               setMode(m);
-              if (m === "countup" || m === "countdown") { resetTimer(true); }
+              if (m === "countup" || m === "countdown") { resetTimer(false); }
             }}
             data-mode-tab="" data-active={mode === m ? "" : undefined} className="px-3 py-1 text-xs whitespace-nowrap uppercase tracking-widest font-mono transition-colors border"
             style={{
@@ -780,7 +792,7 @@ const Clock = () => {
       {/* Mini clock */}
       {showMiniClock && mode !== "clock" && (
         <div
-          className="absolute top-[100px] md:top-14 left-1/2 -translate-x-1/2 font-mono text-lg tracking-wider"
+          className={`absolute ${classicFace ? "top-14" : "top-[100px] md:top-14"} left-1/2 -translate-x-1/2 font-mono text-lg tracking-wider`}
           style={{ color: `${clockColor}66`, opacity: uiOpacity, transition: uiTransition }}
         >
           {formatTime(currentSeconds, is24h, true).text}
@@ -882,7 +894,7 @@ const Clock = () => {
       {/* Pause/Play for timers */}
       {(mode === "countup" || mode === "countdown" || mode === "countto") && (
         <div
-          className="shrink-0 flex gap-4"
+          className="shrink-0 flex gap-4" data-clock-controls=""
           style={{ opacity: uiOpacity, transition: uiTransition }}
         >
           <button
@@ -891,7 +903,7 @@ const Clock = () => {
             {paused ? "Resume" : "Pause"}
           </button>
           <button
-            onClick={() => { setCdExtra(0); setSingleAdjust(0); resetTimer(true); }} data-glass-btn="" data-testid="timer-reset"
+            onClick={() => { setCdExtra(0); setSingleAdjust(0); resetTimer(false); }} data-glass-btn="" data-testid="timer-reset"
           >
             Reset
           </button>
@@ -941,10 +953,10 @@ const Clock = () => {
         <GlassSetupSheet variant="single" savedAt={savedAt} isTallySignedIn={false} onClose={() => setSheetOpen(false)}
           modes={[{ value: "clock", label: "Clock" }, { value: "countup", label: "Count Up" }, { value: "countdown", label: "Countdown" }, { value: "countto", label: "Count To" }]}
           initialPresetsOpen={qs.has("presets")} scrollTo={qs.get("section") || undefined}
-          config={{ clockName, clockColor, fontName: selectedFont.name, timezone, is24h, mode, countdownFrom, countToTarget: countToTarget ?? undefined, countupStart: singleCountupStart, timeAdjust: singleAdjust,
+          config={{ clockName, clockColor, fontName: selectedFont.name, timezone, is24h, mode, countdownFrom, countToTarget: countToTarget ?? undefined, countToTime, countupStart: singleCountupStart, timeAdjust: singleAdjust,
             displayStyle, overtimeWarningColor, allowOverrun, labelSize, scaleLabels, showSeconds: true, showTenths, showMiniClock, hideLeadingZero, autoSize, fontSize } as SetupConfig}
           onChange={applySinglePatch}
-          getSnapshot={() => ({ clockName, clockColor, fontName: selectedFont.name, timezone, is24h, mode, countdownFrom, displayStyle, overtimeWarningColor, allowOverrun, labelSize, scaleLabels, showTenths, showMiniClock, hideLeadingZero, autoSize, fontSize })}
+          getSnapshot={() => ({ clockName, clockColor, fontName: selectedFont.name, timezone, is24h, mode, countdownFrom, countToTime, displayStyle, overtimeWarningColor, allowOverrun, labelSize, scaleLabels, showTenths, showMiniClock, hideLeadingZero, autoSize, fontSize })}
           applySnapshot={(d) => applySinglePatch(d as Partial<SetupConfig>)}
           display={<>
             <Toggle label="Mini clock above timers" checked={showMiniClock} onChange={setShowMiniClock} />
