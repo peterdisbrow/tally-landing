@@ -415,6 +415,14 @@ const Clock = () => {
   // Keyboard shortcuts
   const handleKey = useCallback(
     (e: KeyboardEvent) => {
+      // Settings sheet open: shortcuts are disabled (Escape just closes it).
+      if (sheetOpen) {
+        if (e.key === "Escape") setSheetOpen(false);
+        return;
+      }
+      // Never hijack keys typed into a form field.
+      const tgt = e.target as HTMLElement | null;
+      if (!editingName && !savingPreset && !enteringTime && tgt && (tgt.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(tgt.tagName))) return;
       if (editingName) {
         if (e.key === "Enter" || e.key === "Escape") setEditingName(false);
         return;
@@ -496,7 +504,7 @@ const Clock = () => {
         resetTimer(false);
       }
     },
-    [editingName, savingPreset, enteringTime, timeInput, mode, enterMode, clockColor, togglePause, resetTimer, pauseTimer, adjustTimer]
+    [sheetOpen, editingName, savingPreset, enteringTime, timeInput, mode, enterMode, clockColor, togglePause, resetTimer, pauseTimer, adjustTimer]
   );
 
   useEffect(() => { window.addEventListener("keydown", handleKey); return () => window.removeEventListener("keydown", handleKey); }, [handleKey]);
