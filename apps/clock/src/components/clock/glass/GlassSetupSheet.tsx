@@ -2,11 +2,13 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Check, ChevronDown, GripVertical, Lock, Plus, Save, Trash2, X, Bookmark } from "lucide-react";
 import { LABEL_SIZES, resolveLabelSize, resolveScaleLabels, DEFAULT_LABEL_SIZE, DEFAULT_SCALE_LABELS, type LabelSize } from "@/lib/labelSize";
+import { TimeOfDayEntry } from "./TimeOfDayEntry";
+import { targetToday, timeOfDayOf } from "@/lib/countTo";
 import { AdjustSteppers, Field, Section, Segmented, Swatches, TimeEntry, Toggle } from "./GlassControls";
 
 export type SetupConfig = {
   clockName: string; clockColor: string; fontName: string; timezone: string; is24h: boolean;
-  mode?: string; countdownFrom?: number; countToTarget?: number; countupStart?: number; timeAdjust?: number;
+  mode?: string; countdownFrom?: number; countToTarget?: number; countToTime?: string; countupStart?: number; timeAdjust?: number;
   displayStyle?: "digital" | "analog"; thickness?: number; overtimeWarningColor?: string; allowOverrun?: boolean;
   sizeScale?: number; labelSize?: LabelSize; scaleLabels?: boolean; showSeconds?: boolean; tcHighFrameRate?: boolean;
   // single-clock extras
@@ -202,9 +204,9 @@ export default function GlassSetupSheet(p: Props) {
           </>)}
           {mode === "countdown" && <TimeEntry label="Count down from" testid="gs-time-countdown" seconds={c.countdownFrom ?? 300} onChange={(s) => onChange({ countdownFrom: s })} />}
           {mode === "countup" && <TimeEntry label="Count up starts at" testid="gs-time-countup" seconds={c.countupStart ?? 0} quick={[0, 300, 900, 1800, 3600]} onChange={(s) => onChange({ countupStart: s })} />}
-          {mode === "countto" && <TimeEntry label="Minutes until target" testid="gs-time-countto" quick={[600, 900, 1800, 2700, 3600]}
-            seconds={c.countToTarget ? Math.max(0, Math.round((c.countToTarget - Date.now()) / 60000) * 60) : 1800}
-            onChange={(s) => onChange({ countToTarget: Date.now() + s * 1000 })} />}
+          {mode === "countto" && <TimeOfDayEntry label="Count to time of day" is24h={!!c.is24h}
+            value={c.countToTime ?? (c.countToTarget ? timeOfDayOf(c.countToTarget) : undefined)}
+            onChange={(t) => onChange({ countToTime: t, countToTarget: targetToday(t) })} />}
           {isTimer && <div className="mt-3"><AdjustSteppers value={c.timeAdjust || 0} onAdjust={(d) => onChange({ timeAdjust: (c.timeAdjust || 0) + d })} onClear={() => onChange({ timeAdjust: 0 })} /></div>}
           {mode === "countdown" && <Toggle label="Keep counting past zero" hint="Shows overtime in red instead of stopping at 0:00" checked={c.allowOverrun ?? true} onChange={(v) => onChange({ allowOverrun: v })} />}
           {(mode === "clock" || isTimer) && p.variant === "multi" && <Toggle label="Show seconds" checked={c.showSeconds ?? true} onChange={(v) => onChange({ showSeconds: v })} />}

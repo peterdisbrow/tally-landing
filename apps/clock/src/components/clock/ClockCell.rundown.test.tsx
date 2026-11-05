@@ -1,5 +1,6 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { __resetSharedNow } from "@/lib/sharedNow";
 import { useState } from "react";
 import ClockCell, { type ClockCellConfig } from "./ClockCell";
 import { resetRundownConnections, setRundownSocketFactory } from "@/lib/rundownTimer";
@@ -34,6 +35,7 @@ beforeEach(() => {
   vi.stubGlobal("fetch", vi.fn(() => new Promise(() => {})));
 });
 afterEach(() => {
+  __resetSharedNow();
   cleanup();
   resetRundownConnections();
   setRundownSocketFactory(null);

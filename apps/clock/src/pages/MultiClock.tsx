@@ -12,6 +12,7 @@ import type { RemoteCmd } from "@/lib/remote/protocol";
 import GlassSetupSheet, { type ModeOption, type PreviewClock, type SetupConfig } from "@/components/clock/glass/GlassSetupSheet";
 import { Segmented, Toggle, Field } from "@/components/clock/glass/GlassControls";
 import { formatHMS } from "@/lib/timerAdjust";
+import { targetToday } from "@/lib/countTo";
 
 const GLASS = () => typeof document !== "undefined" && !!document.documentElement.dataset.look;
 const MODE_LABEL: Record<string, string> = { clock: "Clock", countup: "Count Up", countdown: "Countdown", countto: "Count To", rundown: "Rundown Timer", timecode: "Timecode · TC-1", propresenter: "ProPresenter", lastcue: "Last Cue", hyperdeck: "HyperDeck", streamtime: "Stream Time", recordtime: "Recording", atemrecord: "ATEM Rec", atemtimecode: "ATEM Timecode", service: "Service" };
@@ -20,7 +21,7 @@ const previewText = (c: ClockCellConfig, now: Date) => {
   if (m === "clock") { const t = c.timezone === "local" ? now : new Date(now.toLocaleString("en-US", { timeZone: c.timezone })); let h = t.getHours(); if (!c.is24h) h = h % 12 || 12; return `${String(h).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}${c.showSeconds === false ? "" : ":" + String(t.getSeconds()).padStart(2, "0")}`; }
   if (m === "countdown") return formatHMS((c.countdownFrom ?? 300) + (c.timeAdjust || 0)).replace(/^00:/, "");
   if (m === "countup") return formatHMS((c.countupStart ?? 0) + (c.timeAdjust || 0)).replace(/^00:/, "");
-  if (m === "countto") return c.countToTarget ? formatHMS(Math.max(0, (c.countToTarget - now.getTime()) / 1000)) : "--:--";
+  if (m === "countto") { const t = c.countToTime ? targetToday(c.countToTime, now) : c.countToTarget; if (!t) return "--:--"; const d = (t - now.getTime()) / 1000; return d < 0 ? "+" + formatHMS(-d) : formatHMS(d); }
   if (m === "timecode") return "00:00:00:00";
   return "LIVE";
 };
