@@ -29,6 +29,26 @@ const nextConfig = {
         destination: 'https://api.tallyconnect.app/church-login',
         permanent: false,
       },
+      {
+        source: '/download/mac',
+        destination: 'https://github.com/peterdisbrow/tally-installers/releases/latest/download/Tally-arm64.dmg',
+        permanent: false,
+      },
+      {
+        source: '/download/mac-arm64',
+        destination: 'https://github.com/peterdisbrow/tally-installers/releases/latest/download/Tally-arm64.dmg',
+        permanent: false,
+      },
+      {
+        source: '/download/mac-intel',
+        destination: 'https://github.com/peterdisbrow/tally-installers/releases/latest/download/Tally-x64.dmg',
+        permanent: false,
+      },
+      {
+        source: '/download/windows',
+        destination: 'https://github.com/peterdisbrow/tally-installers/releases/latest/download/Tally-Setup.exe',
+        permanent: false,
+      },
     ];
   },
   async rewrites() {
