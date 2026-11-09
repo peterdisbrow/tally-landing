@@ -12,8 +12,10 @@ export const metadata = {
   },
 };
 
-const GITHUB_REPO = 'peterdisbrow/tally';
-const GITHUB_LATEST = `https://github.com/${GITHUB_REPO}/releases/latest/download`;
+const INSTALLER_REPO = 'peterdisbrow/tally-installers';
+const DOWNLOAD_MAC_URL = '/download/mac';
+const DOWNLOAD_MAC_INTEL_URL = '/download/mac-intel';
+const DOWNLOAD_WINDOWS_URL = '/download/windows';
 
 function formatMb(bytes) {
   if (!Number.isFinite(bytes) || bytes <= 0) return null;
@@ -30,16 +32,15 @@ function macVersionFromAssets(assets) {
 
 async function getLatestRelease() {
   try {
-    const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`, {
+    const res = await fetch(`https://api.github.com/repos/${INSTALLER_REPO}/releases/latest`, {
       next: { revalidate: 300 },
     });
     if (!res.ok) return null;
     const data = await res.json();
     const assets = Array.isArray(data.assets) ? data.assets : [];
     const version = data.tag_name?.replace(/^v/, '') || null;
-    const windows = version
-      ? assets.find((a) => a.name === `Tally-Setup-${version}.exe`)
-      : null;
+    const windows = assets.find((a) => a.name === 'Tally-Setup.exe')
+      || (version ? assets.find((a) => a.name === `Tally-Setup-${version}.exe`) : null);
     const macArm = assets.find((a) => a.name === 'Tally-arm64.dmg');
     const macIntel = assets.find((a) => a.name === 'Tally-x64.dmg');
     return {
@@ -64,7 +65,7 @@ export default async function DownloadPage() {
     ? new Date(release.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
     : null;
 
-  const windowsUrl = `${GITHUB_LATEST}/Tally-Setup-${windowsVersion}.exe`;
+  const windowsUrl = DOWNLOAD_WINDOWS_URL;
   const windowsSize = formatMb(release?.windowsSize) || '~228 MB';
   const macArmSize = formatMb(release?.macArmSize);
   const macIntelSize = formatMb(release?.macIntelSize);
@@ -144,7 +145,7 @@ export default async function DownloadPage() {
                 M1, M2, M3, M4 MacBook, iMac &amp; Mac Mini
               </p>
               <a
-                href={`${GITHUB_LATEST}/Tally-arm64.dmg`}
+                href={DOWNLOAD_MAC_URL}
                 style={{
                   display: 'inline-block',
                   background: GREEN,
@@ -180,7 +181,7 @@ export default async function DownloadPage() {
                 2015&ndash;2020 MacBook &amp; iMac
               </p>
               <a
-                href={`${GITHUB_LATEST}/Tally-x64.dmg`}
+                href={DOWNLOAD_MAC_INTEL_URL}
                 style={{
                   display: 'inline-block',
                   background: '#1e293b',
@@ -291,7 +292,7 @@ export default async function DownloadPage() {
 
           {/* Links */}
           <div style={{ marginBottom: 60, display: 'flex', justifyContent: 'center', gap: 24, flexWrap: 'wrap' }}>
-            <a href={`https://github.com/${GITHUB_REPO}/releases/latest`} style={{ color: GREEN, fontSize: 14, textDecoration: 'none' }}>
+            <a href={`https://github.com/${INSTALLER_REPO}/releases/latest`} style={{ color: GREEN, fontSize: 14, textDecoration: 'none' }}>
               GitHub release notes &rarr;
             </a>
             <a href="/changelog" style={{ color: GREEN, fontSize: 14, textDecoration: 'none' }}>
